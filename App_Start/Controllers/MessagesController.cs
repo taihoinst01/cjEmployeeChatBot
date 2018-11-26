@@ -604,14 +604,14 @@ namespace cjEmployeeChatBot
                     //sorryReply.AttachmentLayout = AttachmentLayoutTypes.Carousel;
 
                     List<TextList> text = new List<TextList>();
-                    if (sorryMessageCnt == 1)
-                    {
+                    //if (sorryMessageCnt == 1)
+                    //{
                         text = db.SelectSorryDialogText("5");
-                    }
-                    else
-                    {
-                        text = db.SelectSorryDialogText("6");
-                    }
+                    //}
+                    //else
+                    //{
+                    //    text = db.SelectSorryDialogText("6");
+                    //}
 
                     for (int i = 0; i < text.Count; i++)
                     {
