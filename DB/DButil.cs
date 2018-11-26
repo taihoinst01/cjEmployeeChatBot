@@ -226,7 +226,7 @@ namespace cjEmployeeChatBot.DB
                 {
                     //textList.Add(LUIS_APP_ID[i] +"|"+ LUIS_SUBSCRIPTION + "|" + query);
                     textList.Add(new string[] { MessagesController.LUIS_NM[i], MessagesController.LUIS_APP_ID[i], MessagesController.LUIS_SUBSCRIPTION, query });
-
+                    Debug.WriteLine("GetMultiLUIS() LUIS_NM : " + MessagesController.LUIS_NM[i] + " | LUIS_APP_ID : " + MessagesController.LUIS_APP_ID[i]);
                 }
 
                 //병렬처리 시간 체크
@@ -253,57 +253,18 @@ namespace cjEmployeeChatBot.DB
                 watch.Stop();
                 //Luis = Luis_before;
 
-                //try
-                //{
-                //    for (int i = 0; i < MAX; i++)
-                //    {
-                //        //엔티티 합치기
-                //        if ((int)Luis_before[i]["entities"].Count() > 0)
-                //        {
-                //            for (int j = 0; j < (int)Luis_before[i]["entities"].Count(); j++)
-                //            {
-                //                entitiesSum += (string)Luis_before[i]["entities"][j]["entity"].ToString() + ",";
-                //            }
-                //        }
-
-                //    }
-                //}
-                //catch (IndexOutOfRangeException e)
-                //{
-                //    Debug.WriteLine("error = " + e.Message);
-                //    return "";
-                //}
-
-
-                string luisEntities = "";
-                string luisType = "";
-                string luisIntent = "";
-
-                float luisScore = 0.0F;
                 try
                 {
                     for (int i = 0; i < MAX; i++)
                     {
-                        ////엔티티 합치기
-                        //if ((int)Luis_before[i]["entities"].Count() > 0)
-                        //{
-                        //    for (int j = 0; j < (int)Luis_before[i]["entities"].Count(); j++)
-                        //    {
-                        //        entitiesSum += (string)Luis_before[i]["entities"][j]["entity"].ToString() + ",";
-                        //    }
-                        //}
-                        
-
-                        if(  (float)Luis_before[i]["intents"][0]["score"] > luisScore)
+                        //엔티티 합치기
+                        if ((int)Luis_before[i]["entities"].Count() > 0)
                         {
-
-                            //Luis = Luis_before[i];
-                            luisScore = (float)Luis_before[i]["intents"][0]["score"];
-                            luisIntent = (string)Luis_before[i]["intents"][0]["intent"];
-
+                            for (int j = 0; j < (int)Luis_before[i]["entities"].Count(); j++)
+                            {
+                                entitiesSum += (string)Luis_before[i]["entities"][j]["entity"].ToString() + ",";
+                            }
                         }
-
-                        //Debug.WriteLine("Luis====>" + Luis);
 
                     }
                 }
@@ -312,79 +273,101 @@ namespace cjEmployeeChatBot.DB
                     Debug.WriteLine("error = " + e.Message);
                     return "";
                 }
-                Debug.WriteLine("Luis====>" + Luis);
-
-                //if (MAX > 0)
-                //{
-                //    LuisName = returnLuisName[0];
-                //    Luis = Luis_before[0];
-                //}
-
-                //if (!String.IsNullOrEmpty(LuisName))
-                //{
-                //    if (Luis != null || Luis.Count > 0)
-                //    {
-                //        float luisScore = (float)Luis["intents"][0]["score"];
-                //        int luisEntityCount = (int)Luis["entities"].Count();
-
-                //        luisIntent = Luis["topScoringIntent"]["intent"].ToString();//add
-                //        Debug.WriteLine("LUIS luisIntent : " + luisIntent);
 
 
+                string luisEntities = "";
+                string luisType = "";
+                string luisIntent = "";
+                float luisScoreCompare = 0.0f;
+
+                //intent score이 제일 큰 intent 추출
+                if (MAX > 0)
+                {
+                    for (int i = 0; i < MAX; i++)
+                    {
+                        if((float)Luis_before[i]["intents"][0]["score"] > Convert.ToDouble(MessagesController.LUIS_SCORE_LIMIT))
+                        {
+                            if((float)Luis_before[i]["intents"][0]["score"] > luisScoreCompare)
+                            {
+                                LuisName = returnLuisName[i];
+                                Luis = Luis_before[i];
+                                luisScoreCompare = (float)Luis_before[i]["intents"][0]["score"];
+                                Debug.WriteLine("GetMultiLUIS() LuisName1 : " + LuisName);
+                            }
+                            else
+                            {
+                                LuisName = returnLuisName[i];
+                                Luis = Luis_before[i];
+                                Debug.WriteLine("GetMultiLUIS() LuisName2 : " + LuisName);
+                            }
+                            
+                        }
+                    }
+                        
+                    
+                }
+
+                if (!String.IsNullOrEmpty(LuisName))
+                {
+                    if (Luis != null || Luis.Count > 0)
+                    {
+                        float luisScore = (float)Luis["intents"][0]["score"];
+                        int luisEntityCount = (int)Luis["entities"].Count();
+
+                        luisIntent = Luis["topScoringIntent"]["intent"].ToString();//add
+                        Debug.WriteLine("GetMultiLUIS() LUIS luisIntent : " + luisIntent);
+
+                        if (MessagesController.relationList != null)
+                        {
+                            Debug.WriteLine("GetMultiLUIS() relationList is not NULL");
+                            if (MessagesController.relationList.Count() > 0)
+                            {
+                                MessagesController.relationList[0].luisScore = (int)Luis["intents"][0]["score"];
+                            }
+                            else
+                            {
+                                MessagesController.cacheList.luisScore = Luis["intents"][0]["score"].ToString();
+                            }
+                        }
+                        /*
+                        if (luisScore > Convert.ToDouble(MessagesController.LUIS_SCORE_LIMIT) && luisEntityCount > 0)
+                        {
+                            Debug.WriteLine("GetMultiLUIS() luisEntityCount > 0");
+                            for (int i = 0; i < luisEntityCount; i++)
+                            {
+                                //luisEntities = luisEntities + Luis["entities"][i]["entity"] + ",";
+
+                                //luisType = (string)Luis["entities"][i]["type"];
+                                //luisType = Regex.Split(luisType, "::")[1];
+                                //luisEntities = luisEntities + luisType + ",";
+                            }
+                        }
+                        */
+                    }
+
+                    if (!string.IsNullOrEmpty(luisEntities) || luisEntities.Length > 0)
+                    {
+                        luisEntities = luisEntities.Substring(0, luisEntities.LastIndexOf(","));
+                        luisEntities = Regex.Replace(luisEntities, " ", "");
 
 
-                //        if (MessagesController.relationList != null)
-                //        {
-                //            if (MessagesController.relationList.Count() > 0)
-                //            {
-                //                MessagesController.relationList[0].luisScore = (int)Luis["intents"][0]["score"];
-                //            }
-                //            else
-                //            {
-                //                MessagesController.cacheList.luisScore = Luis["intents"][0]["score"].ToString();
-                //            }
-                //        }
+                        luisEntities = MessagesController.db.SelectArray(luisEntities);
 
+                        if (Luis["intents"] == null)
+                        {
+                            MessagesController.cacheList.luisIntent = "";
+                        }
+                        else
+                        {
+                            MessagesController.cacheList.luisIntent = (string)Luis["intents"][0]["intent"];
+                        }
 
+                        MessagesController.cacheList.luisEntities = luisEntities;
+                    }
 
-                //        if (luisScore > Convert.ToDouble(MessagesController.LUIS_SCORE_LIMIT) && luisEntityCount > 0)
-                //        {
-                //            for (int i = 0; i < luisEntityCount; i++)
-                //            {
-                //                //luisEntities = luisEntities + Luis["entities"][i]["entity"] + ",";
+                    //MessagesController.cacheList.luisEntities = LuisName;
 
-                //                //luisType = (string)Luis["entities"][i]["type"];
-                //                //luisType = Regex.Split(luisType, "::")[1];
-                //                //luisEntities = luisEntities + luisType + ",";
-
-                //                Debug.WriteLine((string)Luis["intents"][0]["intent"]);
-                //            }
-                //        }
-                //    }
-
-                //    if (!string.IsNullOrEmpty(luisEntities) || luisEntities.Length > 0)
-                //    {
-                //        luisEntities = luisEntities.Substring(0, luisEntities.LastIndexOf(","));
-                //        luisEntities = Regex.Replace(luisEntities, " ", "");
-
-
-                //        luisEntities = MessagesController.db.SelectArray(luisEntities);
-
-                //        if (Luis["intents"] == null)
-                //        {
-                //            MessagesController.cacheList.luisIntent = "";
-                //        }
-                //        else
-                //        {
-                //            MessagesController.cacheList.luisIntent = (string)Luis["intents"][0]["intent"];
-                //        }
-
-                //        MessagesController.cacheList.luisEntities = luisEntities;
-                //    }
-
-                //    //MessagesController.cacheList.luisEntities = LuisName;
-
-                //}
+                }
                 //return LuisName;
                 return luisIntent;
             }
