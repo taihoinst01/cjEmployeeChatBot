@@ -66,6 +66,7 @@ namespace cjEmployeeChatBot
         public static string luisIntentScore = "";
         public static string dlgId = "";        
         public static string queryStr = "";
+        public static string luisQuery = "";        
         public static DateTime startTime;
 
         public static CacheList cacheList = new CacheList();
@@ -347,6 +348,7 @@ namespace cjEmployeeChatBot
                         //cacheList = db.CacheChk(cashOrgMent.Replace(" ", ""));                     // 캐시 체크 (TBL_QUERY_ANALYSIS_RESULT 조회..)
 
                         //정규화
+                        luisQuery = orgMent;
                         orgMent = Regex.Replace(orgMent, @"[^a-zA-Z0-9ㄱ-힣]", "", RegexOptions.Singleline);
                         orgMent = orgMent.Replace(" ", "");
                         queryStr = orgMent;
@@ -363,7 +365,7 @@ namespace cjEmployeeChatBot
                             //cacheList.luisId = dbutil.GetMultiLUIS(orgMent);
                             //Debug.WriteLine("cacheList.luisId : " + cacheList.luisId);
 
-                            cacheList.luisIntent = dbutil.GetMultiLUIS(orgMent);
+                            cacheList.luisIntent = dbutil.GetMultiLUIS(luisQuery);
                             Debug.WriteLine("cacheList.luisIntent : " + cacheList.luisIntent);
                             //Debug.WriteLine("cacheList.luisEntitiesValue : " + cacheList.luisEntitiesValue);
                             cacheList = db.CacheDataFromIntent(cacheList.luisIntent);
