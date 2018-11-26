@@ -279,6 +279,7 @@ namespace cjEmployeeChatBot.DB
                 string luisType = "";
                 string luisIntent = "";
                 float luisScoreCompare = 0.0f;
+                string luisNameCompare = "";
 
                 //intent score이 제일 큰 intent 추출
                 if (MAX > 0)
@@ -296,15 +297,16 @@ namespace cjEmployeeChatBot.DB
                             }
                             else
                             {
-                                LuisName = returnLuisName[i];
-                                Luis = Luis_before[i];
+                                //LuisName = returnLuisName[i];
+                                //Luis = Luis_before[i];
                                 Debug.WriteLine("GetMultiLUIS() LuisName2 : " + LuisName);
                             }
                             
                         }
                     }
 
-                    Debug.WriteLine("luisScoreCompare : " + luisScoreCompare); 
+                    Debug.WriteLine("luisScoreCompare : " + luisScoreCompare);
+                    Debug.WriteLine("LuisName : " + LuisName);
                 }
 
                 if (!String.IsNullOrEmpty(LuisName))
