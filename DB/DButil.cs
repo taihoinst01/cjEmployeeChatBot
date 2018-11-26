@@ -281,31 +281,31 @@ namespace cjEmployeeChatBot.DB
                 float luisScoreCompare = 0.0f;
 
                 //intent score이 제일 큰 intent 추출
-                if (MAX > 0)
-                {
-                    for (int i = 0; i < MAX; i++)
-                    {
-                        if((float)Luis_before[i]["intents"][0]["score"] > Convert.ToDouble(MessagesController.LUIS_SCORE_LIMIT))
-                        {
-                            if((float)Luis_before[i]["intents"][0]["score"] > luisScoreCompare)
-                            {
-                                LuisName = returnLuisName[i];
-                                Luis = Luis_before[i];
-                                luisScoreCompare = (float)Luis_before[i]["intents"][0]["score"];
-                                Debug.WriteLine("GetMultiLUIS() LuisName1 : " + LuisName);
-                            }
-                            else
-                            {
-                                LuisName = returnLuisName[i];
-                                Luis = Luis_before[i];
-                                Debug.WriteLine("GetMultiLUIS() LuisName2 : " + LuisName);
-                            }
+                //if (MAX > 0)
+                //{
+                //    for (int i = 0; i < MAX; i++)
+                //    {
+                //        if((float)Luis_before[i]["intents"][0]["score"] > Convert.ToDouble(MessagesController.LUIS_SCORE_LIMIT))
+                //        {
+                //            if((float)Luis_before[i]["intents"][0]["score"] > luisScoreCompare)
+                //            {
+                //                LuisName = returnLuisName[i];
+                //                Luis = Luis_before[i];
+                //                luisScoreCompare = (float)Luis_before[i]["intents"][0]["score"];
+                //                Debug.WriteLine("GetMultiLUIS() LuisName1 : " + LuisName);
+                //            }
+                //            else
+                //            {
+                //                LuisName = returnLuisName[i];
+                //                Luis = Luis_before[i];
+                //                Debug.WriteLine("GetMultiLUIS() LuisName2 : " + LuisName);
+                //            }
                             
-                        }
-                    }
-                        
-                    
-                }
+                //        }
+                //    }
+
+                //    Debug.WriteLine("luisScoreCompare : " + luisScoreCompare); 
+                //}
 
                 if (!String.IsNullOrEmpty(LuisName))
                 {
