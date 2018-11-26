@@ -605,7 +605,7 @@ namespace cjEmployeeChatBot
                     List<TextList> text = new List<TextList>();
                     //if (sorryMessageCnt == 1)
                     //{
-                        text = db.SelectSorryDialogText("5");
+                        text = db.SelectSorryDialogText("1000");
                     //}
                     //else
                     //{
