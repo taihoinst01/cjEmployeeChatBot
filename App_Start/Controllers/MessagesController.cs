@@ -559,7 +559,7 @@ namespace cjEmployeeChatBot
                             sorryReply.AttachmentLayout = AttachmentLayoutTypes.Carousel;
 
                             List<TextList> text = new List<TextList>();
-                            text = db.SelectSorryDialogText("1000");
+                            text = db.SelectSorryDialogText("5");
                             for (int i = 0; i < text.Count; i++)
                             {
                                 HeroCard plCard = new HeroCard()
@@ -607,7 +607,7 @@ namespace cjEmployeeChatBot
                     List<TextList> text = new List<TextList>();
                     //if (sorryMessageCnt == 1)
                     //{
-                        text = db.SelectSorryDialogText("1000");
+                        text = db.SelectSorryDialogText("5");
                     //}
                     //else
                     //{
