@@ -286,23 +286,27 @@ namespace cjEmployeeChatBot.DB
                 {
                     for (int i = 0; i < MAX; i++)
                     {
-                        if((float)Luis_before[i]["intents"][0]["score"] > Convert.ToDouble(MessagesController.LUIS_SCORE_LIMIT))
+                        if (Luis_before[i]["intents"][0]["intent"].ToString() != "None")
                         {
-                            if((float)Luis_before[i]["intents"][0]["score"] > luisScoreCompare)
+                            if ((float)Luis_before[i]["intents"][0]["score"] > Convert.ToDouble(MessagesController.LUIS_SCORE_LIMIT))
                             {
-                                LuisName = returnLuisName[i];
-                                Luis = Luis_before[i];
-                                luisScoreCompare = (float)Luis_before[i]["intents"][0]["score"];
-                                Debug.WriteLine("GetMultiLUIS() LuisName1 : " + LuisName);
+                                if ((float)Luis_before[i]["intents"][0]["score"] > luisScoreCompare)
+                                {
+                                    LuisName = returnLuisName[i];
+                                    Luis = Luis_before[i];
+                                    luisScoreCompare = (float)Luis_before[i]["intents"][0]["score"];
+                                    Debug.WriteLine("GetMultiLUIS() LuisName1 : " + LuisName);
+                                }
+                                else
+                                {
+                                    //LuisName = returnLuisName[i];
+                                    //Luis = Luis_before[i];
+                                    Debug.WriteLine("GetMultiLUIS() LuisName2 : " + LuisName);
+                                }
+
                             }
-                            else
-                            {
-                                //LuisName = returnLuisName[i];
-                                //Luis = Luis_before[i];
-                                Debug.WriteLine("GetMultiLUIS() LuisName2 : " + LuisName);
-                            }
-                            
                         }
+                        
                     }
 
                     Debug.WriteLine("luisScoreCompare : " + luisScoreCompare);
