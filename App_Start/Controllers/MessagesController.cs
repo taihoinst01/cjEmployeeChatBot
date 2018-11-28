@@ -585,7 +585,7 @@ namespace cjEmployeeChatBot
 
                         //}
                         //history table insert
-                        db.insertHistory(activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), luisIntent, luisEntities, luisIntentScore, dlgId);
+                        db.insertHistory(activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), luisIntent, luisEntities, luisIntentScore, dlgId, replyresult);
                         replyresult = "";
                         recommendResult = "";
                     }
@@ -630,7 +630,7 @@ namespace cjEmployeeChatBot
 
                     DateTime endTime = DateTime.Now;
                     int dbResult = db.insertUserQuery();
-                    db.insertHistory(activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), luisIntent, luisEntities, luisIntentScore, "");
+                    db.insertHistory(activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), luisIntent, luisEntities, luisIntentScore, "","E");
                     replyresult = "";
                     recommendResult = "";
                 }

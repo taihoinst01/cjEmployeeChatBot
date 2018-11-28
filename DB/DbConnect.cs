@@ -1190,7 +1190,7 @@ namespace cjEmployeeChatBot.DB
 
 
 
-        public int insertHistory(string userNumber, string channel, int responseTime, string luis_intent, string luis_entities, string luis_intent_score, string dlg_id)
+        public int insertHistory(string userNumber, string channel, int responseTime, string luis_intent, string luis_entities, string luis_intent_score, string dlg_id, string replyr_result)
         {
             //SqlDataReader rdr = null;
             int appID = 0;
@@ -1257,9 +1257,9 @@ namespace cjEmployeeChatBot.DB
                 SqlCommand cmd = new SqlCommand();
                 cmd.Connection = conn;
                 cmd.CommandText += " INSERT INTO TBL_HISTORY_QUERY ";
-                cmd.CommandText += " (USER_NUMBER, CUSTOMER_COMMENT_KR, CHATBOT_COMMENT_CODE, CHANNEL, RESPONSE_TIME, REG_DATE, ACTIVE_FLAG, APP_ID, LUIS_INTENT, LUIS_ENTITIES, LUIS_INTENT_SCORE, DLG_ID) ";
+                cmd.CommandText += " (USER_NUMBER, CUSTOMER_COMMENT_KR, CHATBOT_COMMENT_CODE, CHANNEL, RESPONSE_TIME, REG_DATE, ACTIVE_FLAG, APP_ID, LUIS_INTENT, LUIS_ENTITIES, LUIS_INTENT_SCORE, DLG_ID, RESULT) ";
                 cmd.CommandText += " VALUES ";
-                cmd.CommandText += " (@userNumber, @customerCommentKR, @chatbotCommentCode, @channel, @responseTime, CONVERT(VARCHAR,  GETDATE(), 101) + ' ' + CONVERT(VARCHAR,  DATEADD( HH, 9, GETDATE() ), 24), 0, @appID, @luis_intent, @luis_entities, @luis_intent_score, @dlg_id) ";
+                cmd.CommandText += " (@userNumber, @customerCommentKR, @chatbotCommentCode, @channel, @responseTime, CONVERT(VARCHAR,  GETDATE(), 101) + ' ' + CONVERT(VARCHAR,  DATEADD( HH, 9, GETDATE() ), 24), 0, @appID, @luis_intent, @luis_entities, @luis_intent_score, @dlg_id, @result) ";
 
                 cmd.Parameters.AddWithValue("@userNumber", userNumber);
                 cmd.Parameters.AddWithValue("@customerCommentKR", MessagesController.queryStr);
@@ -1285,6 +1285,7 @@ namespace cjEmployeeChatBot.DB
                 cmd.Parameters.AddWithValue("@luis_entities", luis_entities);
                 cmd.Parameters.AddWithValue("@luis_intent_score", luis_intent_score);
                 cmd.Parameters.AddWithValue("@dlg_id", dlg_id);
+                cmd.Parameters.AddWithValue("@result", replyr_result);
 
                 try
                 {
