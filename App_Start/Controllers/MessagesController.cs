@@ -616,7 +616,7 @@ namespace cjEmployeeChatBot
 
                     for (int i = 0; i < text.Count; i++)
                     {
-                        HeroCard plCard = new HeroCard()
+                        UserHeroCard plCard = new UserHeroCard()
                         {
                             Title = text[i].cardTitle,
                             Text = text[i].cardText
