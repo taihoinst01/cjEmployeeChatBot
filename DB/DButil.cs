@@ -253,26 +253,26 @@ namespace cjEmployeeChatBot.DB
                 watch.Stop();
                 //Luis = Luis_before;
 
-                try
-                {
-                    for (int i = 0; i < MAX; i++)
-                    {
-                        //엔티티 합치기
-                        if ((int)Luis_before[i]["entities"].Count() > 0)
-                        {
-                            for (int j = 0; j < (int)Luis_before[i]["entities"].Count(); j++)
-                            {
-                                entitiesSum += (string)Luis_before[i]["entities"][j]["entity"].ToString() + ",";
-                            }
-                        }
+                //try
+                //{
+                //    for (int i = 0; i < MAX; i++)
+                //    {
+                //        //엔티티 합치기
+                //        if ((int)Luis_before[i]["entities"].Count() > 0)
+                //        {
+                //            for (int j = 0; j < (int)Luis_before[i]["entities"].Count(); j++)
+                //            {
+                //                entitiesSum += (string)Luis_before[i]["entities"][j]["entity"].ToString() + ",";
+                //            }
+                //        }
 
-                    }
-                }
-                catch (IndexOutOfRangeException e)
-                {
-                    Debug.WriteLine("error = " + e.Message);
-                    return "";
-                }
+                //    }
+                //}
+                //catch (IndexOutOfRangeException e)
+                //{
+                //    Debug.WriteLine("error = " + e.Message);
+                //    return "";
+                //}
 
 
                 string luisEntities = "";
