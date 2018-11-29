@@ -556,7 +556,7 @@ namespace cjEmployeeChatBot
                             sorryReply.Recipient = activity.From;
                             sorryReply.Type = "message";
                             sorryReply.Attachments = new List<Attachment>();
-                            sorryReply.AttachmentLayout = AttachmentLayoutTypes.Carousel;
+                            //sorryReply.AttachmentLayout = AttachmentLayoutTypes.Carousel;
 
                             List<TextList> text = new List<TextList>();
                             text = db.SelectSorryDialogText("5");
