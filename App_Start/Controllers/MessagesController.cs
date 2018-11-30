@@ -30,7 +30,6 @@ namespace cjEmployeeChatBot
         public static readonly string TEXTDLG = "2";
         public static readonly string CARDDLG = "3";
         public static readonly string MEDIADLG = "4";
-        public static readonly int MAXFACEBOOKCARDS = 10;
 
         public static Configuration rootWebConfig = WebConfigurationManager.OpenWebConfiguration("/");
         const string chatBotAppID = "appID";
@@ -41,8 +40,6 @@ namespace cjEmployeeChatBot
         static public string[] LUIS_APP_ID = new string[10];    //루이스 app_id
         static public string LUIS_SUBSCRIPTION = "";            //루이스 구독키
         static public int LUIS_TIME_LIMIT;                      //루이스 타임 체크
-        static public string QUOTE = "";                        //견적 url
-        static public string TESTDRIVE = "";                    //시승 url
         static public string BOT_ID = "";                       //bot id
         static public string MicrosoftAppId = "";               //app id
         static public string MicrosoftAppPassword = "";         //app password
@@ -51,14 +48,6 @@ namespace cjEmployeeChatBot
         public static int sorryMessageCnt = 0;
         public static int chatBotID = 0;
 
-        public static int pagePerCardCnt = 10;
-        public static int pageRotationCnt = 0;
-        public static int fbLeftCardCnt = 0;
-        public static int facebookpagecount = 0;
-        public static string FB_BEFORE_MENT = "";
-
-        public static List<DeliveryData> deliveryData = new List<DeliveryData>();
-        public static List<DeliveryTypeList> deliveryTypeList = new List<DeliveryTypeList>();
         public static List<RelationList> relationList = new List<RelationList>();
         public static string luisId = "";
         public static string luisIntent = "";
@@ -70,15 +59,9 @@ namespace cjEmployeeChatBot
         public static DateTime startTime;
 
         public static CacheList cacheList = new CacheList();
-        //페이스북 페이지용
-        public static ConversationHistory conversationhistory = new ConversationHistory();
-        //추천 컨텍스트 분석용
-        public static Dictionary<String, String> recommenddic = new Dictionary<string, String>();
-        //결과 플레그 H : 정상 답변, S : 기사검색 답변, D : 답변 실패
+        //결과 플레그 H : 정상 답변,  F : 건의사항, D : 답변 실패, E : 에러
         public static String replyresult = "";
-        //API 플레그 QUOT : 견적, TESTDRIVE : 시승 RECOMMEND : 추천 COMMON : 일반 SEARCH : 검색
         public static String apiFlag = "";
-        public static String recommendResult = "";
 
         public static string channelID = "";
 
@@ -87,8 +70,6 @@ namespace cjEmployeeChatBot
 
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
         {
-
-            string cashOrgMent = "";
 
             //DbConnect db = new DbConnect();
             //DButil dbutil = new DButil();
@@ -411,43 +392,8 @@ namespace cjEmployeeChatBot
                                 {
                                     foreach (CardList tempcard in dlg.dialogCard)
                                     {
-                                        DButil.HistoryLog("tempcard.card_order_no : " + tempcard.card_order_no);
-                                        if (conversationhistory.facebookPageCount > 0)
-                                        {
-                                            if (tempcard.card_order_no > (MAXFACEBOOKCARDS * facebookpagecount) && tempcard.card_order_no <= (MAXFACEBOOKCARDS * (facebookpagecount + 1)))
-                                            {
-                                                tempAttachment = dbutil.getAttachmentFromDialog(tempcard, activity);
-                                            }
-                                            else if (tempcard.card_order_no > (MAXFACEBOOKCARDS * (facebookpagecount + 1)))
-                                            {
-                                                fbLeftCardCnt++;
-                                                tempAttachment = null;
-                                            }
-                                            else
-                                            {
-                                                fbLeftCardCnt = 0;
-                                                tempAttachment = null;
-                                            }
-                                        }
-                                        else if (activity.ChannelId.Equals("facebook"))
-                                        {
-                                            DButil.HistoryLog("facebook tempcard.card_order_no : " + tempcard.card_order_no);
-                                            if (tempcard.card_order_no <= MAXFACEBOOKCARDS && fbLeftCardCnt == 0)
-                                            {
-                                                tempAttachment = dbutil.getAttachmentFromDialog(tempcard, activity);
-                                            }
-                                            else
-                                            {
-                                                fbLeftCardCnt++;
-                                                tempAttachment = null;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            tempAttachment = dbutil.getAttachmentFromDialog(tempcard, activity);
-                                        }
-
-
+                                        
+                                        tempAttachment = dbutil.getAttachmentFromDialog(tempcard, activity);
 
                                         if (tempAttachment != null)
                                         {
@@ -466,27 +412,14 @@ namespace cjEmployeeChatBot
                                 {
                                     //DButil.HistoryLog("* facebook dlg.dlgId : " + dlg.dlgId);
                                     DButil.HistoryLog("* activity.ChannelId : " + activity.ChannelId);
-
-
-                                    if (activity.ChannelId.Equals("facebook") && string.IsNullOrEmpty(dlg.cardTitle) && dlg.dlgType.Equals(TEXTDLG))
-                                    {
-                                        commonReply.Recipient = activity.From;
-                                        commonReply.Type = "message";
-                                        DButil.HistoryLog("facebook card Text : " + dlg.cardText);
-                                        commonReply.Text = dlg.cardText;
-                                    }
-                                    else
-                                    {                                        
-                                        tempAttachment = dbutil.getAttachmentFromDialog(dlg, activity);
-                                        commonReply.Attachments.Add(tempAttachment);
-                                    }
-
+                                  
+                                    tempAttachment = dbutil.getAttachmentFromDialog(dlg, activity);
+                                    commonReply.Attachments.Add(tempAttachment);
                                 }
 
                                 if (commonReply.Attachments.Count > 0)
                                 {
                                     SetActivity(commonReply);
-                                    conversationhistory.commonBeforeQustion = orgMent;
                                     replyresult = "H";
 
                                 }
@@ -548,7 +481,6 @@ namespace cjEmployeeChatBot
                         //history table insert
                         db.insertHistory(activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), luisIntent, luisEntities, luisIntentScore, dlgId, replyresult);
                         replyresult = "";
-                        recommendResult = "";
                     }
                 }
                 catch (Exception e)
@@ -592,8 +524,7 @@ namespace cjEmployeeChatBot
                     DateTime endTime = DateTime.Now;
                     int dbResult = db.insertUserQuery();
                     db.insertHistory(activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), luisIntent, luisEntities, luisIntentScore, "","E");
-                    replyresult = "";
-                    recommendResult = "";
+                    replyresult = "";;
                 }
                 finally
                 {
