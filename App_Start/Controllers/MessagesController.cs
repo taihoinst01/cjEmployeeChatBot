@@ -350,7 +350,7 @@ namespace cjEmployeeChatBot
                         //정규화
                         luisQuery = orgMent;
                         orgMent = Regex.Replace(orgMent, @"[^a-zA-Z0-9ㄱ-힣]", "", RegexOptions.Singleline);
-                        orgMent = orgMent.Replace(" ", "");
+                        orgMent = orgMent.Replace(" ", "").ToLower();
                         queryStr = orgMent;
                         //cacheList = db.CacheChk(cashOrgMent.Replace(" ", ""));                     // 캐시 체크 (TBL_QUERY_ANALYSIS_RESULT 조회..)
                         //cacheList.luisIntent 초기화
@@ -392,45 +392,6 @@ namespace cjEmployeeChatBot
                         {
                             relationList = null;
                         }
-                        //if (relationList != null)
-                        ////if (relationList.Count > 0)
-                        //{
-                        //    DButil.HistoryLog("relationList 조건 in ");
-                        //    if (relationList.Count > 0 && relationList[0].dlgApiDefine != null)
-                        //    {
-                        //        if (relationList[0].dlgApiDefine.Equals("api testdrive"))
-                        //        {
-                        //            apiFlag = "TESTDRIVE";
-                        //        }
-                        //        else if (relationList[0].dlgApiDefine.Equals("api quot"))
-                        //        {
-                        //            apiFlag = "QUOT";
-                        //        }
-                        //        else if (relationList[0].dlgApiDefine.Equals("api recommend"))
-                        //        {
-                        //            apiFlag = "RECOMMEND";
-                        //        }
-                        //        else if (relationList[0].dlgApiDefine.Equals("D"))
-                        //        {
-                        //            apiFlag = "COMMON";
-                        //        }
-                        //        DButil.HistoryLog("relationList[0].dlgApiDefine : " + relationList[0].dlgApiDefine);
-                        //    }
-
-                        //}
-                        //else
-                        //{
-
-                        //    if (MessagesController.cacheList.luisIntent == null || apiFlag.Equals("COMMON"))
-                        //    {
-                        //        apiFlag = "";
-                        //    }
-                        //    else if (MessagesController.cacheList.luisId.Equals("cjEmployeeChatBot_luis_01") && MessagesController.cacheList.luisIntent.Contains("quot"))
-                        //    {
-                        //        apiFlag = "QUOT";
-                        //    }
-                        //    DButil.HistoryLog("apiFlag : " + apiFlag);
-                        //}
 
 
                         if (apiFlag.Equals("COMMON") && relationList != null)

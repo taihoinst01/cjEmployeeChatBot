@@ -246,6 +246,7 @@ namespace cjEmployeeChatBot.DB
                     }
                     catch (AggregateException e)
                     {
+                        Debug.WriteLine("GetMultiLUIS error = " + e.Message);
                     }
 
                 });
@@ -440,12 +441,28 @@ namespace cjEmployeeChatBot.DB
                             else
                             {
                                 //초기화
+                                //jsonObj = JObject.Parse(@"{
+                                //    'query':'',
+                                //    'topScoringIntent':0,
+                                //    'intents':[],
+                                //    'entities':'[]'
+                                //}");
+                                Debug.WriteLine("GetIntentFromBotLUIS else print ");
                                 jsonObj = JObject.Parse(@"{
-                                    'query':'',
-                                    'topScoringIntent':0,
-                                    'intents':[],
-                                    'entities':'[]'
-                                }");
+                                                                      'query': '',
+                                                                      'topScoringIntent': {
+                                                                        'intent': 'None',
+                                                                        'score': 0.09
+                                                                      },
+                                                                      'intents': [
+                                                                        {
+                                                                          'intent': 'None',
+                                                                          'score': 0.09
+                                                                        }
+                                                                      ],
+                                                                      'entities': []
+                                                                    }
+                                                                    ");
                             }
                         }
                     }
@@ -454,14 +471,30 @@ namespace cjEmployeeChatBot.DB
                 }
                 catch (TaskCanceledException e)
                 {
-                    Debug.WriteLine("error = " + e.Message);
+                    Debug.WriteLine("GetIntentFromBotLUIS error = " + e.Message);
                     //초기화
+                    //jsonObj = JObject.Parse(@"{
+                    //                'query':'',
+                    //                'topScoringIntent':0,
+                    //                'intents':[],
+                    //                'entities':'[]'
+                    //            }");
+
                     jsonObj = JObject.Parse(@"{
-                                    'query':'',
-                                    'topScoringIntent':0,
-                                    'intents':[],
-                                    'entities':'[]'
-                                }");
+                                                          'query': '',
+                                                          'topScoringIntent': {
+                                                            'intent': 'None',
+                                                            'score': 0.09
+                                                          },
+                                                          'intents': [
+                                                            {
+                                                              'intent': 'None',
+                                                              'score': 0.09
+                                                            }
+                                                          ],
+                                                          'entities': []
+                                                        }
+                                                        ");
 
                 }
             }
