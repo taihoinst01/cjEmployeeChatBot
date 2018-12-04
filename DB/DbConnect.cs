@@ -69,7 +69,7 @@ namespace cjEmployeeChatBot.DB
                 cmd.CommandText += " FROM TBL_DLG     ";
                 cmd.CommandText += " WHERE DLG_GROUP = '1'      ";
                 cmd.CommandText += " AND USE_YN = 'Y'           ";
-                cmd.CommandText += " ORDER BY DLG_ID            ";
+                cmd.CommandText += " ORDER BY DLG_ORDER_NO            ";
 
                 rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
                 DButil.HistoryLog(" db SelectInitDialog !! ");
@@ -1131,7 +1131,7 @@ namespace cjEmployeeChatBot.DB
                     cmd.Parameters.AddWithValue("@Query", Regex.Replace(MessagesController.queryStr, @"[^a-zA-Z0-9ㄱ-힣]", "", RegexOptions.Singleline).Trim().ToLower());
                     cmd.Parameters.AddWithValue("@intentID", intentName.Trim());
                     cmd.Parameters.AddWithValue("@entitiesIDS", entities.Trim().ToLower());
-                    if (result.Equals("D") || result.Equals("S"))
+                    if (result.Equals("D") || result.Equals("S") || result.Equals("G"))
                     {
                         cmd.Parameters.AddWithValue("@intentScore", "0");
                     }
@@ -1266,7 +1266,7 @@ namespace cjEmployeeChatBot.DB
 
                 if (MessagesController.replyresult.Equals("S"))
                 {
-                    cmd.Parameters.AddWithValue("@chatbotCommentCode", "SEARCH");
+                    cmd.Parameters.AddWithValue("@chatbotCommentCode", "SMALLTALK");
                 }
                 else if (MessagesController.replyresult.Equals("D"))
                 {
@@ -1376,14 +1376,13 @@ namespace cjEmployeeChatBot.DB
             return newMsg;
         }
 
-        public String SearchCommonEntities
+        public String SmallTalkConfirm
         {
             get
             {
-                String query = Regex.Replace(MessagesController.queryStr, @"[^a-zA-Z0-9ㄱ-힣-]", "", RegexOptions.Singleline).Replace(" ", "");
+                String query = Regex.Replace(MessagesController.queryStr, @"[^a-zA-Z0-9ㄱ-힣-]", "", RegexOptions.Singleline).Replace(" ", "").ToLower();
                 SqlDataReader rdr = null;
-                //List<RecommendConfirm> rc = new List<RecommendConfirm>();
-                String entityarr = "";
+                String smallTalkAnswer = "";
 
                 using (SqlConnection conn = new SqlConnection(connStr))
                 {
@@ -1392,21 +1391,25 @@ namespace cjEmployeeChatBot.DB
                     SqlCommand cmd = new SqlCommand();
                     cmd.Connection = conn;
 
-                    //cmd.CommandText += "SELECT  ENTITY_VALUE, ENTITY ";
-                    //cmd.CommandText += "FROM    TBL_COMMON_ENTITY_DEFINE ";
-                    //cmd.CommandText += "WHERE   CHARINDEX(ENTITY_VALUE,@kr_query) > 0";
-
-                    cmd.CommandText += "SELECT RESULT AS ENTITIES FROM FN_ENTITY_ORDERBY_ADD(@kr_query) ";
+                    cmd.CommandText += "SELECT TOP 1 MAX(A.ANSWER) AS ANSWER ";
+                    cmd.CommandText += "FROM ";
+                    cmd.CommandText += "    ( ";
+                    cmd.CommandText += "        SELECT  S_ANSWER AS ANSWER FROM TBL_SMALLTALK ";
+                    cmd.CommandText += "        WHERE   S_QUERY = @kr_query ";
+                    cmd.CommandText += "        UNION ALL ";
+                    cmd.CommandText += "        SELECT  S_ANSWER FROM TBL_SMALLTALK ";
+                    cmd.CommandText += "        WHERE   CHARINDEX(ENTITY, @kr_query) > 0 ";                    
+                    cmd.CommandText += "    ) A ";
 
                     cmd.Parameters.AddWithValue("@kr_query", query);
 
                     rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
-                    //int count = 0;
+
                     try
                     {
                         while (rdr.Read())
                         {
-                            entityarr += rdr["ENTITIES"];
+                            smallTalkAnswer = rdr["ANSWER"] as string;
                         }
                     }
                     catch (Exception e)
@@ -1415,7 +1418,7 @@ namespace cjEmployeeChatBot.DB
                     }
 
                 }
-                return entityarr;
+                return smallTalkAnswer;
             }
         }        
     }

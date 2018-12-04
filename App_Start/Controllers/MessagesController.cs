@@ -46,6 +46,7 @@ namespace cjEmployeeChatBot
         static public string LUIS_SCORE_LIMIT = "";             //루이스 점수 체크
 
         public static int sorryMessageCnt = 0;
+        public static int suggetionsMessageCnt = 0;
         public static int chatBotID = 0;
 
         public static List<RelationList> relationList = new List<RelationList>();
@@ -58,8 +59,14 @@ namespace cjEmployeeChatBot
         public static string luisQuery = "";        
         public static DateTime startTime;
 
+        //사용자ID
+        public static string userID = "";
+
+        //건의사항
+        public static string suggestions = "N";
+
         public static CacheList cacheList = new CacheList();
-        //결과 플레그 H : 정상 답변,  F : 건의사항, D : 답변 실패, E : 에러
+        //결과 플레그 H : 정상 답변,  G : 건의사항, D : 답변 실패, E : 에러, S : SMALLTALK
         public static String replyresult = "";
         public static String apiFlag = "";
 
@@ -110,7 +117,7 @@ namespace cjEmployeeChatBot
             if (activity.Type == ActivityTypes.ConversationUpdate && activity.MembersAdded.Any(m => m.Id == activity.Recipient.Id))
             {
                 startTime = DateTime.Now;
-                //activity.ChannelId = "facebook";
+
                 //파라메터 호출
                 if (LUIS_NM.Count(s => s != null) > 0)
                 {
@@ -195,22 +202,8 @@ namespace cjEmployeeChatBot
                     }
                     else
                     {
-                        if (activity.ChannelId.Equals("facebook") && string.IsNullOrEmpty(dialogs.cardTitle) && dialogs.dlgType.Equals(TEXTDLG))
-                        {
-                            Activity reply_facebook = activity.CreateReply();
-                            reply_facebook.Recipient = activity.From;
-                            reply_facebook.Type = "message";
-                            DButil.HistoryLog("facebook  card Text : " + dialogs.cardText);
-                            reply_facebook.Text = dialogs.cardText;
-                            var reply_ment_facebook = connector.Conversations.SendToConversationAsync(reply_facebook);
-                            //SetActivity(reply_facebook);
-
-                        }
-                        else
-                        {
-                            tempAttachment = dbutil.getAttachmentFromDialog(dialogs, activity);
-                            initReply.Attachments.Add(tempAttachment);
-                        }
+                        tempAttachment = dbutil.getAttachmentFromDialog(dialogs, activity);
+                        initReply.Attachments.Add(tempAttachment);
                     }
                     await connector.Conversations.SendToConversationAsync(initReply);
                 }
@@ -242,7 +235,6 @@ namespace cjEmployeeChatBot
             }
             else if (activity.Type == ActivityTypes.Message)
             {
-                //activity.ChannelId = "facebook";
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
                 try
                 {
@@ -298,7 +290,7 @@ namespace cjEmployeeChatBot
                         }
                     }
 
-                    apiFlag = "COMMON";
+                    //apiFlag = "COMMON";
 
                     //대화 시작 시간
                     startTime = DateTime.Now;
@@ -337,6 +329,12 @@ namespace cjEmployeeChatBot
                         //cacheList.luisIntent 초기화
                         cacheList.luisIntent = null;
 
+                        //건의사항
+                        if(orgMent.Contains("건의사항")|| orgMent.Contains("건의 사항"))
+                        {
+                            suggestions = "Y";
+                        }
+
                         //캐시에 없을 경우
                         if (cacheList.luisIntent == null || cacheList.luisEntities == null)
                         {
@@ -363,9 +361,10 @@ namespace cjEmployeeChatBot
                         DButil.HistoryLog("luisIntent : " + luisIntent);
                         DButil.HistoryLog("luisEntities : " + luisEntities);
 
-                        //String fullentity = db.SearchCommonEntities;
-                        //DButil.HistoryLog("fullentity : " + fullentity);
-                        if (apiFlag.Equals("COMMON") && !string.IsNullOrEmpty(luisIntent))
+                        //smalltalk 답변가져오기
+                        String smallTalkConfirm = db.SmallTalkConfirm;
+
+                        if (!string.IsNullOrEmpty(luisIntent))
                         {
                             relationList = db.DefineTypeChkSpare(cacheList.luisIntent, cacheList.luisEntities);
                         }
@@ -374,11 +373,9 @@ namespace cjEmployeeChatBot
                             relationList = null;
                         }
 
-
-                        if (apiFlag.Equals("COMMON") && relationList != null)
+                        //if (apiFlag.Equals("COMMON") && relationList != null)
+                        if (relationList != null && suggestions.Equals("N"))
                         {
-
-                            //context.Call(new CommonDialog("", MessagesController.queryStr), this.ResumeAfterOptionDialog);
                             dlgId = "";
                             for (int m = 0; m < MessagesController.relationList.Count; m++)
                             {
@@ -420,46 +417,126 @@ namespace cjEmployeeChatBot
                                 if (commonReply.Attachments.Count > 0)
                                 {
                                     SetActivity(commonReply);
-                                    replyresult = "H";
+                                    if (suggestions.Equals("Y"))
+                                    {
+                                        replyresult = "G";
+                                    }
+                                    else
+                                    {
+                                        replyresult = "H";
+                                    }
+                                    
 
                                 }
                             }
                         }
+                        //SMALLTALK 확인
+                        else if (!string.IsNullOrEmpty(smallTalkConfirm))
+                        {
+                            Debug.WriteLine("smalltalk dialogue-------------");
+
+                            Random rand = new Random();
+                            
+                            //SMALLTALK 구분
+                            string[] smallTalkConfirm_result = smallTalkConfirm.Split('^');
+
+                            int smallTalkConfirmNum = rand.Next(0, smallTalkConfirm_result.Length);
+
+                            Activity smallTalkReply = activity.CreateReply();
+                            smallTalkReply.Recipient = activity.From;
+                            smallTalkReply.Type = "message";
+                            smallTalkReply.Attachments = new List<Attachment>();
+
+                            HeroCard plCard = new HeroCard()
+                            {
+                                Title = "",
+                                Text = smallTalkConfirm_result[smallTalkConfirmNum]
+                            };
+
+                            Attachment plAttachment = plCard.ToAttachment();
+                            smallTalkReply.Attachments.Add(plAttachment);
+
+                            SetActivity(smallTalkReply);
+                            replyresult = "S";
+
+                        }
+                        //건의사항
+                        else if (suggestions.Equals("Y"))
+                        {
+                            Debug.WriteLine("suggestions dialogue-------------");
+
+                            Activity suggestionsReply = activity.CreateReply();
+                            suggestionsReply.Recipient = activity.From;
+                            suggestionsReply.Type = "message";
+                            suggestionsReply.Attachments = new List<Attachment>();
+
+                            List<TextList> text = new List<TextList>();
+
+                            if (suggetionsMessageCnt == 0)
+                            {
+                                text = db.SelectSorryDialogText("6"); 
+                                suggetionsMessageCnt++;
+                            }
+                            else
+                            {
+                                text = db.SelectSorryDialogText("7");
+                                
+                                suggestions = "N";
+                                suggetionsMessageCnt--;
+                            }
+
+                            for (int i = 0; i < text.Count; i++)
+                            {
+                                UserHeroCard plCard = new UserHeroCard()
+                                {
+                                    Title = text[i].cardTitle,
+                                    Text = text[i].cardText
+                                };
+
+                                Attachment plAttachment = plCard.ToAttachment();
+                                suggestionsReply.Attachments.Add(plAttachment);
+                            }
+
+                            SetActivity(suggestionsReply);
+                            replyresult = "G";
+
+                        }
                         else
                         {
                             Debug.WriteLine("no dialogue-------------");
-                            string newUserID = activity.Conversation.Id;
-                            string beforeUserID = "";
-                            string beforeMessgaeText = "";
-                            //string messgaeText = "";
 
                             Activity intentNoneReply = activity.CreateReply();
 
-                            if (beforeUserID != newUserID)
-                            {
-                                beforeUserID = newUserID;
-                                MessagesController.sorryMessageCnt = 0;
-                            }
-
                             var message = MessagesController.queryStr;
-                            beforeMessgaeText = message.ToString();
 
-                            Debug.WriteLine("SERARCH MESSAGE : " + message);
+                            Debug.WriteLine("NO DIALOGUE MESSAGE : " + message);
 
                             Activity sorryReply = activity.CreateReply();
                             sorryReply.Recipient = activity.From;
                             sorryReply.Type = "message";
                             sorryReply.Attachments = new List<Attachment>();
-                            //sorryReply.AttachmentLayout = AttachmentLayoutTypes.Carousel;
+                            sorryReply.AttachmentLayout = AttachmentLayoutTypes.Carousel;
 
                             List<TextList> text = new List<TextList>();
+                            List<CardAction> cardButtons = new List<CardAction>();
+
                             text = db.SelectSorryDialogText("5");
                             for (int i = 0; i < text.Count; i++)
                             {
-                                HeroCard plCard = new HeroCard()
+                                CardAction plButton = new CardAction();
+                                plButton = new CardAction()
+                                {
+                                    Type = "imBack",
+                                    Value = "건의사항 입력",
+                                    Title = "건의사항"
+                                };
+                                cardButtons.Add(plButton);
+
+                                UserHeroCard plCard = new UserHeroCard()
                                 {
                                     Title = text[i].cardTitle,
-                                    Text = text[i].cardText
+                                    Text = text[i].cardText,
+                                    Buttons = cardButtons
                                 };
 
                                 Attachment plAttachment = plCard.ToAttachment();
@@ -472,14 +549,12 @@ namespace cjEmployeeChatBot
                         }
 
                         DateTime endTime = DateTime.Now;
+
                         //analysis table insert
-                        //if (rc != null)
-                        //{
                         int dbResult = db.insertUserQuery();
 
-                        //}
                         //history table insert
-                        db.insertHistory(activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), luisIntent, luisEntities, luisIntentScore, dlgId, replyresult);
+                        db.insertHistory(activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), "", "", "", "", replyresult);
                         replyresult = "";
                     }
                 }
@@ -487,8 +562,6 @@ namespace cjEmployeeChatBot
                 {
                     Debug.Print(e.StackTrace);
                     int sorryMessageCheck = db.SelectUserQueryErrorMessageCheck(activity.Conversation.Id, MessagesController.chatBotID);
-
-                    ++MessagesController.sorryMessageCnt;
 
                     Activity sorryReply = activity.CreateReply();
 
@@ -498,14 +571,8 @@ namespace cjEmployeeChatBot
                     //sorryReply.AttachmentLayout = AttachmentLayoutTypes.Carousel;
 
                     List<TextList> text = new List<TextList>();
-                    //if (sorryMessageCnt == 1)
-                    //{
-                        text = db.SelectSorryDialogText("5");
-                    //}
-                    //else
-                    //{
-                    //    text = db.SelectSorryDialogText("6");
-                    //}
+
+                    text = db.SelectSorryDialogText("5");
 
                     for (int i = 0; i < text.Count; i++)
                     {
@@ -524,7 +591,7 @@ namespace cjEmployeeChatBot
                     DateTime endTime = DateTime.Now;
                     int dbResult = db.insertUserQuery();
                     db.insertHistory(activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), luisIntent, luisEntities, luisIntentScore, "","E");
-                    replyresult = "";;
+                    replyresult = "";
                 }
                 finally
                 {

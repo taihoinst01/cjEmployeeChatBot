@@ -133,6 +133,7 @@ namespace cjEmployeeChatBot.DB
                         int luisEntityCount = (int)Luis["entities"].Count();
 
                         luisIntent = Luis["topScoringIntent"]["intent"].ToString();//add
+                        luisScore = luisScoreCompare;
                         Debug.WriteLine("GetMultiLUIS() LUIS luisIntent : " + luisIntent);
 
                         if (MessagesController.relationList != null)
