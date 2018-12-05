@@ -430,8 +430,7 @@ namespace cjEmployeeChatBot
                                     else
                                     {
                                         replyresult = "H";
-                                    }
-                                    
+                                    }                                    
 
                                 }
                             }
