@@ -1,5 +1,10 @@
 using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading;
 using com.miracom.transceiverx;
+using com.miracom.transceiverx.session;
+using com.miracom.transceiverx.message;
 using System.Diagnostics;
 
 namespace cjEmployeeChatBot.SAP
