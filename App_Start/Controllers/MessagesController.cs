@@ -339,13 +339,13 @@ namespace cjEmployeeChatBot
                             suggestions = "Y";
                         }
 
-                        //smalltalk 답변가져오기
-                        String smallTalkConfirm = db.SmallTalkConfirm;
+                        //smalltalk 문자 확인                        
+                        String smallTalkSentenceConfirm = db.SmallTalkSentenceConfirm;
 
                         //smalltalk 답변이 있을경우
-                        if (!string.IsNullOrEmpty(smallTalkConfirm) && suggestions.Equals("N"))
+                        if (!string.IsNullOrEmpty(smallTalkSentenceConfirm) && suggestions.Equals("N"))
                         {
-                            luisId = "";
+                            luisId = "";                            
                         }
                         //luis 호출
                         else if (cacheList.luisIntent == null || cacheList.luisEntities == null)
@@ -374,8 +374,8 @@ namespace cjEmployeeChatBot
                         DButil.HistoryLog("luisIntent : " + luisIntent);
                         DButil.HistoryLog("luisEntities : " + luisEntities);
 
-                        
-
+                        //smalltalk 답변가져오기
+                        String smallTalkConfirm = db.SmallTalkConfirm;
                         //SAP 비밀번호 초기화
                         tec.call();
 
@@ -571,6 +571,7 @@ namespace cjEmployeeChatBot
                         //history table insert
                         db.insertHistory(activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), "", "", "", "", replyresult);
                         replyresult = "";
+                        luisIntent = "";
                     }
                 }
                 catch (Exception e)

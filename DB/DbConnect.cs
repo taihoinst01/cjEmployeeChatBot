@@ -1228,6 +1228,50 @@ namespace cjEmployeeChatBot.DB
             return newMsg;
         }
 
+        public String SmallTalkSentenceConfirm
+        {
+            get
+            {
+                String query = Regex.Replace(MessagesController.queryStr, @"[^a-zA-Z0-9ㄱ-힣-]", "", RegexOptions.Singleline).Replace(" ", "").ToLower();
+                SqlDataReader rdr = null;
+                String smallTalkAnswer = "";
+
+                using (SqlConnection conn = new SqlConnection(connStr))
+                {
+
+                    conn.Open();
+                    SqlCommand cmd = new SqlCommand();
+                    cmd.Connection = conn;
+
+                    cmd.CommandText += "SELECT TOP 1 MAX(A.ANSWER) AS ANSWER ";
+                    cmd.CommandText += "FROM ";
+                    cmd.CommandText += "    ( ";
+                    cmd.CommandText += "        SELECT  S_ANSWER AS ANSWER FROM TBL_SMALLTALK ";
+                    cmd.CommandText += "        WHERE  S_QUERY = @kr_query ";
+                    cmd.CommandText += "        AND      USE_YN = 'Y' ";
+                    cmd.CommandText += "    ) A ";
+
+                    cmd.Parameters.AddWithValue("@kr_query", query);
+
+                    rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
+
+                    try
+                    {
+                        while (rdr.Read())
+                        {
+                            smallTalkAnswer = rdr["ANSWER"] as string;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine(e.Message);
+                    }
+
+                }
+                return smallTalkAnswer;
+            }
+        }
+
         public String SmallTalkConfirm
         {
             get
@@ -1274,6 +1318,6 @@ namespace cjEmployeeChatBot.DB
                 }
                 return smallTalkAnswer;
             }
-        }        
+        }      
     }
 }
