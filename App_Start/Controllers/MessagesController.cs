@@ -353,7 +353,6 @@ namespace cjEmployeeChatBot
                             //Debug.WriteLine("cacheList.luisEntitiesValue : " + cacheList.luisEntitiesValue);
                             cacheList = db.CacheDataFromIntent(cacheList.luisIntent);
 
-
                         }
 
                         luisId = cacheList.luisId;
