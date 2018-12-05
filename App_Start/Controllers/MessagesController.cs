@@ -506,8 +506,7 @@ namespace cjEmployeeChatBot
                                 suggestionsReply.Attachments.Add(plAttachment);
                             }
 
-                            SetActivity(suggestionsReply);
-                            
+                            SetActivity(suggestionsReply);                            
 
                         }
                         else
