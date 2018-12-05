@@ -20,6 +20,7 @@ using System.IO;
 using System.Text;
 using Newtonsoft.Json;
 using Microsoft.Bot.Builder.ConnectorEx;
+using cjEmployeeChatBot.SAP;
 
 namespace cjEmployeeChatBot
 {
@@ -74,6 +75,7 @@ namespace cjEmployeeChatBot
 
         public static DbConnect db = new DbConnect();
         public static DButil dbutil = new DButil();
+        public static TestEaiCall tec = new TestEaiCall();
 
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
         {
@@ -223,6 +225,8 @@ namespace cjEmployeeChatBot
                 //);
                 //await connector.Conversations.SendToConversationAsync(replyLocation);
 
+                //Debug.WriteLine("testEaiCall.ToString()====" + testEaiCall.call);
+
                 DateTime endTime = DateTime.Now;
                 Debug.WriteLine("프로그램 수행시간 : {0}/ms", ((endTime - startTime).Milliseconds));
                 Debug.WriteLine("* activity.Type : " + activity.Type);
@@ -364,6 +368,9 @@ namespace cjEmployeeChatBot
                         //smalltalk 답변가져오기
                         String smallTalkConfirm = db.SmallTalkConfirm;
 
+                        //SAP 비밀번호 초기화
+                        tec.call();
+
                         if (!string.IsNullOrEmpty(luisIntent))
                         {
                             relationList = db.DefineTypeChkSpare(cacheList.luisIntent, cacheList.luisEntities);
@@ -438,7 +445,7 @@ namespace cjEmployeeChatBot
                             Random rand = new Random();
                             
                             //SMALLTALK 구분
-                            string[] smallTalkConfirm_result = smallTalkConfirm.Split('^');
+                            string[] smallTalkConfirm_result = smallTalkConfirm.Split('$');
 
                             int smallTalkConfirmNum = rand.Next(0, smallTalkConfirm_result.Length);
 
@@ -561,7 +568,7 @@ namespace cjEmployeeChatBot
                 catch (Exception e)
                 {
                     Debug.Print(e.StackTrace);
-                    int sorryMessageCheck = db.SelectUserQueryErrorMessageCheck(activity.Conversation.Id, MessagesController.chatBotID);
+                    //int sorryMessageCheck = db.SelectUserQueryErrorMessageCheck(activity.Conversation.Id, MessagesController.chatBotID);
 
                     Activity sorryReply = activity.CreateReply();
 
