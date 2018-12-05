@@ -481,15 +481,17 @@ namespace cjEmployeeChatBot
 
                             if (suggetionsMessageCnt == 0)
                             {
-                                text = db.SelectSorryDialogText("6"); 
+                                text = db.SelectSuggetionsDialogText("6"); 
                                 suggetionsMessageCnt++;
+                                replyresult = "H";
                             }
                             else
                             {
-                                text = db.SelectSorryDialogText("7");
+                                text = db.SelectSuggetionsDialogText("7");
                                 
                                 suggestions = "N";
                                 suggetionsMessageCnt--;
+                                replyresult = "G";
                             }
 
                             for (int i = 0; i < text.Count; i++)
@@ -505,7 +507,7 @@ namespace cjEmployeeChatBot
                             }
 
                             SetActivity(suggestionsReply);
-                            replyresult = "G";
+                            
 
                         }
                         else
@@ -524,7 +526,7 @@ namespace cjEmployeeChatBot
                             sorryReply.Attachments = new List<Attachment>();
                             sorryReply.AttachmentLayout = AttachmentLayoutTypes.Carousel;
 
-                            List<TextList> text = new List<TextList>();
+                            List<CardList> text = new List<CardList>();
                             List<CardAction> cardButtons = new List<CardAction>();
 
                             text = db.SelectSorryDialogText("5");
@@ -533,15 +535,15 @@ namespace cjEmployeeChatBot
                                 CardAction plButton = new CardAction();
                                 plButton = new CardAction()
                                 {
-                                    Type = "imBack",
-                                    Value = "건의사항 입력",
-                                    Title = "건의사항"
+                                    Type = text[i].btn1Type,
+                                    Value = text[i].btn1Context,
+                                    Title = text[i].btn1Title
                                 };
                                 cardButtons.Add(plButton);
 
                                 UserHeroCard plCard = new UserHeroCard()
                                 {
-                                    Title = text[i].cardTitle,
+                                    //Title = text[i].cardTitle,
                                     Text = text[i].cardText,
                                     Buttons = cardButtons
                                 };
@@ -577,16 +579,26 @@ namespace cjEmployeeChatBot
                     sorryReply.Attachments = new List<Attachment>();
                     //sorryReply.AttachmentLayout = AttachmentLayoutTypes.Carousel;
 
-                    List<TextList> text = new List<TextList>();
+                    List<CardList> text = new List<CardList>();
+                    List<CardAction> cardButtons = new List<CardAction>();
 
                     text = db.SelectSorryDialogText("5");
-
                     for (int i = 0; i < text.Count; i++)
                     {
+                        CardAction plButton = new CardAction();
+                        plButton = new CardAction()
+                        {
+                            Type = text[i].btn1Type,
+                            Value = text[i].btn1Context,
+                            Title = text[i].btn1Title
+                        };
+                        cardButtons.Add(plButton);
+
                         UserHeroCard plCard = new UserHeroCard()
                         {
-                            Title = text[i].cardTitle,
-                            Text = text[i].cardText
+                            //Title = text[i].cardTitle,
+                            Text = text[i].cardText,
+                            Buttons = cardButtons
                         };
 
                         Attachment plAttachment = plCard.ToAttachment();
