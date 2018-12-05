@@ -368,16 +368,15 @@ namespace cjEmployeeChatBot
 
                         }
 
-                        
-
                         DButil.HistoryLog("luisId : " + luisId);
                         DButil.HistoryLog("luisIntent : " + luisIntent);
                         DButil.HistoryLog("luisEntities : " + luisEntities);
 
-                        //smalltalk 답변가져오기
-                        String smallTalkConfirm = db.SmallTalkConfirm;
+                        
                         //SAP 비밀번호 초기화
                         tec.call();
+
+                        string smallTalkConfirm = "";
 
                         if (!string.IsNullOrEmpty(luisIntent))
                         {
@@ -386,6 +385,8 @@ namespace cjEmployeeChatBot
                         else
                         {
                             relationList = null;
+                            //smalltalk 답변가져오기
+                            smallTalkConfirm = db.SmallTalkConfirm;
                         }
 
                         //if (apiFlag.Equals("COMMON") && relationList != null)
