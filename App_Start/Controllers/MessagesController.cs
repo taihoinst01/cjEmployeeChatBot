@@ -339,8 +339,16 @@ namespace cjEmployeeChatBot
                             suggestions = "Y";
                         }
 
-                        //캐시에 없을 경우
-                        if (cacheList.luisIntent == null || cacheList.luisEntities == null)
+                        //smalltalk 답변가져오기
+                        String smallTalkConfirm = db.SmallTalkConfirm;
+
+                        //smalltalk 답변이 있을경우
+                        if (!string.IsNullOrEmpty(smallTalkConfirm))
+                        {
+                            luisId = "";
+                        }
+                        //luis 호출
+                        else if (cacheList.luisIntent == null || cacheList.luisEntities == null)
                         {
                             DButil.HistoryLog("cache none : " + orgMent);
                             Debug.WriteLine("cache none : " + orgMent);
@@ -353,19 +361,20 @@ namespace cjEmployeeChatBot
                             //Debug.WriteLine("cacheList.luisEntitiesValue : " + cacheList.luisEntitiesValue);
                             cacheList = db.CacheDataFromIntent(cacheList.luisIntent);
 
+                            luisId = cacheList.luisId;
+                            luisIntent = cacheList.luisIntent;
+                            luisEntities = cacheList.luisEntities;
+                            luisIntentScore = cacheList.luisScore;
+
                         }
 
-                        luisId = cacheList.luisId;
-                        luisIntent = cacheList.luisIntent;
-                        luisEntities = cacheList.luisEntities;
-                        luisIntentScore = cacheList.luisScore;
+                        
 
                         DButil.HistoryLog("luisId : " + luisId);
                         DButil.HistoryLog("luisIntent : " + luisIntent);
                         DButil.HistoryLog("luisEntities : " + luisEntities);
 
-                        //smalltalk 답변가져오기
-                        String smallTalkConfirm = db.SmallTalkConfirm;
+                        
 
                         //SAP 비밀번호 초기화
                         tec.call();

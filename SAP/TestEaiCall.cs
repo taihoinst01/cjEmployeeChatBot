@@ -59,7 +59,7 @@ namespace cjEmployeeChatBot.SAP
                 data = data + "   }";
                 data = data + " } ";
 
-                Debug.WriteLine("------Send Request Message...\n" + data);
+                Debug.WriteLine("------START Send Request Message...\n" + data + "------END Send Request Message...\n");
 
                 //String repData = eai.sendMessage(sessionName, systemID, interfaceID, data, 5000);
 
