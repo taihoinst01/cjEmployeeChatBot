@@ -481,7 +481,7 @@ namespace cjEmployeeChatBot
                             {
                                 text = db.SelectSuggetionsDialogText("6"); 
                                 suggetionsMessageCnt++;
-                                replyresult = "H";
+                                replyresult = "G";
                             }
                             else
                             {
