@@ -386,7 +386,14 @@ namespace cjEmployeeChatBot
                         {
                             relationList = null;
                             //smalltalk 답변가져오기
-                            smallTalkConfirm = db.SmallTalkConfirm;
+                            if (orgMent.Length < 13)
+                            {
+                                smallTalkConfirm = db.SmallTalkConfirm;
+                            } else
+                            {
+                                smallTalkConfirm = "";
+                            }
+                            
                         }
 
                         //if (apiFlag.Equals("COMMON") && relationList != null)
