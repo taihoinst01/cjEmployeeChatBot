@@ -343,7 +343,7 @@ namespace cjEmployeeChatBot
                         String smallTalkConfirm = db.SmallTalkConfirm;
 
                         //smalltalk 답변이 있을경우
-                        if (!string.IsNullOrEmpty(smallTalkConfirm))
+                        if (!string.IsNullOrEmpty(smallTalkConfirm) && suggestions.Equals("N"))
                         {
                             luisId = "";
                         }
@@ -445,7 +445,7 @@ namespace cjEmployeeChatBot
                             }
                         }
                         //SMALLTALK 확인
-                        else if (!string.IsNullOrEmpty(smallTalkConfirm))
+                        else if (!string.IsNullOrEmpty(smallTalkConfirm)&& suggestions.Equals("N"))
                         {
                             Debug.WriteLine("smalltalk dialogue-------------");
 

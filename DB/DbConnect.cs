@@ -1247,10 +1247,12 @@ namespace cjEmployeeChatBot.DB
                     cmd.CommandText += "FROM ";
                     cmd.CommandText += "    ( ";
                     cmd.CommandText += "        SELECT  S_ANSWER AS ANSWER FROM TBL_SMALLTALK ";
-                    cmd.CommandText += "        WHERE   S_QUERY = @kr_query ";
+                    cmd.CommandText += "        WHERE  S_QUERY = @kr_query ";
+                    cmd.CommandText += "        AND      USE_YN = 'Y' ";
                     cmd.CommandText += "        UNION ALL ";
                     cmd.CommandText += "        SELECT  S_ANSWER FROM TBL_SMALLTALK ";
-                    cmd.CommandText += "        WHERE   CHARINDEX(ENTITY, @kr_query) > 0 ";                    
+                    cmd.CommandText += "        WHERE  CHARINDEX(ENTITY, @kr_query) > 0 ";
+                    cmd.CommandText += "        AND      USE_YN = 'Y' ";
                     cmd.CommandText += "    ) A ";
 
                     cmd.Parameters.AddWithValue("@kr_query", query);
