@@ -626,6 +626,9 @@ namespace cjEmployeeChatBot
                     int dbResult = db.insertUserQuery();
                     db.insertHistory(activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), luisIntent, luisEntities, luisIntentScore, "","E");
                     replyresult = "";
+
+                    response = Request.CreateResponse(HttpStatusCode.OK);
+                    return response;
                 }
                 finally
                 {
