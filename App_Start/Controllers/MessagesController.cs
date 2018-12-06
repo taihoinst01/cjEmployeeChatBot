@@ -504,7 +504,7 @@ namespace cjEmployeeChatBot
                             {
                                 text = db.SelectSuggetionsDialogText("7");
                                 
-                                suggestions = ";
+                                suggestions = "";
                                 suggetionsMessageCnt--;
                                 replyresult = "G";
                             }
