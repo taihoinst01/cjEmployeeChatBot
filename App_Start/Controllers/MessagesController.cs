@@ -64,7 +64,7 @@ namespace cjEmployeeChatBot
         public static string userID = "";
 
         //건의사항
-        private static string suggestions = "N";
+        public static string suggestions = "";
 
         public static CacheList cacheList = new CacheList();
         //결과 플레그 H : 정상 답변,  G : 건의사항, D : 답변 실패, E : 에러, S : SMALLTALK
@@ -343,7 +343,7 @@ namespace cjEmployeeChatBot
                         String smallTalkSentenceConfirm = db.SmallTalkSentenceConfirm;
 
                         //smalltalk 답변이 있을경우
-                        if (!string.IsNullOrEmpty(smallTalkSentenceConfirm) && suggestions.Equals("N"))
+                        if (!string.IsNullOrEmpty(smallTalkSentenceConfirm) && suggestions.Equals(""))
                         {
                             luisId = "";                            
                         }
@@ -397,7 +397,7 @@ namespace cjEmployeeChatBot
                         }
 
                         //if (apiFlag.Equals("COMMON") && relationList != null)
-                        if (relationList != null && suggestions.Equals("N"))
+                        if (relationList != null && suggestions.Equals(""))
                         {
                             dlgId = "";
                             for (int m = 0; m < MessagesController.relationList.Count; m++)
@@ -453,7 +453,7 @@ namespace cjEmployeeChatBot
                             }
                         }
                         //SMALLTALK 확인
-                        else if (!string.IsNullOrEmpty(smallTalkConfirm)&& suggestions.Equals("N"))
+                        else if (!string.IsNullOrEmpty(smallTalkConfirm)&& suggestions.Equals(""))
                         {
                             Debug.WriteLine("smalltalk dialogue-------------");
 
@@ -504,7 +504,7 @@ namespace cjEmployeeChatBot
                             {
                                 text = db.SelectSuggetionsDialogText("7");
                                 
-                                suggestions = "N";
+                                suggestions = ";
                                 suggetionsMessageCnt--;
                                 replyresult = "G";
                             }
@@ -626,9 +626,6 @@ namespace cjEmployeeChatBot
                     int dbResult = db.insertUserQuery();
                     db.insertHistory(activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), luisIntent, luisEntities, luisIntentScore, "","E");
                     replyresult = "";
-
-                    response = Request.CreateResponse(HttpStatusCode.OK);
-                    return response;
                 }
                 finally
                 {
