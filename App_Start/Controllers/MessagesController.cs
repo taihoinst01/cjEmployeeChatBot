@@ -439,7 +439,8 @@ namespace cjEmployeeChatBot
 
                                 if (commonReply.Attachments.Count > 0)
                                 {
-                                    SetActivity(commonReply);
+                                    //SetActivity(commonReply);
+                                    await connector.Conversations.SendToConversationAsync(commonReply);
                                     if (suggestions.Equals("Y"))
                                     {
                                         replyresult = "G";
@@ -478,7 +479,8 @@ namespace cjEmployeeChatBot
                             Attachment plAttachment = plCard.ToAttachment();
                             smallTalkReply.Attachments.Add(plAttachment);
 
-                            SetActivity(smallTalkReply);
+                            //SetActivity(smallTalkReply);
+                            await connector.Conversations.SendToConversationAsync(smallTalkReply);
                             replyresult = "S";
 
                         }
@@ -521,7 +523,8 @@ namespace cjEmployeeChatBot
                                 suggestionsReply.Attachments.Add(plAttachment);
                             }
 
-                            SetActivity(suggestionsReply);                            
+                            //SetActivity(suggestionsReply);
+                            await connector.Conversations.SendToConversationAsync(suggestionsReply);
 
                         }
                         else
@@ -566,7 +569,8 @@ namespace cjEmployeeChatBot
                                 sorryReply.Attachments.Add(plAttachment);
                             }
 
-                            SetActivity(sorryReply);
+                            //SetActivity(sorryReply);
+                            await connector.Conversations.SendToConversationAsync(sorryReply);
                             replyresult = "D";
 
                         }
@@ -620,7 +624,8 @@ namespace cjEmployeeChatBot
                         sorryReply.Attachments.Add(plAttachment);
                     }
 
-                    SetActivity(sorryReply);
+                    //SetActivity(sorryReply);
+                    await connector.Conversations.SendToConversationAsync(sorryReply);
 
                     DateTime endTime = DateTime.Now;
                     int dbResult = db.insertUserQuery();

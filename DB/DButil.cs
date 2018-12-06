@@ -98,11 +98,13 @@ namespace cjEmployeeChatBot.DB
                 {
                     for (int i = 0; i < MAX; i++)
                     {
-                        //if (Luis_before[i]["intents"][0]["intent"].ToString() != "None")
+                        //entities 0일 경우 PASS
                         if ((int)Luis_before[i]["entities"].Count() > 0)
                         {
+                            //intent None일 경우 PASS
                             if (Luis_before[i]["intents"][0]["intent"].ToString() != "None")
                             {
+                                //제한점수 체크
                                 if ((float)Luis_before[i]["intents"][0]["score"] > Convert.ToDouble(MessagesController.LUIS_SCORE_LIMIT))
                                 {
                                     if ((float)Luis_before[i]["intents"][0]["score"] > luisScoreCompare)
