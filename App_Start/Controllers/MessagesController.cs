@@ -64,7 +64,7 @@ namespace cjEmployeeChatBot
         public static string userID = "";
 
         //건의사항
-        public static string suggestions = "N";
+        private static string suggestions = "N";
 
         public static CacheList cacheList = new CacheList();
         //결과 플레그 H : 정상 답변,  G : 건의사항, D : 답변 실패, E : 에러, S : SMALLTALK
@@ -439,8 +439,7 @@ namespace cjEmployeeChatBot
 
                                 if (commonReply.Attachments.Count > 0)
                                 {
-                                    //SetActivity(commonReply);
-                                    await connector.Conversations.SendToConversationAsync(commonReply);
+                                    SetActivity(commonReply);
                                     if (suggestions.Equals("Y"))
                                     {
                                         replyresult = "G";
@@ -479,8 +478,7 @@ namespace cjEmployeeChatBot
                             Attachment plAttachment = plCard.ToAttachment();
                             smallTalkReply.Attachments.Add(plAttachment);
 
-                            //SetActivity(smallTalkReply);
-                            await connector.Conversations.SendToConversationAsync(smallTalkReply);
+                            SetActivity(smallTalkReply);
                             replyresult = "S";
 
                         }
@@ -523,8 +521,7 @@ namespace cjEmployeeChatBot
                                 suggestionsReply.Attachments.Add(plAttachment);
                             }
 
-                            //SetActivity(suggestionsReply);
-                            await connector.Conversations.SendToConversationAsync(suggestionsReply);
+                            SetActivity(suggestionsReply);                            
 
                         }
                         else
@@ -569,8 +566,7 @@ namespace cjEmployeeChatBot
                                 sorryReply.Attachments.Add(plAttachment);
                             }
 
-                            //SetActivity(sorryReply);
-                            await connector.Conversations.SendToConversationAsync(sorryReply);
+                            SetActivity(sorryReply);
                             replyresult = "D";
 
                         }
@@ -624,8 +620,7 @@ namespace cjEmployeeChatBot
                         sorryReply.Attachments.Add(plAttachment);
                     }
 
-                    //SetActivity(sorryReply);
-                    await connector.Conversations.SendToConversationAsync(sorryReply);
+                    SetActivity(sorryReply);
 
                     DateTime endTime = DateTime.Now;
                     int dbResult = db.insertUserQuery();
