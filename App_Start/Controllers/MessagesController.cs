@@ -372,9 +372,8 @@ namespace cjEmployeeChatBot
                         DButil.HistoryLog("luisIntent : " + luisIntent);
                         DButil.HistoryLog("luisEntities : " + luisEntities);
 
-                        
                         //SAP 비밀번호 초기화
-                        tec.call();
+                        //tec.call();
 
                         string smallTalkConfirm = "";
 
