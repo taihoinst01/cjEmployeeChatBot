@@ -64,7 +64,7 @@ namespace cjEmployeeChatBot
         public static string userID = "";
 
         //건의사항
-        public static string suggestions = "N";
+        public static string suggestions = "";
 
         public static CacheList cacheList = new CacheList();
         //결과 플레그 H : 정상 답변,  G : 건의사항, D : 답변 실패, E : 에러, S : SMALLTALK
@@ -343,7 +343,7 @@ namespace cjEmployeeChatBot
                         String smallTalkSentenceConfirm = db.SmallTalkSentenceConfirm;
 
                         //smalltalk 답변이 있을경우
-                        if (!string.IsNullOrEmpty(smallTalkSentenceConfirm) && suggestions.Equals("N"))
+                        if (!string.IsNullOrEmpty(smallTalkSentenceConfirm) && suggestions.Equals(""))
                         {
                             luisId = "";                            
                         }
@@ -397,7 +397,7 @@ namespace cjEmployeeChatBot
                         }
 
                         //if (apiFlag.Equals("COMMON") && relationList != null)
-                        if (relationList != null && suggestions.Equals("N"))
+                        if (relationList != null && suggestions.Equals(""))
                         {
                             dlgId = "";
                             for (int m = 0; m < MessagesController.relationList.Count; m++)
@@ -439,8 +439,7 @@ namespace cjEmployeeChatBot
 
                                 if (commonReply.Attachments.Count > 0)
                                 {
-                                    //SetActivity(commonReply);
-                                    await connector.Conversations.SendToConversationAsync(commonReply);
+                                    SetActivity(commonReply);
                                     if (suggestions.Equals("Y"))
                                     {
                                         replyresult = "G";
@@ -454,7 +453,7 @@ namespace cjEmployeeChatBot
                             }
                         }
                         //SMALLTALK 확인
-                        else if (!string.IsNullOrEmpty(smallTalkConfirm)&& suggestions.Equals("N"))
+                        else if (!string.IsNullOrEmpty(smallTalkConfirm)&& suggestions.Equals(""))
                         {
                             Debug.WriteLine("smalltalk dialogue-------------");
 
@@ -479,8 +478,7 @@ namespace cjEmployeeChatBot
                             Attachment plAttachment = plCard.ToAttachment();
                             smallTalkReply.Attachments.Add(plAttachment);
 
-                            //SetActivity(smallTalkReply);
-                            await connector.Conversations.SendToConversationAsync(smallTalkReply);
+                            SetActivity(smallTalkReply);
                             replyresult = "S";
 
                         }
@@ -506,7 +504,7 @@ namespace cjEmployeeChatBot
                             {
                                 text = db.SelectSuggetionsDialogText("7");
                                 
-                                suggestions = "N";
+                                suggestions = "";
                                 suggetionsMessageCnt--;
                                 replyresult = "G";
                             }
@@ -523,8 +521,7 @@ namespace cjEmployeeChatBot
                                 suggestionsReply.Attachments.Add(plAttachment);
                             }
 
-                            //SetActivity(suggestionsReply);
-                            await connector.Conversations.SendToConversationAsync(suggestionsReply);
+                            SetActivity(suggestionsReply);                            
 
                         }
                         else
@@ -569,8 +566,7 @@ namespace cjEmployeeChatBot
                                 sorryReply.Attachments.Add(plAttachment);
                             }
 
-                            //SetActivity(sorryReply);
-                            await connector.Conversations.SendToConversationAsync(sorryReply);
+                            SetActivity(sorryReply);
                             replyresult = "D";
 
                         }
@@ -624,8 +620,7 @@ namespace cjEmployeeChatBot
                         sorryReply.Attachments.Add(plAttachment);
                     }
 
-                    //SetActivity(sorryReply);
-                    await connector.Conversations.SendToConversationAsync(sorryReply);
+                    SetActivity(sorryReply);
 
                     DateTime endTime = DateTime.Now;
                     int dbResult = db.insertUserQuery();
