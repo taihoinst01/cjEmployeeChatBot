@@ -53,8 +53,7 @@ C:\Users\User\source\repos\cjEmployeeChatBot\bin\nl\Microsoft.Bot.Builder.resour
 C:\Users\User\source\repos\cjEmployeeChatBot\bin\pt-BR\Microsoft.Bot.Builder.resources.dll
 C:\Users\User\source\repos\cjEmployeeChatBot\bin\ru\Microsoft.Bot.Builder.resources.dll
 C:\Users\User\source\repos\cjEmployeeChatBot\bin\zh-hans\Microsoft.Bot.Builder.resources.dll
-C:\Users\User\source\repos\cjEmployeeChatBot\obj\Debug\cjEmployeeChatBot.csproj.CoreCompileInputs.cache
-C:\Users\User\source\repos\cjEmployeeChatBot\obj\Debug\cjEmployeeChatBot.csproj.CopyComplete
-C:\Users\User\source\repos\cjEmployeeChatBot\obj\Debug\Bot Application.dll
-C:\Users\User\source\repos\cjEmployeeChatBot\obj\Debug\Bot Application.pdb
-C:\Users\User\source\repos\cjEmployeeChatBot\obj\Debug\cjEmployeeChatBot.csprojAssemblyReference.cache
+C:\Users\User\source\repos\cjEmployeeChatBot\obj\Release\cjEmployeeChatBot.csproj.CoreCompileInputs.cache
+C:\Users\User\source\repos\cjEmployeeChatBot\obj\Release\cjEmployeeChatBot.csproj.CopyComplete
+C:\Users\User\source\repos\cjEmployeeChatBot\obj\Release\Bot Application.dll
+C:\Users\User\source\repos\cjEmployeeChatBot\obj\Release\Bot Application.pdb

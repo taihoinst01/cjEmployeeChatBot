@@ -122,14 +122,9 @@ namespace cjEmployeeChatBot
             DButil.HistoryLog("1111!! ");
             StateClient stateClient = activity.GetStateClient();
             DButil.HistoryLog("2222!! ");
-            try
-            {
-                BotData userData = await stateClient.BotState.GetUserDataAsync(activity.ChannelId, activity.Conversation.Id);
-            } catch (Exception e)
-            {
-                DButil.HistoryLog("e.Message====" + e.Message);
-            }
-            
+
+            BotData userData = await stateClient.BotState.GetUserDataAsync(activity.ChannelId, activity.Conversation.Id);
+
             DButil.HistoryLog("3333!! ");
             if (activity.Type == ActivityTypes.ConversationUpdate && activity.MembersAdded.Any(m => m.Id == activity.Recipient.Id))
             {
