@@ -86,11 +86,13 @@ namespace cjEmployeeChatBot
             //HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.OK);
             HttpResponseMessage response;
 
+            DButil.HistoryLog("activity.CreateReply() !! ");
             Activity reply1 = activity.CreateReply();
             Activity reply2 = activity.CreateReply();
             Activity reply3 = activity.CreateReply();
             Activity reply4 = activity.CreateReply();
 
+            DButil.HistoryLog("SetActivity!! ");
             // Activity 값 유무 확인하는 익명 메소드
             Action<Activity> SetActivity = (act) =>
             {
@@ -117,11 +119,8 @@ namespace cjEmployeeChatBot
             };
 
             //건의사항용 userData 선언
-            DButil.HistoryLog("1111");
             StateClient stateClient = activity.GetStateClient();
-            DButil.HistoryLog("2222");
             BotData userData = await stateClient.BotState.GetUserDataAsync(activity.ChannelId, activity.Conversation.Id);
-            DButil.HistoryLog("3333");
 
             if (activity.Type == ActivityTypes.ConversationUpdate && activity.MembersAdded.Any(m => m.Id == activity.Recipient.Id))
             {
