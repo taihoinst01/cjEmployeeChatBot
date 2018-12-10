@@ -37,8 +37,8 @@ namespace cjEmployeeChatBot
         public static int appID = Convert.ToInt32(rootWebConfig.ConnectionStrings.ConnectionStrings[chatBotAppID].ToString());
 
         //config 변수 선언
-        static public string[] LUIS_NM = new string[10];        //루이스 이름
-        static public string[] LUIS_APP_ID = new string[10];    //루이스 app_id
+        static public string[] LUIS_NM = new string[5];        //루이스 이름
+        static public string[] LUIS_APP_ID = new string[5];    //루이스 app_id
         static public string LUIS_SUBSCRIPTION = "";            //루이스 구독키
         static public int LUIS_TIME_LIMIT;                      //루이스 타임 체크
         static public string BOT_ID = "";                       //bot id
@@ -46,8 +46,8 @@ namespace cjEmployeeChatBot
         static public string MicrosoftAppPassword = "";         //app password
         static public string LUIS_SCORE_LIMIT = "";             //루이스 점수 체크
 
-        public static int sorryMessageCnt = 0;
-        public static int suggetionsMessageCnt = 0;
+        //public static int sorryMessageCnt = 0;
+        //public static int suggetionsMessageCnt = 0;
         public static int chatBotID = 0;
 
         public static List<RelationList> relationList = new List<RelationList>();
@@ -64,7 +64,7 @@ namespace cjEmployeeChatBot
         public static string userID = "";
 
         //건의사항
-        public static string suggestions = "";
+        //public static string suggestions = "";
 
         public static CacheList cacheList = new CacheList();
         //결과 플레그 H : 정상 답변,  G : 건의사항, D : 답변 실패, E : 에러, S : SMALLTALK
@@ -115,6 +115,10 @@ namespace cjEmployeeChatBot
 
                 }
             };
+
+            //건의사항용 userData 선언
+            StateClient stateClient = activity.GetStateClient();
+            BotData userData = await stateClient.BotState.GetUserDataAsync(activity.ChannelId, activity.Conversation.Id);
 
             if (activity.Type == ActivityTypes.ConversationUpdate && activity.MembersAdded.Any(m => m.Id == activity.Recipient.Id))
             {
@@ -227,6 +231,10 @@ namespace cjEmployeeChatBot
 
                 //Debug.WriteLine("testEaiCall.ToString()====" + testEaiCall.call);
 
+                //건의사항 userData 셋팅
+                userData.SetProperty<string>("suggestion", "");
+                userData.SetProperty<int>("suggetionsMessageCnt", 0);
+
                 DateTime endTime = DateTime.Now;
                 Debug.WriteLine("프로그램 수행시간 : {0}/ms", ((endTime - startTime).Milliseconds));
                 Debug.WriteLine("* activity.Type : " + activity.Type);
@@ -241,7 +249,7 @@ namespace cjEmployeeChatBot
             {
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
                 try
-                {
+                {                    
                     Debug.WriteLine("* activity.Type == ActivityTypes.Message ");
                     channelID = activity.ChannelId;
                     string orgMent = activity.Text;
@@ -334,16 +342,19 @@ namespace cjEmployeeChatBot
                         cacheList.luisIntent = null;
 
                         //건의사항
-                        if(orgMent.Contains("건의사항")|| orgMent.Contains("건의 사항"))
+                        if (orgMent.Contains("건의사항")|| orgMent.Contains("건의 사항"))
                         {
-                            suggestions = "Y";
+                            //건의사항 입력이 되면 Y 입력
+                            userData.SetProperty("suggestion", "Y");
+                            await stateClient.BotState.SetUserDataAsync(activity.ChannelId, activity.Conversation.Id, userData);
+                            Debug.WriteLine("* userData ==== userDatauserDatauserDatauserData 1" + userData.GetProperty<string>("suggestion"));
                         }
-
+                        Debug.WriteLine("* userData ==== userDatauserDatauserDatauserData " + userData.GetProperty<string>("suggestion"));
                         //smalltalk 문자 확인                        
                         String smallTalkSentenceConfirm = db.SmallTalkSentenceConfirm;
 
                         //smalltalk 답변이 있을경우
-                        if (!string.IsNullOrEmpty(smallTalkSentenceConfirm) && suggestions.Equals(""))
+                        if (!string.IsNullOrEmpty(smallTalkSentenceConfirm) && string.IsNullOrEmpty(userData.GetProperty<string>("suggestion")))
                         {
                             luisId = "";                            
                         }
@@ -396,7 +407,7 @@ namespace cjEmployeeChatBot
                         }
 
                         //if (apiFlag.Equals("COMMON") && relationList != null)
-                        if (relationList != null && suggestions.Equals(""))
+                        if (relationList != null && string.IsNullOrEmpty(userData.GetProperty<string>("suggestion")))
                         {
                             dlgId = "";
                             for (int m = 0; m < MessagesController.relationList.Count; m++)
@@ -439,7 +450,7 @@ namespace cjEmployeeChatBot
                                 if (commonReply.Attachments.Count > 0)
                                 {
                                     SetActivity(commonReply);
-                                    if (suggestions.Equals("Y"))
+                                    if (!string.IsNullOrEmpty(userData.GetProperty<string>("suggestion")))
                                     {
                                         replyresult = "G";
                                     }
@@ -452,7 +463,7 @@ namespace cjEmployeeChatBot
                             }
                         }
                         //SMALLTALK 확인
-                        else if (!string.IsNullOrEmpty(smallTalkConfirm)&& suggestions.Equals(""))
+                        else if (!string.IsNullOrEmpty(smallTalkConfirm) && string.IsNullOrEmpty(userData.GetProperty<string>("suggestion")))
                         {
                             Debug.WriteLine("smalltalk dialogue-------------");
 
@@ -482,7 +493,7 @@ namespace cjEmployeeChatBot
 
                         }
                         //건의사항
-                        else if (suggestions.Equals("Y"))
+                        else if (!string.IsNullOrEmpty(userData.GetProperty<string>("suggestion")))
                         {
                             Debug.WriteLine("suggestions dialogue-------------");
 
@@ -493,18 +504,23 @@ namespace cjEmployeeChatBot
 
                             List<TextList> text = new List<TextList>();
 
-                            if (suggetionsMessageCnt == 0)
+                            //suggetionsMessageCnt 0이면 DLGGROUP 6출력, suggetionsMessageCnt 1로 변경
+                            if (userData.GetProperty<int>("suggetionsMessageCnt") == 0)
                             {
                                 text = db.SelectSuggetionsDialogText("6"); 
-                                suggetionsMessageCnt++;
+                                //suggetionsMessageCnt++;
+                                
+                                userData.SetProperty("suggetionsMessageCnt", 1);
+                                await stateClient.BotState.SetUserDataAsync(activity.ChannelId, activity.Conversation.Id, userData);
                                 replyresult = "G";
                             }
                             else
                             {
                                 text = db.SelectSuggetionsDialogText("7");
-                                
-                                suggestions = "";
-                                suggetionsMessageCnt--;
+
+                                userData.SetProperty("suggestion", "");
+                                userData.SetProperty("suggetionsMessageCnt", 0);
+                                await stateClient.BotState.SetUserDataAsync(activity.ChannelId, activity.Conversation.Id, userData);
                                 replyresult = "G";
                             }
 
