@@ -508,7 +508,6 @@ namespace cjEmployeeChatBot
                             if (userData.GetProperty<int>("suggetionsMessageCnt") == 0)
                             {
                                 text = db.SelectSuggetionsDialogText("6"); 
-                                //suggetionsMessageCnt++;
                                 
                                 userData.SetProperty("suggetionsMessageCnt", 1);
                                 await stateClient.BotState.SetUserDataAsync(activity.ChannelId, activity.Conversation.Id, userData);
