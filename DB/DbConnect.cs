@@ -1318,6 +1318,124 @@ namespace cjEmployeeChatBot.DB
                 }
                 return smallTalkAnswer;
             }
-        }      
+        }
+
+
+        public int UserDataInsert(string channelData, string conversationsId)
+        {
+
+            SqlDataReader rdr = null;
+            int result = 0;
+
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+
+                conn.Open();
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = conn;
+
+                cmd.CommandText += "INSERT INTO TBL_USERDATA(CHANNELDATA, CONVERSATIONSID, LOOP) ";
+                cmd.CommandText += " VALUES (@channeldata, @conversationsid,1)";
+
+                cmd.Parameters.AddWithValue("@channeldata", channelData);
+                cmd.Parameters.AddWithValue("@conversationsid", conversationsId);
+
+                rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
+
+                try
+                {
+                    result = cmd.ExecuteNonQuery();
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                }
+
+            }
+            return result;
+        }
+
+        public int UserDataUpdate(string channelData, string conversationsId, int loop)
+        {
+
+            SqlDataReader rdr = null;
+            int result = 0;
+
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+
+                conn.Open();
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = conn;
+
+                cmd.CommandText += " UPDATE TBL_USERDATA ";
+                cmd.CommandText += " SET LOOP = @loop ";
+                cmd.CommandText += " WHERE     CHANNELDATA = @channeldata ";
+                cmd.CommandText += " AND         CONVERSATIONSID = @conversationsid ";
+                
+
+                cmd.Parameters.AddWithValue("@channeldata", channelData);
+                cmd.Parameters.AddWithValue("@conversationsid", conversationsId);
+                cmd.Parameters.AddWithValue("@loop", loop);
+
+                rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
+
+                try
+                {
+                    result = cmd.ExecuteNonQuery();
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                }
+
+            }
+            return result;
+        }
+
+        public List<UserData> UserDataConfirm(string channelData, string conversationsId)
+        {
+            SqlDataReader rdr = null;
+            List<UserData> userdata = new List<UserData>();
+
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+
+                conn.Open();
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = conn;
+
+                cmd.CommandText += "SELECT  TOP 1 CHANNELDATA, CONVERSATIONSID, LOOP ";
+                cmd.CommandText += "FROM    TBL_USERDATA ";
+                cmd.CommandText += "WHERE  CHANNELDATA = @channeldata ";
+                cmd.CommandText += "AND      CONVERSATIONSID = @conversationsId ";
+
+                cmd.Parameters.AddWithValue("@channeldata", channelData);
+                cmd.Parameters.AddWithValue("@conversationsId", conversationsId);
+
+                rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
+
+                try
+                {
+                    while (rdr.Read())
+                    {
+                        UserData userData = new UserData();
+                        userData.channelData = rdr["CHANNELDATA"] as string;
+                        userData.conversationsId = rdr["CONVERSATIONSID"] as string;
+                        userData.loop = Convert.ToInt32(rdr["LOOP"]);
+                        userdata.Add(userData);
+
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                }
+
+            }
+            return userdata;
+        }
+
+
     }
 }

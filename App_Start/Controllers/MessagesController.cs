@@ -64,7 +64,7 @@ namespace cjEmployeeChatBot
         public static string userID = "";
 
         //건의사항
-        //public static string suggestions = "";
+        public static string suggestions = "";
 
         public static CacheList cacheList = new CacheList();
         //결과 플레그 H : 정상 답변,  G : 건의사항, D : 답변 실패, E : 에러, S : SMALLTALK
@@ -119,13 +119,13 @@ namespace cjEmployeeChatBot
             };
 
             //건의사항용 userData 선언
-            DButil.HistoryLog("1111!! ");
-            StateClient stateClient = activity.GetStateClient();
-            DButil.HistoryLog("2222!! ");
+            List<UserData> userData = db.UserDataConfirm(activity.ChannelId, activity.Conversation.Id);
 
-            BotData userData = await stateClient.BotState.GetUserDataAsync(activity.ChannelId, activity.Conversation.Id);
+            if (userData.Count() == 0)
+            {
+                db.UserDataInsert(activity.ChannelId, activity.Conversation.Id);
+            } 
 
-            DButil.HistoryLog("3333!! ");
             if (activity.Type == ActivityTypes.ConversationUpdate && activity.MembersAdded.Any(m => m.Id == activity.Recipient.Id))
             {
                 startTime = DateTime.Now;
@@ -238,8 +238,8 @@ namespace cjEmployeeChatBot
                 //Debug.WriteLine("testEaiCall.ToString()====" + testEaiCall.call);
 
                 //건의사항 userData 셋팅
-                userData.SetProperty<string>("suggestion", "");
-                userData.SetProperty<int>("suggetionsMessageCnt", 0);
+                //userData.SetProperty<string>("suggestion", "");
+                //userData.SetProperty<int>("suggetionsMessageCnt", 0);
 
                 DateTime endTime = DateTime.Now;
                 Debug.WriteLine("프로그램 수행시간 : {0}/ms", ((endTime - startTime).Milliseconds));
@@ -350,17 +350,16 @@ namespace cjEmployeeChatBot
                         //건의사항
                         if (orgMent.Contains("건의사항")|| orgMent.Contains("건의 사항"))
                         {
-                            //건의사항 입력이 되면 Y 입력
-                            userData.SetProperty("suggestion", "Y");
-                            await stateClient.BotState.SetUserDataAsync(activity.ChannelId, activity.Conversation.Id, userData);
-                            Debug.WriteLine("* userData ==== userDatauserDatauserDatauserData 1" + userData.GetProperty<string>("suggestion"));
+                            if (userData[0].conversationsId == activity.Conversation.Id)
+                            {
+                                suggestions = "Y";
+                            }
                         }
-                        Debug.WriteLine("* userData ==== userDatauserDatauserDatauserData " + userData.GetProperty<string>("suggestion"));
                         //smalltalk 문자 확인                        
                         String smallTalkSentenceConfirm = db.SmallTalkSentenceConfirm;
 
                         //smalltalk 답변이 있을경우
-                        if (!string.IsNullOrEmpty(smallTalkSentenceConfirm) && string.IsNullOrEmpty(userData.GetProperty<string>("suggestion")))
+                        if (!string.IsNullOrEmpty(smallTalkSentenceConfirm) && (userData[0].conversationsId == activity.Conversation.Id))
                         {
                             luisId = "";                            
                         }
@@ -413,7 +412,10 @@ namespace cjEmployeeChatBot
                         }
 
                         //if (apiFlag.Equals("COMMON") && relationList != null)
-                        if (relationList != null && string.IsNullOrEmpty(userData.GetProperty<string>("suggestion")))
+                        //if (relationList != null && string.IsNullOrEmpty(userData.GetProperty<string>("suggestion")))
+                        if (relationList != null && (userData[0].conversationsId == activity.Conversation.Id && string.IsNullOrEmpty(suggestions)))
+
+                        //if (relationList != null)
                         {
                             dlgId = "";
                             for (int m = 0; m < MessagesController.relationList.Count; m++)
@@ -456,20 +458,21 @@ namespace cjEmployeeChatBot
                                 if (commonReply.Attachments.Count > 0)
                                 {
                                     SetActivity(commonReply);
-                                    if (!string.IsNullOrEmpty(userData.GetProperty<string>("suggestion")))
-                                    {
-                                        replyresult = "G";
-                                    }
-                                    else
-                                    {
-                                        replyresult = "H";
-                                    }                                    
+                                    //if (!string.IsNullOrEmpty(userData.GetProperty<string>("suggestion")))
+                                    //{
+                                    replyresult = "G";
+                                    //}
+                                    //else
+                                    //{
+                                    //    replyresult = "H";
+                                    //}                                    
 
                                 }
                             }
                         }
                         //SMALLTALK 확인
-                        else if (!string.IsNullOrEmpty(smallTalkConfirm) && string.IsNullOrEmpty(userData.GetProperty<string>("suggestion")))
+                        //else if (!string.IsNullOrEmpty(smallTalkConfirm) && string.IsNullOrEmpty(userData.GetProperty<string>("suggestion")))
+                        else if (!string.IsNullOrEmpty(smallTalkConfirm) && (userData[0].conversationsId == activity.Conversation.Id && string.IsNullOrEmpty(suggestions)))
                         {
                             Debug.WriteLine("smalltalk dialogue-------------");
 
@@ -499,7 +502,7 @@ namespace cjEmployeeChatBot
 
                         }
                         //건의사항
-                        else if (!string.IsNullOrEmpty(userData.GetProperty<string>("suggestion")))
+                        else if ((userData[0].conversationsId == activity.Conversation.Id && !string.IsNullOrEmpty(suggestions)))
                         {
                             Debug.WriteLine("suggestions dialogue-------------");
 
@@ -511,21 +514,17 @@ namespace cjEmployeeChatBot
                             List<TextList> text = new List<TextList>();
 
                             //suggetionsMessageCnt 0이면 DLGGROUP 6출력, suggetionsMessageCnt 1로 변경
-                            if (userData.GetProperty<int>("suggetionsMessageCnt") == 0)
+                            if (userData[0].loop == 1)
                             {
-                                text = db.SelectSuggetionsDialogText("6"); 
-                                
-                                userData.SetProperty("suggetionsMessageCnt", 1);
-                                await stateClient.BotState.SetUserDataAsync(activity.ChannelId, activity.Conversation.Id, userData);
+                                text = db.SelectSuggetionsDialogText("6");
+                                db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 2);
                                 replyresult = "G";
                             }
                             else
                             {
                                 text = db.SelectSuggetionsDialogText("7");
-
-                                userData.SetProperty("suggestion", "");
-                                userData.SetProperty("suggetionsMessageCnt", 0);
-                                await stateClient.BotState.SetUserDataAsync(activity.ChannelId, activity.Conversation.Id, userData);
+                                db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 1);
+                                suggestions = "";
                                 replyresult = "G";
                             }
 
@@ -541,7 +540,7 @@ namespace cjEmployeeChatBot
                                 suggestionsReply.Attachments.Add(plAttachment);
                             }
 
-                            SetActivity(suggestionsReply);                            
+                            SetActivity(suggestionsReply);
 
                         }
                         else
