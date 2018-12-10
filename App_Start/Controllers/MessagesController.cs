@@ -119,9 +119,11 @@ namespace cjEmployeeChatBot
             };
 
             //건의사항용 userData 선언
+            DButil.HistoryLog("1111!! ");
             StateClient stateClient = activity.GetStateClient();
+            DButil.HistoryLog("2222!! ");
             BotData userData = await stateClient.BotState.GetUserDataAsync(activity.ChannelId, activity.Conversation.Id);
-
+            DButil.HistoryLog("3333!! ");
             if (activity.Type == ActivityTypes.ConversationUpdate && activity.MembersAdded.Any(m => m.Id == activity.Recipient.Id))
             {
                 startTime = DateTime.Now;
