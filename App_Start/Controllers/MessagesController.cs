@@ -125,13 +125,14 @@ namespace cjEmployeeChatBot
             //string encryptedText = Request["encryptedtext"];    // 인코딩된 아이디 혹은 사번을 셋팅하세요
 
             //// 샘플 문자열입니다. 
-            //// CJWKEY 로  8evVae2ekt7WtC2umaHAqYVyhf2W9eNA 을 decrypt 결과는 cjwsampleuser 입니다. 
-            //// KeyStr ="CJWKEY";
-            //// encryptedText = "8evVae2ekt7WtC2umaHAqYVyhf2W9eNA";
+            //CJWKEY 로  8evVae2ekt7WtC2umaHAqYVyhf2W9eNA 을 decrypt 결과는 cjwsampleuser 입니다. 
+            string KeyStr = "CJWKEY";
+            string encryptedText = "8evVae2ekt7WtC2umaHAqYVyhf2W9eNA";
 
-            //CryptoDotNet cdn = new CryptoDotNet();
-            //string PlainText = cdn.Decrypt(encryptedText, KeyStr);
+            CryptoDotNet cdn = new CryptoDotNet();
+            string PlainText = cdn.Decrypt(encryptedText, KeyStr);
 
+            Debug.WriteLine("PlainText=====" + PlainText);
             //Response.Write(PlainText);
 
 
