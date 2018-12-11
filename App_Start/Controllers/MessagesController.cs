@@ -21,6 +21,7 @@ using System.Text;
 using Newtonsoft.Json;
 using Microsoft.Bot.Builder.ConnectorEx;
 using cjEmployeeChatBot.SAP;
+using SSODecodeCJW;
 
 namespace cjEmployeeChatBot
 {
@@ -118,6 +119,30 @@ namespace cjEmployeeChatBot
 
                 }
             };
+
+            //SSO
+            //string KeyStr = "key";  // 상호간에 협의한 키값을 지정하세요
+            //string encryptedText = Request["encryptedtext"];    // 인코딩된 아이디 혹은 사번을 셋팅하세요
+
+            //// 샘플 문자열입니다. 
+            //// CJWKEY 로  8evVae2ekt7WtC2umaHAqYVyhf2W9eNA 을 decrypt 결과는 cjwsampleuser 입니다. 
+            //// KeyStr ="CJWKEY";
+            //// encryptedText = "8evVae2ekt7WtC2umaHAqYVyhf2W9eNA";
+
+            //CryptoDotNet cdn = new CryptoDotNet();
+            //string PlainText = cdn.Decrypt(encryptedText, KeyStr);
+
+            //Response.Write(PlainText);
+
+
+            //사용자 계정 처리
+            //if (activity.Contains("userid"))
+            //{
+            //    db.UserDataInsert(activity.ChannelId, activity.Conversation.Id);
+            //    //첫번쨰 메세지 출력 x
+            //    response = Request.CreateResponse(HttpStatusCode.OK);
+            //    return response;
+            //}
 
             //건의사항용 userData 선언
             List<UserData> userData = db.UserDataConfirm(activity.ChannelId, activity.Conversation.Id);
@@ -238,10 +263,6 @@ namespace cjEmployeeChatBot
 
                 //Debug.WriteLine("testEaiCall.ToString()====" + testEaiCall.call);
 
-                //건의사항 userData 셋팅
-                //userData.SetProperty<string>("suggestion", "");
-                //userData.SetProperty<int>("suggetionsMessageCnt", 0);
-
                 DateTime endTime = DateTime.Now;
                 Debug.WriteLine("프로그램 수행시간 : {0}/ms", ((endTime - startTime).Milliseconds));
                 Debug.WriteLine("* activity.Type : " + activity.Type);
@@ -307,16 +328,6 @@ namespace cjEmployeeChatBot
                                 queryStr = "서울 시승센터";
                             }
                         }
-                    }
-
-                    //사용자 계정 처리
-                    if (orgMent.Contains("userid"))
-                    {
-
-                        //첫번쨰 메세지 출력 x
-                        response = Request.CreateResponse(HttpStatusCode.OK);
-                        return response;
-
                     }
 
                     //apiFlag = "COMMON";
@@ -510,7 +521,7 @@ namespace cjEmployeeChatBot
 
                             SetActivity(smallTalkReply);
                             replyresult = "S";
-
+                            db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0);
                         }
                         //건의사항
                         else if ((userData[0].conversationsId == activity.Conversation.Id && (userData[0].loop==1 || userData[0].loop == 2)))
@@ -593,6 +604,8 @@ namespace cjEmployeeChatBot
                                 Attachment plAttachment = plCard.ToAttachment();
                                 sorryReply.Attachments.Add(plAttachment);
                             }
+
+                            db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0);
 
                             SetActivity(sorryReply);
                             replyresult = "D";
