@@ -157,6 +157,22 @@ namespace cjEmployeeChatBot.DB
                                     MessagesController.cacheList.luisScore = Luis["intents"][0]["score"].ToString();
                                 }
                             }
+
+                            //통근버스
+                            if (luisIntent.Equals("총무통근버스_통근버스노선안내"))
+                            {
+                                for (int i = 0; i < (int)Luis["entities"].Count(); i++)
+                                {
+                                    if ((string)Luis["entities"][i]["type"] == "L>통근버스노선")
+                                    {
+                                        MessagesController.luistTpyeEntities = Regex.Replace((string)Luis["entities"][i]["entity"], " ", "");
+                                    }
+                                }
+
+                            }
+
+                            Debug.WriteLine("통근버스노선" + MessagesController.luistTpyeEntities);
+
                             /*
                             if (luisScore > Convert.ToDouble(MessagesController.LUIS_SCORE_LIMIT) && luisEntityCount > 0)
                             {

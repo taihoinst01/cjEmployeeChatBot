@@ -55,6 +55,7 @@ namespace cjEmployeeChatBot
         public static string luisIntent = "";
         public static string luisEntities = "";
         public static string luisIntentScore = "";
+        public static string luistTpyeEntities = "";
         public static string dlgId = "";        
         public static string queryStr = "";
         public static string luisQuery = "";        
@@ -308,6 +309,16 @@ namespace cjEmployeeChatBot
                         }
                     }
 
+                    //사용자 계정 처리
+                    if (orgMent.Contains("userid"))
+                    {
+
+                        //첫번쨰 메세지 출력 x
+                        response = Request.CreateResponse(HttpStatusCode.OK);
+                        return response;
+
+                    }
+
                     //apiFlag = "COMMON";
 
                     //대화 시작 시간
@@ -352,14 +363,16 @@ namespace cjEmployeeChatBot
                         {
                             if (userData[0].conversationsId == activity.Conversation.Id)
                             {
-                                suggestions = "Y";
+                                //suggestions = "Y";
+                                db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 1);
+                                userData[0].loop = 1;
                             }
                         }
                         //smalltalk 문자 확인                        
                         String smallTalkSentenceConfirm = db.SmallTalkSentenceConfirm;
 
                         //smalltalk 답변이 있을경우
-                        if (!string.IsNullOrEmpty(smallTalkSentenceConfirm) && (userData[0].conversationsId == activity.Conversation.Id))
+                        if (!string.IsNullOrEmpty(smallTalkSentenceConfirm))
                         {
                             luisId = "";                            
                         }
@@ -413,9 +426,7 @@ namespace cjEmployeeChatBot
 
                         //if (apiFlag.Equals("COMMON") && relationList != null)
                         //if (relationList != null && string.IsNullOrEmpty(userData.GetProperty<string>("suggestion")))
-                        if (relationList != null && (userData[0].conversationsId == activity.Conversation.Id && string.IsNullOrEmpty(suggestions)))
-
-                        //if (relationList != null)
+                        if (relationList != null)
                         {
                             dlgId = "";
                             for (int m = 0; m < MessagesController.relationList.Count; m++)
@@ -460,19 +471,19 @@ namespace cjEmployeeChatBot
                                     SetActivity(commonReply);
                                     //if (!string.IsNullOrEmpty(userData.GetProperty<string>("suggestion")))
                                     //{
-                                    replyresult = "G";
+                                    //    replyresult = "G";
                                     //}
                                     //else
                                     //{
-                                    //    replyresult = "H";
-                                    //}                                    
+                                        replyresult = "H";
+                                    //}
 
                                 }
                             }
                         }
                         //SMALLTALK 확인
                         //else if (!string.IsNullOrEmpty(smallTalkConfirm) && string.IsNullOrEmpty(userData.GetProperty<string>("suggestion")))
-                        else if (!string.IsNullOrEmpty(smallTalkConfirm) && (userData[0].conversationsId == activity.Conversation.Id && string.IsNullOrEmpty(suggestions)))
+                        else if (!string.IsNullOrEmpty(smallTalkConfirm))
                         {
                             Debug.WriteLine("smalltalk dialogue-------------");
 
@@ -502,7 +513,7 @@ namespace cjEmployeeChatBot
 
                         }
                         //건의사항
-                        else if ((userData[0].conversationsId == activity.Conversation.Id && !string.IsNullOrEmpty(suggestions)))
+                        else if ((userData[0].conversationsId == activity.Conversation.Id && (userData[0].loop==1 || userData[0].loop == 2)))
                         {
                             Debug.WriteLine("suggestions dialogue-------------");
 
@@ -513,7 +524,6 @@ namespace cjEmployeeChatBot
 
                             List<TextList> text = new List<TextList>();
 
-                            //suggetionsMessageCnt 0이면 DLGGROUP 6출력, suggetionsMessageCnt 1로 변경
                             if (userData[0].loop == 1)
                             {
                                 text = db.SelectSuggetionsDialogText("6");
@@ -523,8 +533,7 @@ namespace cjEmployeeChatBot
                             else
                             {
                                 text = db.SelectSuggetionsDialogText("7");
-                                db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 1);
-                                suggestions = "";
+                                db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0);
                                 replyresult = "G";
                             }
 
@@ -599,6 +608,7 @@ namespace cjEmployeeChatBot
                         db.insertHistory(activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), "", "", "", "", replyresult);
                         replyresult = "";
                         luisIntent = "";
+                        luistTpyeEntities = "";
                     }
                 }
                 catch (Exception e)
@@ -645,6 +655,8 @@ namespace cjEmployeeChatBot
                     int dbResult = db.insertUserQuery();
                     db.insertHistory(activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), luisIntent, luisEntities, luisIntentScore, "","E");
                     replyresult = "";
+                    luisIntent = "";
+                    luistTpyeEntities = "";
                 }
                 finally
                 {
