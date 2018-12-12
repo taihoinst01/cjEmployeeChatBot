@@ -22,6 +22,7 @@ using Newtonsoft.Json;
 using Microsoft.Bot.Builder.ConnectorEx;
 using cjEmployeeChatBot.SAP;
 using SSODecodeCJW;
+using System.Threading;
 
 namespace cjEmployeeChatBot
 {
@@ -137,6 +138,27 @@ namespace cjEmployeeChatBot
             //Debug.WriteLine("PlainText=====" + PlainText);
             //DButil.HistoryLog("PlainText=====" + PlainText);
             //Response.Write(PlainText);
+
+            //node통하여 dll 호출... 제발 되라...
+            using (HttpClient client = new HttpClient())
+            {
+                //취소 시간 설정
+                string url = "https://cjemployeeconnect.azurewebsites.net/";
+                client.Timeout = TimeSpan.FromMilliseconds(5000); //5초
+                var cts = new CancellationTokenSource();
+                try
+                {
+                    HttpResponseMessage msg = await client.GetAsync(url, cts.Token);
+                    var request_msg = await msg.Content.ReadAsStringAsync();
+                    Debug.WriteLine("msg=====" + request_msg);
+                    DButil.HistoryLog("msg=====" + request_msg);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("ex.Message=====" + ex.Message);
+                    DButil.HistoryLog("ex.Message=====" + ex.Message);
+                }
+            }
 
 
             //사용자 계정 처리
