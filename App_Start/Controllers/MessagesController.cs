@@ -136,9 +136,38 @@ namespace cjEmployeeChatBot
             if (userData.Count() == 0)
             {
                 db.UserDataInsert(activity.ChannelId, activity.Conversation.Id);
-            } 
+            }
+            if (activity.Text.Contains("sso:"))
+            {
+                DButil.HistoryLog("sso=====1" );
+                string cjValue = activity.Text.Replace("sso:", "");
+                string[] cjValue_result = cjValue.Split(':');
+                //cjValue_result
+                using (HttpClient client = new HttpClient())
+                {
+                    //취소 시간 설정
+                    string url = "https://cjemployeeconnect.azurewebsites.net/?user_id=" + cjValue_result[0];
+                    client.Timeout = TimeSpan.FromMilliseconds(5000); //5초
+                    var cts = new CancellationTokenSource();
+                    try
+                    {
+                        HttpResponseMessage msg = await client.GetAsync(url, cts.Token);
+                        var request_msg = await msg.Content.ReadAsStringAsync();
+                        Debug.WriteLine("msg=====" + request_msg);
+                        DButil.HistoryLog("msg=====" + request_msg);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("ex.Message=====" + ex.Message);
+                        DButil.HistoryLog("ex.Message=====" + ex.Message);
+                    }
+                }
+                DButil.HistoryLog("sso=====2");
+                //response = Request.CreateResponse(HttpStatusCode.OK);
+                //return response;
 
-            if (activity.Type == ActivityTypes.ConversationUpdate && activity.MembersAdded.Any(m => m.Id == activity.Recipient.Id))
+            }
+            else if (activity.Type == ActivityTypes.ConversationUpdate && activity.MembersAdded.Any(m => m.Id == activity.Recipient.Id))
             {
                 startTime = DateTime.Now;
 
@@ -317,34 +346,7 @@ namespace cjEmployeeChatBot
                     //        }
                     //    }
                     //}
-                    if (orgMent.Contains("sso:"))
-                    {
-                        string cjValue = orgMent.Replace("sso:", "");
-                        string[] cjValue_result = cjValue.Split(':');
-                        //cjValue_result
-                        using (HttpClient client = new HttpClient())
-                        {
-                            //취소 시간 설정
-                            string url = "https://cjemployeeconnect.azurewebsites.net/?user_id="+ cjValue_result[0];
-                            client.Timeout = TimeSpan.FromMilliseconds(5000); //5초
-                            var cts = new CancellationTokenSource();
-                            try
-                            {
-                                HttpResponseMessage msg = await client.GetAsync(url, cts.Token);
-                                var request_msg = await msg.Content.ReadAsStringAsync();
-                                Debug.WriteLine("msg=====" + request_msg);
-                                DButil.HistoryLog("msg=====" + request_msg);
-                            }
-                            catch (Exception ex)
-                            {
-                                Debug.WriteLine("ex.Message=====" + ex.Message);
-                                DButil.HistoryLog("ex.Message=====" + ex.Message);
-                            }
-                        }
-
-                        response = Request.CreateResponse(HttpStatusCode.OK);
-                        return response;
-                    }
+                    
                     //apiFlag = "COMMON";
 
                     //대화 시작 시간
