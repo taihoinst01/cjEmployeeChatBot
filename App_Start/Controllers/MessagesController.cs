@@ -447,7 +447,7 @@ namespace cjEmployeeChatBot
                         {
                             relationList = null;
                             //smalltalk 답변가져오기
-                            if (orgMent.Length < 13)
+                            if (orgMent.Length < 9)
                             {
                                 smallTalkConfirm = db.SmallTalkConfirm;
                             } else
