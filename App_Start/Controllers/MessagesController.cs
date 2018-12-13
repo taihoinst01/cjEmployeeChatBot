@@ -121,23 +121,7 @@ namespace cjEmployeeChatBot
                 }
             };
 
-            //SSO
-            Debug.WriteLine("SSO START=====");
-            DButil.HistoryLog("SSO START=====");
-            //string KeyStr = "key";  // 상호간에 협의한 키값을 지정하세요
-            //string encryptedText = Request["encryptedtext"];    // 인코딩된 아이디 혹은 사번을 셋팅하세요
-
-            // 샘플 문자열입니다. 
-            //CJWKEY 로  8evVae2ekt7WtC2umaHAqYVyhf2W9eNA 을 decrypt 결과는 cjwsampleuser 입니다. 
-            //string KeyStr = "CJWKEY";
-            //string encryptedText = "8evVae2ekt7WtC2umaHAqYVyhf2W9eNA";
-
-            //CryptoDotNet cdn = new CryptoDotNet();
-            //string PlainText = cdn.Decrypt(encryptedText, KeyStr);
-
-            //Debug.WriteLine("PlainText=====" + PlainText);
-            //DButil.HistoryLog("PlainText=====" + PlainText);
-            //Response.Write(PlainText);
+            DButil.HistoryLog("activity.Text111111=====" + activity.Text);
 
             //node통하여 dll 호출... 제발 되라...
             using (HttpClient client = new HttpClient())
