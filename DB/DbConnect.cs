@@ -1013,7 +1013,7 @@ namespace cjEmployeeChatBot.DB
                     cmd.Parameters.AddWithValue("@Query", Regex.Replace(MessagesController.queryStr, @"[^a-zA-Z0-9ㄱ-힣]", "", RegexOptions.Singleline).Trim().ToLower());
                     cmd.Parameters.AddWithValue("@intentID", intentName.Trim());
                     cmd.Parameters.AddWithValue("@entitiesIDS", entities.Trim().ToLower());
-                    if (result.Equals("D") || result.Equals("S") || result.Equals("G"))
+                    if (result.Equals("D") || result.Equals("S") || result.Equals("G") || result.Equals("Q"))
                     {
                         cmd.Parameters.AddWithValue("@intentScore", "0");
                     }

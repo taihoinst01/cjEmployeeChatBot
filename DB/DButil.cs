@@ -10,6 +10,8 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Text;
+using Newtonsoft.Json;
 
 namespace cjEmployeeChatBot.DB
 {
@@ -825,6 +827,32 @@ namespace cjEmployeeChatBot.DB
             }
 
             return image;
+        }
+
+        public String GetQnAMaker(string query)
+        {
+            var task_luis = Task<string>.Run(() => GetQnAMakerBot(query));
+            var msg = (string)task_luis.Result;
+            return msg;
+        }
+
+        public static async Task<string> GetQnAMakerBot(string query)
+        {
+            //루이스 json 선언
+            var url =
+               "https://cjsapqna.azurewebsites.net/qnamaker/knowledgebases/de5cd645-059a-4e0b-b2a6-d084240d31a8/generateAnswer";
+            var httpContent = new StringContent("{'question':'" + query + "'}", Encoding.UTF8, "application/json");
+
+            var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("Authorization", "EndpointKey a5379adc-3395-431b-bfd4-ef53017e3323");
+            var httpResponse = await httpClient.PostAsync(url, httpContent);
+            var httpResponseMessage = await httpResponse.Content.ReadAsStringAsync();
+            dynamic httpResponseJson = JsonConvert.DeserializeObject(httpResponseMessage);
+            //var replyMessage = (string)httpResponseJson.answers[0].answer;
+            var replyMessage = httpResponseJson.answers[0].answer;
+
+            return replyMessage;           
+
         }
     }
 }

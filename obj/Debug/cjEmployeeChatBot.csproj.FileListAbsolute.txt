@@ -58,3 +58,4 @@ C:\Users\User\Source\Repos\cjEmployeeChatBot\obj\Debug\cjEmployeeChatBot.csproj.
 C:\Users\User\Source\Repos\cjEmployeeChatBot\obj\Debug\cjEmployeeChatBot.csproj.CopyComplete
 C:\Users\User\Source\Repos\cjEmployeeChatBot\obj\Debug\Bot Application.dll
 C:\Users\User\Source\Repos\cjEmployeeChatBot\obj\Debug\Bot Application.pdb
+C:\Users\User\Source\Repos\cjEmployeeChatBot\obj\Debug\cjEmployeeChatBot.csprojAssemblyReference.cache

@@ -160,7 +160,7 @@ namespace cjEmployeeChatBot
                 }
             }
 
-
+            
             //사용자 계정 처리
             //if (activity.Contains("userid"))
             //{
@@ -307,7 +307,7 @@ namespace cjEmployeeChatBot
                     Debug.WriteLine("* activity.Type == ActivityTypes.Message ");
                     channelID = activity.ChannelId;
                     string orgMent = activity.Text;
-
+                    DButil.HistoryLog("* activity.Text : " + activity.Text); 
                     //현재위치사용승인
                     if (orgMent.Contains("current location") || orgMent.Equals("현재위치사용승인"))
                     {
@@ -395,6 +395,9 @@ namespace cjEmployeeChatBot
                         //cacheList.luisIntent 초기화
                         cacheList.luisIntent = null;
 
+                        
+                        
+
                         //건의사항
                         if (orgMent.Contains("건의사항")|| orgMent.Contains("건의 사항"))
                         {
@@ -408,8 +411,15 @@ namespace cjEmployeeChatBot
                         //smalltalk 문자 확인                        
                         String smallTalkSentenceConfirm = db.SmallTalkSentenceConfirm;
 
+                        //SAP 용어 확인
+                        string qnAMakerAnswer = dbutil.GetQnAMaker(luisQuery);
+
                         //smalltalk 답변이 있을경우
                         if (!string.IsNullOrEmpty(smallTalkSentenceConfirm))
+                        {
+                            luisId = "";
+                        }
+                        else if  (qnAMakerAnswer.Equals("No good match found in KB"))
                         {
                             luisId = "";                            
                         }
@@ -588,6 +598,32 @@ namespace cjEmployeeChatBot
 
                             SetActivity(suggestionsReply);
 
+                        }
+                        else if (!qnAMakerAnswer.Equals("No good match found in KB"))
+                        {
+                            Activity qnAMakerReply = activity.CreateReply();
+
+                            qnAMakerReply.Recipient = activity.From;
+                            qnAMakerReply.Type = "message";
+                            qnAMakerReply.Attachments = new List<Attachment>();
+
+                            List<CardList> text = new List<CardList>();
+
+                            UserHeroCard plCard = new UserHeroCard()
+                            {
+                                Title = "SAP 용어",
+                                Text = qnAMakerAnswer
+                            };
+
+                            Attachment plAttachment = plCard.ToAttachment();
+                            qnAMakerReply.Attachments.Add(plAttachment);
+
+                            SetActivity(qnAMakerReply);
+
+                            db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0);
+                            replyresult = "Q";
+                            luisIntent = "SAP";
+                            luistTpyeEntities = "SAP";
                         }
                         else
                         {
