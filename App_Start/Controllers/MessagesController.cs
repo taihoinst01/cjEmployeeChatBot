@@ -268,28 +268,35 @@ namespace cjEmployeeChatBot
                 //string cjValue = activity.Text.Replace("sso:", "");
                 //string[] cjValue_result = cjValue.Split(':');
                 ////cjValue_result
-                using (HttpClient client = new HttpClient())
-                {
-                    //취소 시간 설정
-                    //string url = "https://cjemployeeconnect.azurewebsites.net/?user_id=" + cjValue_result[0];
-                    string url = "https://cjemployeeconnect.azurewebsites.net/";
-                    client.Timeout = TimeSpan.FromMilliseconds(1000); //5초
-                    var cts = new CancellationTokenSource();
-                    try
-                    {
-                        DButil.HistoryLog("ssoa=====2");
-                        HttpResponseMessage msg = await client.GetAsync(url, cts.Token);
-                        DButil.HistoryLog("ssob=====2");
-                        var request_msg = await msg.Content.ReadAsStringAsync();
-                        Debug.WriteLine("msg=====" + request_msg);
-                        DButil.HistoryLog("msg=====" + request_msg);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine("ex.Message=====" + ex.Message);
-                        DButil.HistoryLog("ex.Message=====" + ex.Message);
-                    }
-                }
+                //using (HttpClient client = new HttpClient())
+                //{
+                //    //취소 시간 설정
+                //    //string url = "https://cjemployeeconnect.azurewebsites.net/?user_id=" + cjValue_result[0];
+                //    string url = "https://cjemployeeconnect.azurewebsites.net/";
+                //    client.Timeout = TimeSpan.FromMilliseconds(1000); //5초
+                //    var cts = new CancellationTokenSource();
+                //    try
+                //    {
+                //        DButil.HistoryLog("ssoa=====2");
+                //        HttpResponseMessage msg = await client.GetAsync(url, cts.Token);
+                //        DButil.HistoryLog("ssob=====2");
+                //        var request_msg = await msg.Content.ReadAsStringAsync();
+                //        Debug.WriteLine("msg=====" + request_msg);
+                //        DButil.HistoryLog("msg=====" + request_msg);
+                //    }
+                //    catch (Exception ex)
+                //    {
+                //        Debug.WriteLine("ex.Message=====" + ex.Message);
+                //        DButil.HistoryLog("ex.Message=====" + ex.Message);
+                //    }
+                //}
+
+                var url = "https://cjemployeeconnect.azurewebsites.net/";
+
+                var httpClient = new HttpClient();
+                var httpResponse = await httpClient.GetAsync(url);
+                var httpResponseMessage = await httpResponse.Content.ReadAsStringAsync();
+                dynamic httpResponseJson = JsonConvert.DeserializeObject(httpResponseMessage);
                 Debug.WriteLine("sso=====2");
                 DButil.HistoryLog("sso=====2");
 
