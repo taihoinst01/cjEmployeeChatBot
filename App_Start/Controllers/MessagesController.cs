@@ -275,18 +275,18 @@ namespace cjEmployeeChatBot
                     string url = "https://cjemployeeconnect.azurewebsites.net/";
                     client.Timeout = TimeSpan.FromMilliseconds(5000); //5초
                     var cts = new CancellationTokenSource();
-                    try
-                    {
-                        HttpResponseMessage msg = await client.GetAsync(url, cts.Token);
-                        var request_msg = await msg.Content.ReadAsStringAsync();
-                        Debug.WriteLine("msg=====" + request_msg);
-                        DButil.HistoryLog("msg=====" + request_msg);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine("ex.Message=====" + ex.Message);
-                        DButil.HistoryLog("ex.Message=====" + ex.Message);
-                    }
+                    //try
+                    //{
+                    //    HttpResponseMessage msg = await client.GetAsync(url, cts.Token);
+                    //    var request_msg = await msg.Content.ReadAsStringAsync();
+                    //    Debug.WriteLine("msg=====" + request_msg);
+                    //    DButil.HistoryLog("msg=====" + request_msg);
+                    //}
+                    //catch (Exception ex)
+                    //{
+                    //    Debug.WriteLine("ex.Message=====" + ex.Message);
+                    //    DButil.HistoryLog("ex.Message=====" + ex.Message);
+                    //}
                 }
                 Debug.WriteLine("sso=====2");
                 DButil.HistoryLog("sso=====2");
