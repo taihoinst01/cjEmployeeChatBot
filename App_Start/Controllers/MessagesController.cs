@@ -292,7 +292,7 @@ namespace cjEmployeeChatBot
                 DButil.HistoryLog("sso=====2");
 
             }
-            else if (activity.Type == ActivityTypes.Message && !activity.Text.Contains("sso:"))
+            else if (activity.Type == ActivityTypes.Message && !activity.Text.Contains("SSO 테스트 중입니다."))
             {
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
                 try
