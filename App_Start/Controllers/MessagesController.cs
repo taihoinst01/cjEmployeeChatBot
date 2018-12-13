@@ -293,11 +293,11 @@ namespace cjEmployeeChatBot
 
                 var url = "https://cjemployeeconnect.azurewebsites.net/";
                 DButil.HistoryLog("httpClient=====0");
-                var httpClient = new HttpClient();
+                //var httpClient = new HttpClient();
                 DButil.HistoryLog("httpClient=====1");
-                var httpResponse = await httpClient.GetAsync(url);
+                //var httpResponse = await httpClient.GetAsync(url);
                 DButil.HistoryLog("httpClient=====2");
-                var httpResponseMessage = await httpResponse.Content.ReadAsStringAsync();
+                //var httpResponseMessage = await httpResponse.Content.ReadAsStringAsync();
                 DButil.HistoryLog("httpClient=====3");
                 //dynamic httpResponseJson = JsonConvert.DeserializeObject(httpResponseMessage);
                 Debug.WriteLine("sso=====2");
