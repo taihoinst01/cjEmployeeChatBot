@@ -142,9 +142,7 @@ namespace cjEmployeeChatBot
                     Debug.WriteLine("ex.Message=====" + ex.Message);
                     DButil.HistoryLog("ex.Message=====" + ex.Message);
                 }
-            }
-
-            
+            }            
             //사용자 계정 처리
             //if (activity.Contains("userid"))
             //{
