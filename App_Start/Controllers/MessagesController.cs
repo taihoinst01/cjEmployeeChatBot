@@ -384,9 +384,6 @@ namespace cjEmployeeChatBot
                         //cacheList.luisIntent 초기화
                         cacheList.luisIntent = null;
 
-                        
-                        
-
                         //건의사항
                         if (orgMent.Contains("건의사항")|| orgMent.Contains("건의 사항"))
                         {
@@ -408,7 +405,7 @@ namespace cjEmployeeChatBot
                         {
                             luisId = "";
                         }
-                        else if  (qnAMakerAnswer.Equals("No good match found in KB"))
+                        else if  (qnAMakerAnswer.Contains("No good match"))
                         {
                             luisId = "";                            
                         }
@@ -588,7 +585,7 @@ namespace cjEmployeeChatBot
                             SetActivity(suggestionsReply);
 
                         }
-                        else if (!qnAMakerAnswer.Equals("No good match found in KB"))
+                        else if (!qnAMakerAnswer.Contains("No good match"))
                         {
                             Activity qnAMakerReply = activity.CreateReply();
 
