@@ -121,10 +121,7 @@ namespace cjEmployeeChatBot
                 }
             };
 
-            DButil.HistoryLog("activity.Text111111=====" + activity.Text);
-            //DButil.HistoryLog("ActivityTypes.Message=====" + ActivityTypes.Message);
             
-
             //node통하여 dll 호출... 제발 되라...
             using (HttpClient client = new HttpClient())
             {
@@ -165,6 +162,8 @@ namespace cjEmployeeChatBot
             if (activity.Type == ActivityTypes.ConversationUpdate && activity.MembersAdded.Any(m => m.Id == activity.Recipient.Id))
             {
                 startTime = DateTime.Now;
+
+                DButil.HistoryLog("activity.Text111111=====" + activity.Text);
 
                 //파라메터 호출
                 if (LUIS_NM.Count(s => s != null) > 0)
