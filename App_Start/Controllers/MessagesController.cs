@@ -163,7 +163,7 @@ namespace cjEmployeeChatBot
             {
                 startTime = DateTime.Now;
 
-                DButil.HistoryLog("activity.Text111111=====" + activity.Text);
+                //DButil.HistoryLog("activity.Text111111=====" + activity.Text);
 
                 //파라메터 호출
                 if (LUIS_NM.Count(s => s != null) > 0)
