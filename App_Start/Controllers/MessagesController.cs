@@ -122,6 +122,8 @@ namespace cjEmployeeChatBot
             };
 
             DButil.HistoryLog("activity.Text111111=====" + activity.Text);
+            DButil.HistoryLog("ActivityTypes.Message=====" + ActivityTypes.Message);
+            
 
             //node통하여 dll 호출... 제발 되라...
             using (HttpClient client = new HttpClient())
