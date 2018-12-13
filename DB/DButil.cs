@@ -849,7 +849,16 @@ namespace cjEmployeeChatBot.DB
             var httpResponseMessage = await httpResponse.Content.ReadAsStringAsync();
             dynamic httpResponseJson = JsonConvert.DeserializeObject(httpResponseMessage);
             //var replyMessage = (string)httpResponseJson.answers[0].answer;
-            var replyMessage = httpResponseJson.answers[0].answer;
+            var replyMessage = "";
+
+            if (httpResponseJson.answers[0].score > 70.00)
+            {
+                replyMessage = httpResponseJson.answers[0].answer;
+            } else
+            {
+                replyMessage = "No good match";
+            }
+            
 
             return replyMessage;           
 

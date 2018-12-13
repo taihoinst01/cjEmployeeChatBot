@@ -436,7 +436,7 @@ namespace cjEmployeeChatBot
                         {
                             luisId = "";
                         }
-                        else if  (qnAMakerAnswer.Contains("No good match"))
+                        else if (!qnAMakerAnswer.Contains("No good match"))
                         {
                             luisId = "";                            
                         }
