@@ -292,17 +292,9 @@ namespace cjEmployeeChatBot
                 //    }
                 //}
 
-                var url = "https://cjemployeeconnect.azurewebsites.net/";
-                DButil.HistoryLog("httpClient=====0");
-                //var httpClient = new HttpClient();
-                DButil.HistoryLog("httpClient=====1");
-                //var httpResponse = await httpClient.GetAsync(url);
-                DButil.HistoryLog("httpClient=====2");
-                //var httpResponseMessage = await httpResponse.Content.ReadAsStringAsync();
-                DButil.HistoryLog("httpClient=====3");
-                //dynamic httpResponseJson = JsonConvert.DeserializeObject(httpResponseMessage);
-                Debug.WriteLine("sso=====2");
-                DButil.HistoryLog("sso=====2");
+                DButil.HistoryLog("start sso : ");
+                string sso = dbutil.GetSSO("sso:");
+                DButil.HistoryLog("sso : " + sso);               
 
             }
             else if (activity.Type == ActivityTypes.Message && !activity.Text.Contains("SSO 테스트 중입니다."))
@@ -390,9 +382,7 @@ namespace cjEmployeeChatBot
                     //    return response;
                     //}
                     //apiFlag = "COMMON";
-                    DButil.HistoryLog("start sso : ");
-                    string sso = dbutil.GetSSO("sso:");
-                    DButil.HistoryLog("sso : " + sso);
+
                     //대화 시작 시간
                     startTime = DateTime.Now;
                     long unixTime = ((DateTimeOffset)startTime).ToUnixTimeSeconds();
