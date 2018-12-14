@@ -252,6 +252,10 @@ namespace cjEmployeeChatBot
 
                 //Debug.WriteLine("testEaiCall.ToString()====" + testEaiCall.call);
 
+                DButil.HistoryLog("start sso : ");
+                string sso = dbutil.GetSSO("sso:");
+                DButil.HistoryLog("sso : " + sso);
+
                 DateTime endTime = DateTime.Now;
                 Debug.WriteLine("프로그램 수행시간 : {0}/ms", ((endTime - startTime).Milliseconds));
                 Debug.WriteLine("* activity.Type : " + activity.Type);
@@ -291,10 +295,6 @@ namespace cjEmployeeChatBot
                 //        DButil.HistoryLog("ex.Message=====" + ex.Message);
                 //    }
                 //}
-
-                DButil.HistoryLog("start sso : ");
-                string sso = dbutil.GetSSO("sso:");
-                DButil.HistoryLog("sso : " + sso);               
 
             }
             else if (activity.Type == ActivityTypes.Message && !activity.Text.Contains("SSO 테스트 중입니다."))
