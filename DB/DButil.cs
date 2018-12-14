@@ -831,8 +831,8 @@ namespace cjEmployeeChatBot.DB
 
         public String GetQnAMaker(string query)
         {
-            var task_luis = Task<string>.Run(() => GetQnAMakerBot(query));
-            var msg = (string)task_luis.Result;
+            var task = Task<string>.Run(() => GetQnAMakerBot(query));
+            var msg = (string)task.Result;
             return msg;
         }
 
@@ -857,10 +857,41 @@ namespace cjEmployeeChatBot.DB
             } else
             {
                 replyMessage = "No good match";
-            }
-            
+            }            
 
             return replyMessage;           
+
+        }
+
+        public String GetSSO(string query)
+        {
+            var task = Task<string>.Run(() => GetSSORef(query));
+            var msg = (string)task.Result;
+            return msg;
+        }
+
+        public static async Task<string> GetSSORef(string id)
+        {
+            //루이스 json 선언
+            var url = "https://cjemployeeconnect.azurewebsites.net/M";
+
+            var httpClient = new HttpClient();
+            var httpResponse = await httpClient.GetAsync(url);
+            var httpResponseMessage = await httpResponse.Content.ReadAsStringAsync();
+            //dynamic httpResponseJson = JsonConvert.DeserializeObject(httpResponseMessage);
+            //var replyMessage = (string)httpResponseJson.answers[0].answer;
+            //var replyMessage = "";
+
+            //if (httpResponseJson.answers[0].score > 70.00)
+            //{
+            //    replyMessage = httpResponseJson.answers[0].answer;
+            //}
+            //else
+            //{
+            //    replyMessage = "No good match";
+            //}
+
+            return httpResponseMessage;
 
         }
     }

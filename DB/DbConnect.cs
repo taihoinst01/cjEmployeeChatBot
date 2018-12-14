@@ -1013,7 +1013,7 @@ namespace cjEmployeeChatBot.DB
                     cmd.Parameters.AddWithValue("@Query", Regex.Replace(MessagesController.queryStr, @"[^a-zA-Z0-9ㄱ-힣]", "", RegexOptions.Singleline).Trim().ToLower());
                     cmd.Parameters.AddWithValue("@intentID", intentName.Trim());
                     cmd.Parameters.AddWithValue("@entitiesIDS", entities.Trim().ToLower());
-                    if (result.Equals("D") || result.Equals("S") || result.Equals("G") || result.Equals("Q"))
+                    if (result.Equals("D") || result.Equals("S") || result.Equals("G") || result.Equals("Q") || result.Equals("I"))
                     {
                         cmd.Parameters.AddWithValue("@intentScore", "0");
                     }
@@ -1182,7 +1182,6 @@ namespace cjEmployeeChatBot.DB
                     result = '1';
                     Debug.WriteLine("ex : " + ex.Message);
                 }
-                
                 //Debug.WriteLine("result : " + result);
             }
             return result;
@@ -1218,6 +1217,7 @@ namespace cjEmployeeChatBot.DB
                 {
                     result = Convert.ToInt32(rdr["CHATBOT_COMMENT_CODE"]);
                 }
+                rdr.Close();
             }
             return result;
         }
@@ -1258,6 +1258,7 @@ namespace cjEmployeeChatBot.DB
                 {
                     newMsg = rdr["VAL"] as string;
                 }
+                rdr.Close();
             }
             return newMsg;
         }
@@ -1300,6 +1301,7 @@ namespace cjEmployeeChatBot.DB
                     {
                         Debug.WriteLine(e.Message);
                     }
+                    rdr.Close();
 
                 }
                 return smallTalkAnswer;
@@ -1348,6 +1350,7 @@ namespace cjEmployeeChatBot.DB
                     {
                         Debug.WriteLine(e.Message);
                     }
+                    rdr.Close();
 
                 }
                 return smallTalkAnswer;
@@ -1368,13 +1371,13 @@ namespace cjEmployeeChatBot.DB
                 SqlCommand cmd = new SqlCommand();
                 cmd.Connection = conn;
 
-                cmd.CommandText += "INSERT INTO TBL_USERDATA(CHANNELDATA, CONVERSATIONSID, LOOP) ";
-                cmd.CommandText += " VALUES (@channeldata, @conversationsid,0)";
+                cmd.CommandText += "INSERT INTO TBL_USERDATA(CHANNELDATA, CONVERSATIONSID, LOOP, SAP) ";
+                cmd.CommandText += " VALUES (@channeldata, @conversationsid,0,0)";
 
                 cmd.Parameters.AddWithValue("@channeldata", channelData);
                 cmd.Parameters.AddWithValue("@conversationsid", conversationsId);
 
-                rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
+                //rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
 
                 try
                 {
@@ -1389,11 +1392,11 @@ namespace cjEmployeeChatBot.DB
             return result;
         }
 
-        public int UserDataUpdate(string channelData, string conversationsId, int loop)
+        public int UserDataUpdate(string channelData, string conversationsId, int cnt, string gubun)
         {
 
             SqlDataReader rdr = null;
-            int result = 0;
+            int result = 0;           
 
             using (SqlConnection conn = new SqlConnection(connStr))
             {
@@ -1402,17 +1405,27 @@ namespace cjEmployeeChatBot.DB
                 SqlCommand cmd = new SqlCommand();
                 cmd.Connection = conn;
 
-                cmd.CommandText += " UPDATE TBL_USERDATA ";
-                cmd.CommandText += " SET LOOP = @loop ";
-                cmd.CommandText += " WHERE     CHANNELDATA = @channeldata ";
-                cmd.CommandText += " AND         CONVERSATIONSID = @conversationsid ";
-                
+                if (gubun.Equals("loop"))
+                {
+                    cmd.CommandText += " UPDATE     TBL_USERDATA ";
+                    cmd.CommandText += " SET           LOOP = @cnt ";
+                    cmd.CommandText += " WHERE      CHANNELDATA = @channeldata ";
+                    cmd.CommandText += " AND           CONVERSATIONSID = @conversationsid ";
 
+                }
+                else
+                {
+                    cmd.CommandText += " UPDATE     TBL_USERDATA ";
+                    cmd.CommandText += " SET           SAP = @cnt ";
+                    cmd.CommandText += " WHERE      CHANNELDATA = @channeldata ";
+                    cmd.CommandText += " AND          CONVERSATIONSID = @conversationsid ";
+                }
+                
                 cmd.Parameters.AddWithValue("@channeldata", channelData);
                 cmd.Parameters.AddWithValue("@conversationsid", conversationsId);
-                cmd.Parameters.AddWithValue("@loop", loop);
+                cmd.Parameters.AddWithValue("@cnt", cnt);
 
-                rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
+                //rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
 
                 try
                 {
@@ -1422,7 +1435,6 @@ namespace cjEmployeeChatBot.DB
                 {
                     Debug.WriteLine(e.Message);
                 }
-
             }
             return result;
         }
@@ -1431,15 +1443,16 @@ namespace cjEmployeeChatBot.DB
         {
             SqlDataReader rdr = null;
             List<UserData> userdata = new List<UserData>();
+            SqlCommand cmd = new SqlCommand();
 
             using (SqlConnection conn = new SqlConnection(connStr))
             {
 
                 conn.Open();
-                SqlCommand cmd = new SqlCommand();
+                //SqlCommand cmd = new SqlCommand();
                 cmd.Connection = conn;
 
-                cmd.CommandText += "SELECT  TOP 1 CHANNELDATA, CONVERSATIONSID, LOOP ";
+                cmd.CommandText += "SELECT  TOP 1 CHANNELDATA, CONVERSATIONSID, LOOP, SAP ";
                 cmd.CommandText += "FROM    TBL_USERDATA ";
                 cmd.CommandText += "WHERE  CHANNELDATA = @channeldata ";
                 cmd.CommandText += "AND      CONVERSATIONSID = @conversationsId ";
@@ -1457,6 +1470,7 @@ namespace cjEmployeeChatBot.DB
                         userData.channelData = rdr["CHANNELDATA"] as string;
                         userData.conversationsId = rdr["CONVERSATIONSID"] as string;
                         userData.loop = Convert.ToInt32(rdr["LOOP"]);
+                        userData.sap = Convert.ToInt32(rdr["SAP"]);
                         userdata.Add(userData);
 
                     }
@@ -1465,7 +1479,7 @@ namespace cjEmployeeChatBot.DB
                 {
                     Debug.WriteLine(e.Message);
                 }
-
+                rdr.Close();
             }
             return userdata;
         }

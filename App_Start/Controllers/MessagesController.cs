@@ -79,6 +79,7 @@ namespace cjEmployeeChatBot
         public static DbConnect db = new DbConnect();
         public static DButil dbutil = new DButil();
         public static TestEaiCall tec = new TestEaiCall();
+        //public static List<UserData> userData = new List<UserData>();
 
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
         {
@@ -120,7 +121,7 @@ namespace cjEmployeeChatBot
 
                 }
             };
-    
+
             //사용자 계정 처리
             //if (activity.Contains("userid"))
             //{
@@ -135,8 +136,8 @@ namespace cjEmployeeChatBot
 
             if (userData.Count() == 0)
             {
-                db.UserDataInsert(activity.ChannelId, activity.Conversation.Id);
-            } 
+                int userDataResult = db.UserDataInsert(activity.ChannelId, activity.Conversation.Id);
+            }
 
             if (activity.Type == ActivityTypes.ConversationUpdate && activity.MembersAdded.Any(m => m.Id == activity.Recipient.Id))
             {
@@ -389,7 +390,9 @@ namespace cjEmployeeChatBot
                     //    return response;
                     //}
                     //apiFlag = "COMMON";
-
+                    DButil.HistoryLog("start sso : ");
+                    string sso = dbutil.GetSSO("sso:");
+                    DButil.HistoryLog("sso : " + sso);
                     //대화 시작 시간
                     startTime = DateTime.Now;
                     long unixTime = ((DateTimeOffset)startTime).ToUnixTimeSeconds();
@@ -426,6 +429,15 @@ namespace cjEmployeeChatBot
                         //cacheList = db.CacheChk(cashOrgMent.Replace(" ", ""));                     // 캐시 체크 (TBL_QUERY_ANALYSIS_RESULT 조회..)
                         //cacheList.luisIntent 초기화
                         cacheList.luisIntent = null;
+                        //SAP 비밀번호 
+                        if (orgMent.Equals("sap비밀번호초기화신청접수"))
+                        {
+                            if (userData[0].conversationsId == activity.Conversation.Id)
+                            {
+                                db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 1 , "sap");
+                                userData[0].sap = 1;
+                            }
+                        }
 
                         //건의사항
                         if (orgMent.Contains("건의사항")|| orgMent.Contains("건의 사항"))
@@ -433,7 +445,7 @@ namespace cjEmployeeChatBot
                             if (userData[0].conversationsId == activity.Conversation.Id)
                             {
                                 //suggestions = "Y";
-                                db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 1);
+                                db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 1, "loop");
                                 userData[0].loop = 1;
                             }
                         }
@@ -451,6 +463,10 @@ namespace cjEmployeeChatBot
                         else if (!qnAMakerAnswer.Contains("No good match"))
                         {
                             luisId = "";                            
+                        }
+                        else if (userData[0].sap == 1 || userData[0].sap == 2 || userData[0].sap == 3)
+                        {
+                            luisId = "";
                         }
                         //luis 호출
                         else if (cacheList.luisIntent == null || cacheList.luisEntities == null)
@@ -586,7 +602,7 @@ namespace cjEmployeeChatBot
 
                             SetActivity(smallTalkReply);
                             replyresult = "S";
-                            db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0);
+                            db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "loop");
                         }
                         //건의사항
                         else if ((userData[0].conversationsId == activity.Conversation.Id && (userData[0].loop==1 || userData[0].loop == 2)))
@@ -603,13 +619,13 @@ namespace cjEmployeeChatBot
                             if (userData[0].loop == 1)
                             {
                                 text = db.SelectSuggetionsDialogText("6");
-                                db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 2);
+                                db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 2, "loop");
                                 replyresult = "G";
                             }
                             else
                             {
                                 text = db.SelectSuggetionsDialogText("7");
-                                db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0);
+                                db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "loop");
                                 replyresult = "G";
                             }
 
@@ -628,6 +644,64 @@ namespace cjEmployeeChatBot
                             SetActivity(suggestionsReply);
 
                         }
+
+                        //sap 비밀번호 초기화
+                        else if ((userData[0].conversationsId == activity.Conversation.Id && (userData[0].sap == 1 || userData[0].sap == 2 || userData[0].sap == 3)))
+                        {
+                            Debug.WriteLine("sapInit dialogue-------------");
+
+                            Activity sapInitReply = activity.CreateReply();
+                            sapInitReply.Recipient = activity.From;
+                            sapInitReply.Type = "message";
+                            sapInitReply.Attachments = new List<Attachment>();
+
+                            List<TextList> text = new List<TextList>();
+
+                            if (userData[0].sap == 1)
+                            {
+                                UserHeroCard plCard = new UserHeroCard()
+                                {
+                                    Text =  "초기화 안내 /n [CJWorld_ID] 님 SAP 비밀번호 초기화를 위해 계정의 사원번호가 필요합니다. 사원번호 를 입력해주세요."
+                                };
+
+                                Attachment plAttachment = plCard.ToAttachment();
+                                sapInitReply.Attachments.Add(plAttachment);
+                                db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 2, "sap");
+                            }
+                            else if (userData[0].sap == 2)
+                            {
+                                UserHeroCard plCard = new UserHeroCard()
+                                {
+                                    Text = "재발급사유' 를 입력해주세요. (5자 이상)"
+                                };
+
+                                Attachment plAttachment = plCard.ToAttachment();
+                                sapInitReply.Attachments.Add(plAttachment);
+                                db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 3, "sap");
+                            }
+                            else if (userData[0].sap == 3)
+                            {
+                                UserHeroCard plCard = new UserHeroCard()
+                                {
+                                    Text = "SAP 비밀번호 초기화를 진행중입니다."
+                                };
+
+                                Attachment plAttachment = plCard.ToAttachment();
+                                sapInitReply.Attachments.Add(plAttachment);
+
+                                UserHeroCard plCard1 = new UserHeroCard()
+                                {
+                                    Text = "[CJWorld_ID] 님의 SAP 비밀번호가 초기화 되었습니다. 초기화된 임시패스워드가 메일로 발송되었습니다. (5분이내수신)"
+                                };
+                                Attachment plAttachment1 = plCard1.ToAttachment();
+                                sapInitReply.Attachments.Add(plAttachment1);
+                                db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "sap");
+                            }
+                            replyresult = "I";
+                            SetActivity(sapInitReply);
+
+                        }
+
                         else if (!qnAMakerAnswer.Contains("No good match"))
                         {
                             Activity qnAMakerReply = activity.CreateReply();
@@ -649,7 +723,8 @@ namespace cjEmployeeChatBot
 
                             SetActivity(qnAMakerReply);
 
-                            db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0);
+                            db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "loop");
+                            db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "sap");
                             replyresult = "Q";
                             luisIntent = "SAP";
                             luistTpyeEntities = "SAP";
@@ -696,7 +771,8 @@ namespace cjEmployeeChatBot
                                 sorryReply.Attachments.Add(plAttachment);
                             }
 
-                            db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0);
+                            db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "loop");
+                            db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "sap");
 
                             SetActivity(sorryReply);
                             replyresult = "D";
@@ -761,6 +837,9 @@ namespace cjEmployeeChatBot
                     replyresult = "";
                     luisIntent = "";
                     luistTpyeEntities = "";
+
+                    db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "loop");
+                    db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "sap");
                 }
                 finally
                 {
