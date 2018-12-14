@@ -873,7 +873,14 @@ namespace cjEmployeeChatBot.DB
         public static async Task<string> GetSSORef(string id)
         {
             //루이스 json 선언
-            var url = "https://cjemployeeconnect.azurewebsites.net/M";
+            if(id.Substring(0,1) == "M")
+            {
+                var url = "https://cjemployeeconnect.azurewebsites.net/?M=" + id.Replace("Msso:", "");
+            }
+            else
+            {
+                var url = "https://cjemployeeconnect.azurewebsites.net/?P=" + id.Replace("Psso:", "");
+            }
 
             var httpClient = new HttpClient();
             var httpResponse = await httpClient.GetAsync(url);

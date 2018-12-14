@@ -252,10 +252,6 @@ namespace cjEmployeeChatBot
 
                 //Debug.WriteLine("testEaiCall.ToString()====" + testEaiCall.call);
 
-                DButil.HistoryLog("start sso : ");
-                string sso = dbutil.GetSSO("sso:");
-                DButil.HistoryLog("sso : " + sso);
-
                 DateTime endTime = DateTime.Now;
                 Debug.WriteLine("프로그램 수행시간 : {0}/ms", ((endTime - startTime).Milliseconds));
                 Debug.WriteLine("* activity.Type : " + activity.Type);
@@ -266,38 +262,15 @@ namespace cjEmployeeChatBot
                 DButil.HistoryLog("* activity.Recipient.Id : " + activity.Recipient.Id);
                 DButil.HistoryLog("* activity.ServiceUrl : " + activity.ServiceUrl);
             }
-            else if (activity.Type == ActivityTypes.Message && activity.Text.Contains("SSO 테스트 중입니다."))
+            else if (activity.Type == ActivityTypes.Message && activity.Text.Contains("sso:"))
             {
-                Debug.WriteLine("sso=====1");
-                DButil.HistoryLog("sso=====1");
-                //string cjValue = activity.Text.Replace("sso:", "");
-                //string[] cjValue_result = cjValue.Split(':');
-                ////cjValue_result
-                //using (HttpClient client = new HttpClient())
-                //{
-                //    //취소 시간 설정
-                //    //string url = "https://cjemployeeconnect.azurewebsites.net/?user_id=" + cjValue_result[0];
-                //    string url = "https://cjemployeeconnect.azurewebsites.net/";
-                //    client.Timeout = TimeSpan.FromMilliseconds(1000); //5초
-                //    var cts = new CancellationTokenSource();
-                //    try
-                //    {
-                //        DButil.HistoryLog("ssoa=====2");
-                //        HttpResponseMessage msg = await client.GetAsync(url, cts.Token);
-                //        DButil.HistoryLog("ssob=====2");
-                //        var request_msg = await msg.Content.ReadAsStringAsync();
-                //        Debug.WriteLine("msg=====" + request_msg);
-                //        DButil.HistoryLog("msg=====" + request_msg);
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        Debug.WriteLine("ex.Message=====" + ex.Message);
-                //        DButil.HistoryLog("ex.Message=====" + ex.Message);
-                //    }
-                //}
+                DButil.HistoryLog("start sso : ");
+                DButil.HistoryLog("activity.Text sso : " + activity.Text);
+                string sso = dbutil.GetSSO(activity.Text);
+                DButil.HistoryLog("sso : " + sso);
 
             }
-            else if (activity.Type == ActivityTypes.Message && !activity.Text.Contains("SSO 테스트 중입니다."))
+            else if (activity.Type == ActivityTypes.Message && !activity.Text.Contains("sso:"))
             {
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
                 try
