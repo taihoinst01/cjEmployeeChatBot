@@ -265,10 +265,8 @@ namespace cjEmployeeChatBot
             else if (activity.Type == ActivityTypes.Message && activity.Text.Contains("sso:"))
             {
                 DButil.HistoryLog("start sso : ");
-                DButil.HistoryLog("activity.Text sso : " + activity.Text);
-                string txt = activity.Text;
-                DButil.HistoryLog("activity.Text sso1 : " + txt);
-                string sso = dbutil.GetSSO(txt);
+                //string txt = activity.Text;
+                string sso = dbutil.GetSSO(activity.Text);
                 DButil.HistoryLog("sso : " + sso);
 
             }
