@@ -876,11 +876,11 @@ namespace cjEmployeeChatBot.DB
             var url = "";
             if (id.Substring(0,1) == "M")
             {
-                url = "https://cjemployeeconnect.azurewebsites.net/?M=" + id.Replace("Msso:", "");
+                url = "https://cjemployeeconnect.azurewebsites.net?M=" + id.Replace("Msso:", "");
             }
             else
             {
-                url = "https://cjemployeeconnect.azurewebsites.net/?P=" + id.Replace("Psso:", "");
+                url = "https://cjemployeeconnect.azurewebsites.net?P=" + id.Replace("Psso:", "");
             }
 
             var httpClient = new HttpClient();
