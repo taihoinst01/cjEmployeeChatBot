@@ -266,7 +266,9 @@ namespace cjEmployeeChatBot
             {
                 DButil.HistoryLog("start sso : ");
                 DButil.HistoryLog("activity.Text sso : " + activity.Text);
-                string sso = dbutil.GetSSO("sso:");
+                string txt = activity.Text;
+                DButil.HistoryLog("activity.Text sso1 : " + txt);
+                string sso = dbutil.GetSSO(txt);
                 DButil.HistoryLog("sso : " + sso);
 
             }
