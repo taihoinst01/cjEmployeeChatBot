@@ -267,6 +267,10 @@ namespace cjEmployeeChatBot
                 DButil.HistoryLog("start sso : ");
                 //string txt = activity.Text;
                 userID = dbutil.GetSSO(activity.Text);
+                if (string.IsNullOrEmpty(userID))
+                {
+                    userID = "srjang";
+                }
                 db.UserDataUpdateUserID(activity.ChannelId, activity.Conversation.Id, "userid" ,userID);
                 DButil.HistoryLog("sso : " + userID);
 
@@ -635,8 +639,8 @@ namespace cjEmployeeChatBot
                             else if (userData[0].sap == 2)
                             {
                                 int val;
-
-                                if (int.TryParse(orgMent, out val) || orgMent.Length != 6)
+                                Debug.WriteLine(int.TryParse(orgMent, out val));
+                                if (int.TryParse(orgMent, out val) && orgMent.Length != 6)
                                 {
                                     UserHeroCard plCard = new UserHeroCard()
                                     {

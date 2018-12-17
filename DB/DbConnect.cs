@@ -1499,14 +1499,14 @@ namespace cjEmployeeChatBot.DB
                 if (gubun.Equals("sabun"))
                 {
                     cmd.CommandText += " UPDATE     TBL_USERDATA ";
-                    cmd.CommandText += " SET           SANBUN = @val ";
+                    cmd.CommandText += " SET           SABUN = @val ";
                     cmd.CommandText += " WHERE      CHANNELDATA = @channeldata ";
                     cmd.CommandText += " AND          CONVERSATIONSID = @conversationsid ";
                 }
                 else if (gubun.Equals("reissue"))
                 {
                     cmd.CommandText += " UPDATE     TBL_USERDATA ";
-                    cmd.CommandText += " SET           SANBUN = @val ";
+                    cmd.CommandText += " SET           REISSUE = @val ";
                     cmd.CommandText += " WHERE      CHANNELDATA = @channeldata ";
                     cmd.CommandText += " AND          CONVERSATIONSID = @conversationsid ";
                 }
