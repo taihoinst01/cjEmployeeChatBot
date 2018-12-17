@@ -267,10 +267,6 @@ namespace cjEmployeeChatBot
                 DButil.HistoryLog("start sso : ");
                 //string txt = activity.Text;
                 userID = dbutil.GetSSO(activity.Text);
-                //if (string.IsNullOrEmpty(userID))
-                //{
-                //    userID = "srjang";
-                //}
                 db.UserDataUpdateUserID(activity.ChannelId, activity.Conversation.Id, "userid" ,userID);
                 DButil.HistoryLog("sso : " + userID);
 
