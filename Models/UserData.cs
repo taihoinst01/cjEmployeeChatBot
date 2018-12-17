@@ -12,5 +12,7 @@ namespace cjEmployeeChatBot.Models
         public int loop;
         public int sap;
         public string userId;
+        public string sabun;
+        public string reissue;
     }
 }

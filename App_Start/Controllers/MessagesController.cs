@@ -266,8 +266,9 @@ namespace cjEmployeeChatBot
             {
                 DButil.HistoryLog("start sso : ");
                 //string txt = activity.Text;
-                string sso = dbutil.GetSSO(activity.Text);
-                DButil.HistoryLog("sso : " + sso);
+                userID = dbutil.GetSSO(activity.Text);
+                db.UserDataUpdateUserID(activity.ChannelId, activity.Conversation.Id, "userid" ,userID);
+                DButil.HistoryLog("sso : " + userID);
 
             }
             else if (activity.Type == ActivityTypes.Message && !activity.Text.Contains("sso:"))
@@ -624,7 +625,7 @@ namespace cjEmployeeChatBot
                             {
                                 UserHeroCard plCard = new UserHeroCard()
                                 {
-                                    Text =  "초기화 안내 /n [CJWorld_ID] 님 SAP 비밀번호 초기화를 위해 계정의 사원번호가 필요합니다. 사원번호 를 입력해주세요."
+                                    Text =  "초기화 안내 /n ["+ userID + "] 님 SAP 비밀번호 초기화를 위해 계정의 사원번호가 필요합니다. 사원번호 를 입력해주세요."
                                 };
 
                                 Attachment plAttachment = plCard.ToAttachment();
@@ -633,32 +634,90 @@ namespace cjEmployeeChatBot
                             }
                             else if (userData[0].sap == 2)
                             {
-                                UserHeroCard plCard = new UserHeroCard()
-                                {
-                                    Text = "재발급사유' 를 입력해주세요. (5자 이상)"
-                                };
+                                int val;
 
-                                Attachment plAttachment = plCard.ToAttachment();
-                                sapInitReply.Attachments.Add(plAttachment);
-                                db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 3, "sap");
+                                if (int.TryParse(orgMent, out val) || orgMent.Length != 6)
+                                {
+                                    UserHeroCard plCard = new UserHeroCard()
+                                    {
+                                        Text = "정확한 사번을 입력해주세요."
+                                    };
+                                    Attachment plAttachment = plCard.ToAttachment();
+                                    sapInitReply.Attachments.Add(plAttachment);
+                                    db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 2, "sap");
+                                } else
+                                {
+                                    String sabun = "";
+                                    sabun = orgMent;
+                                    db.UserDataUpdateUserID(activity.ChannelId, activity.Conversation.Id, "sabun", sabun);
+
+                                    UserHeroCard plCard = new UserHeroCard()
+                                    {
+                                        Text = "재발급사유 를 입력해주세요. (5자 이상)"
+                                    };
+                                    Attachment plAttachment = plCard.ToAttachment();
+                                    sapInitReply.Attachments.Add(plAttachment);
+                                    db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 3, "sap");
+                                }
                             }
                             else if (userData[0].sap == 3)
                             {
-                                UserHeroCard plCard = new UserHeroCard()
+                                if (orgMent.Length < 6)
                                 {
-                                    Text = "SAP 비밀번호 초기화를 진행중입니다."
-                                };
+                                    UserHeroCard plCard = new UserHeroCard()
+                                    {
+                                        Text = "재발급사유 를 입력해주세요. (5자 이상)."
+                                    };
 
-                                Attachment plAttachment = plCard.ToAttachment();
-                                sapInitReply.Attachments.Add(plAttachment);
+                                    Attachment plAttachment = plCard.ToAttachment();
+                                    sapInitReply.Attachments.Add(plAttachment);
 
-                                UserHeroCard plCard1 = new UserHeroCard()
+                                    db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 3, "sap");
+                                }
+                                else
                                 {
-                                    Text = "[CJWorld_ID] 님의 SAP 비밀번호가 초기화 되었습니다. 초기화된 임시패스워드가 메일로 발송되었습니다. (5분이내수신)"
-                                };
-                                Attachment plAttachment1 = plCard1.ToAttachment();
-                                sapInitReply.Attachments.Add(plAttachment1);
-                                db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "sap");
+                                    String reissue = "";
+                                    reissue = orgMent;
+                                    db.UserDataUpdateUserID(activity.ChannelId, activity.Conversation.Id, "reissue", reissue);
+
+                                    UserHeroCard plCard = new UserHeroCard()
+                                    {
+                                        Text = "SAP 비밀번호 초기화를 진행중입니다."
+                                    };
+
+                                    Attachment plAttachment = plCard.ToAttachment();
+                                    sapInitReply.Attachments.Add(plAttachment);
+
+                                    //SAP 초기화 리스트
+                                    string urlParameter = "";
+                                    List<UserData> uData = new List<UserData>();
+                                    uData = db.UserDataSapConfirm(activity.ChannelId, activity.Conversation.Id);
+                                    urlParameter = "&sabun=" + uData[0].sabun+ "sabun=" + uData[0].reissue;
+
+                                    //SAP 초기화 작업
+                                    string sapInit = dbutil.GetSapInit(urlParameter);
+
+                                    if (sapInit.Equals("S"))
+                                    {
+                                        UserHeroCard plCard1 = new UserHeroCard()
+                                        {
+                                            Text = "[" + userID + "]님의 SAP 비밀번호가 초기화 되었습니다. 초기화된 임시패스워드가 메일로 발송되었습니다. (5분이내수신)"
+                                        };
+                                        Attachment plAttachment1 = plCard1.ToAttachment();
+                                        sapInitReply.Attachments.Add(plAttachment1);
+                                        db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "sap");
+                                    }
+                                    else
+                                    {
+                                        UserHeroCard plCard1 = new UserHeroCard()
+                                        {
+                                            Text = "[" + userID + "] 님의 SAP 비밀번호가 초기화가 실패되었습니다. 사원번호 및 사유를 재확인 부탁드립니다."
+                                        };
+                                        Attachment plAttachment1 = plCard1.ToAttachment();
+                                        sapInitReply.Attachments.Add(plAttachment1);
+                                        db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "sap");
+                                    }                                    
+                                }                                
                             }
                             replyresult = "I";
                             SetActivity(sapInitReply);

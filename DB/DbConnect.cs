@@ -1139,9 +1139,9 @@ namespace cjEmployeeChatBot.DB
                 SqlCommand cmd = new SqlCommand();
                 cmd.Connection = conn;
                 cmd.CommandText += " INSERT INTO TBL_HISTORY_QUERY ";
-                cmd.CommandText += " (USER_NUMBER, CUSTOMER_COMMENT_KR, CHATBOT_COMMENT_CODE, CHANNEL, RESPONSE_TIME, REG_DATE, ACTIVE_FLAG, APP_ID, LUIS_INTENT, LUIS_ENTITIES, LUIS_INTENT_SCORE, DLG_ID, RESULT) ";
+                cmd.CommandText += " (USER_NUMBER, CUSTOMER_COMMENT_KR, CHATBOT_COMMENT_CODE, CHANNEL, RESPONSE_TIME, REG_DATE, ACTIVE_FLAG, APP_ID, LUIS_INTENT, LUIS_ENTITIES, LUIS_INTENT_SCORE, DLG_ID, RESULT, USER_ID) ";
                 cmd.CommandText += " VALUES ";
-                cmd.CommandText += " (@userNumber, @customerCommentKR, @chatbotCommentCode, @channel, @responseTime, CONVERT(VARCHAR,  GETDATE(), 101) + ' ' + CONVERT(VARCHAR,  DATEADD( HH, 9, GETDATE() ), 24), 0, @appID, @luis_intent, @luis_entities, @luis_intent_score, @dlg_id, @result) ";
+                cmd.CommandText += " (@userNumber, @customerCommentKR, @chatbotCommentCode, @channel, @responseTime, CONVERT(VARCHAR,  GETDATE(), 101) + ' ' + CONVERT(VARCHAR,  DATEADD( HH, 9, GETDATE() ), 24), 0, @appID, @luis_intent, @luis_entities, @luis_intent_score, @dlg_id, @result, (SELECT TOP 1 USER_ID FROM TBL_USERDATA WHERE CHANNELDATA=@channel AND CONVERSATIONSID = @userNumber)) ";
 
                 cmd.Parameters.AddWithValue("@userNumber", userNumber);
                 cmd.Parameters.AddWithValue("@customerCommentKR", MessagesController.queryStr);
@@ -1472,7 +1472,6 @@ namespace cjEmployeeChatBot.DB
                         userData.loop = Convert.ToInt32(rdr["LOOP"]);
                         userData.sap = Convert.ToInt32(rdr["SAP"]);
                         userdata.Add(userData);
-
                     }
                 }
                 catch (Exception e)
@@ -1484,6 +1483,99 @@ namespace cjEmployeeChatBot.DB
             return userdata;
         }
 
+        public int UserDataUpdateUserID(string channelData, string conversationsId, string gubun, string val)
+        {
 
+            SqlDataReader rdr = null;
+            int result = 0;
+
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+
+                conn.Open();
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = conn;
+
+                if (gubun.Equals("sabun"))
+                {
+                    cmd.CommandText += " UPDATE     TBL_USERDATA ";
+                    cmd.CommandText += " SET           SANBUN = @val ";
+                    cmd.CommandText += " WHERE      CHANNELDATA = @channeldata ";
+                    cmd.CommandText += " AND          CONVERSATIONSID = @conversationsid ";
+                }
+                else if (gubun.Equals("reissue"))
+                {
+                    cmd.CommandText += " UPDATE     TBL_USERDATA ";
+                    cmd.CommandText += " SET           SANBUN = @val ";
+                    cmd.CommandText += " WHERE      CHANNELDATA = @channeldata ";
+                    cmd.CommandText += " AND          CONVERSATIONSID = @conversationsid ";
+                }
+                else
+                {
+                    cmd.CommandText += " UPDATE     TBL_USERDATA ";
+                    cmd.CommandText += " SET           USER_ID = @val ";
+                    cmd.CommandText += " WHERE      CHANNELDATA = @channeldata ";
+                    cmd.CommandText += " AND          CONVERSATIONSID = @conversationsid ";
+                }
+
+                cmd.Parameters.AddWithValue("@channeldata", channelData);
+                cmd.Parameters.AddWithValue("@conversationsid", conversationsId);
+                cmd.Parameters.AddWithValue("@val", val);                
+
+                try
+                {
+                    result = cmd.ExecuteNonQuery();
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                }
+            }
+            return result;
+        }
+
+        public List<UserData> UserDataSapConfirm(string channelData, string conversationsId)
+        {
+            SqlDataReader rdr = null;
+            List<UserData> userdata = new List<UserData>();
+            SqlCommand cmd = new SqlCommand();
+
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+
+                conn.Open();
+                //SqlCommand cmd = new SqlCommand();
+                cmd.Connection = conn;
+
+                cmd.CommandText += "SELECT  TOP 1 USER_ID, SABUN, REISSUE ";
+                cmd.CommandText += "FROM    TBL_USERDATA ";
+                cmd.CommandText += "WHERE  CHANNELDATA = @channeldata ";
+                cmd.CommandText += "AND      CONVERSATIONSID = @conversationsId ";
+
+                cmd.Parameters.AddWithValue("@channeldata", channelData);
+                cmd.Parameters.AddWithValue("@conversationsId", conversationsId);
+
+                rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
+
+                try
+                {
+                    while (rdr.Read())
+                    {
+                        UserData userData = new UserData();
+                        userData.userId = rdr["USER_ID"] as string;
+                        userData.sabun = rdr["SABUN"] as string;
+                        userData.reissue = rdr["REISSUE"] as string;
+                        userdata.Add(userData);
+
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                }
+                rdr.Close();
+            }
+            return userdata;
+        }
     }
 }
