@@ -883,7 +883,7 @@ namespace cjEmployeeChatBot.DB
                 url = "https://cjemployeeconnect.azurewebsites.net?P=" + id.Replace("Psso:", "");
             }
             //Debug.WriteLine("url");
-            HistoryLog("sso url====" + url);
+            //HistoryLog("sso url====" + url);
             var httpClient = new HttpClient();
             var httpResponse = await httpClient.GetAsync(url);
             var httpResponseMessage = await httpResponse.Content.ReadAsStringAsync();
