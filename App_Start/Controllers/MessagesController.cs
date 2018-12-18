@@ -138,7 +138,7 @@ namespace cjEmployeeChatBot
             {
                 int userDataResult = db.UserDataInsert(activity.ChannelId, activity.Conversation.Id);
             }
-            DButil.HistoryLog("userData insert end");
+            DButil.HistoryLog("userData insert end ");
             if (activity.Type == ActivityTypes.ConversationUpdate && activity.MembersAdded.Any(m => m.Id == activity.Recipient.Id))
             {
                 startTime = DateTime.Now;
