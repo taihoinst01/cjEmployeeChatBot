@@ -1158,6 +1158,10 @@ namespace cjEmployeeChatBot.DB
                 {
                     cmd.Parameters.AddWithValue("@chatbotCommentCode", "SUGGESTION");
                 }
+                else if (MessagesController.replyresult.Equals("I"))
+                {
+                    cmd.Parameters.AddWithValue("@chatbotCommentCode", "SAPINIT");
+                }
                 else
                 {
                     cmd.Parameters.AddWithValue("@chatbotCommentCode", intentName);

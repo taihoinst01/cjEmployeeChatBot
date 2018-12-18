@@ -525,14 +525,8 @@ namespace cjEmployeeChatBot
                                 if (commonReply.Attachments.Count > 0)
                                 {
                                     SetActivity(commonReply);
-                                    //if (!string.IsNullOrEmpty(userData.GetProperty<string>("suggestion")))
-                                    //{
-                                    //    replyresult = "G";
-                                    //}
-                                    //else
-                                    //{
-                                        replyresult = "H";
-                                    //}
+
+                                    replyresult = "H";
 
                                 }
                             }
@@ -613,6 +607,9 @@ namespace cjEmployeeChatBot
                         else if ((userData[0].conversationsId == activity.Conversation.Id && (userData[0].sap == 1 || userData[0].sap == 2 || userData[0].sap == 3)))
                         {
                             Debug.WriteLine("sapInit dialogue-------------");
+
+                            luisIntent = "SAPINIT";
+                            luistTpyeEntities = "SAPINIT";
 
                             Activity sapInitReply = activity.CreateReply();
                             sapInitReply.Recipient = activity.From;

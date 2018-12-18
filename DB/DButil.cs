@@ -257,6 +257,7 @@ namespace cjEmployeeChatBot.DB
                     int currentRetry = 0;
 
                     Debug.WriteLine("msg.IsSuccessStatusCode1 = " + msg.IsSuccessStatusCode);
+                    HistoryLog("msg.IsSuccessStatusCode1 = " + msg.IsSuccessStatusCode);
 
                     if (msg.IsSuccessStatusCode)
                     {
@@ -279,6 +280,7 @@ namespace cjEmployeeChatBot.DB
                             {
                                 //다시 호출
                                 Debug.WriteLine("msg.IsSuccessStatusCode2 = " + msg_re.IsSuccessStatusCode);
+                                HistoryLog("msg.IsSuccessStatusCode2 = " + msg.IsSuccessStatusCode);
                                 var JsonDataResponse = await msg_re.Content.ReadAsStringAsync();
                                 jsonObj = JObject.Parse(JsonDataResponse);
                                 currentRetry = 0;
@@ -294,6 +296,7 @@ namespace cjEmployeeChatBot.DB
                                 //    'entities':'[]'
                                 //}");
                                 Debug.WriteLine("GetIntentFromBotLUIS else print ");
+                                HistoryLog("GetIntentFromBotLUIS else print ");
                                 jsonObj = JObject.Parse(@"{
                                                                       'query': '',
                                                                       'topScoringIntent': {
@@ -318,6 +321,7 @@ namespace cjEmployeeChatBot.DB
                 catch (TaskCanceledException e)
                 {
                     Debug.WriteLine("GetIntentFromBotLUIS error = " + e.Message);
+                    HistoryLog("GetIntentFromBotLUIS error = " + e.Message);
                     //초기화
                     //jsonObj = JObject.Parse(@"{
                     //                'query':'',
