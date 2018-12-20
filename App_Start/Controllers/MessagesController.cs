@@ -451,6 +451,12 @@ namespace cjEmployeeChatBot
                             luisEntities = cacheList.luisEntities;
                             luisIntentScore = cacheList.luisScore;
 
+                        } else
+                        {
+                            luisId = cacheList.luisId;
+                            luisIntent = cacheList.luisIntent;
+                            luisEntities = cacheList.luisEntities;
+                            luisIntentScore = cacheList.luisScore;
                         }
 
                         DButil.HistoryLog("luisId : " + luisId);

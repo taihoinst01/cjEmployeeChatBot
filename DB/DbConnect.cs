@@ -758,7 +758,7 @@ namespace cjEmployeeChatBot.DB
                 cmd.CommandText += "  FROM  TBL_DLG_RELATION_LUIS                                                    ";
                 //cmd.CommandText += " WHERE  LUIS_ENTITIES = @entities                                                ";
                 cmd.CommandText += " WHERE  LUIS_INTENT = @intent                                                ";
-                cmd.CommandText += " AND  LUIS_ENTITIES = @entities                                                ";
+                //cmd.CommandText += " AND  LUIS_ENTITIES = @entities                                                ";
 
                 Debug.WriteLine("query : " + cmd.CommandText);
                 Debug.WriteLine("entity : " + entity);
