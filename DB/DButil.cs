@@ -10,6 +10,8 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Text;
+using Newtonsoft.Json;
 
 namespace cjEmployeeChatBot.DB
 {
@@ -255,6 +257,7 @@ namespace cjEmployeeChatBot.DB
                     int currentRetry = 0;
 
                     Debug.WriteLine("msg.IsSuccessStatusCode1 = " + msg.IsSuccessStatusCode);
+                    HistoryLog("msg.IsSuccessStatusCode1 = " + msg.IsSuccessStatusCode);
 
                     if (msg.IsSuccessStatusCode)
                     {
@@ -277,6 +280,7 @@ namespace cjEmployeeChatBot.DB
                             {
                                 //다시 호출
                                 Debug.WriteLine("msg.IsSuccessStatusCode2 = " + msg_re.IsSuccessStatusCode);
+                                HistoryLog("msg.IsSuccessStatusCode2 = " + msg.IsSuccessStatusCode);
                                 var JsonDataResponse = await msg_re.Content.ReadAsStringAsync();
                                 jsonObj = JObject.Parse(JsonDataResponse);
                                 currentRetry = 0;
@@ -292,6 +296,7 @@ namespace cjEmployeeChatBot.DB
                                 //    'entities':'[]'
                                 //}");
                                 Debug.WriteLine("GetIntentFromBotLUIS else print ");
+                                HistoryLog("GetIntentFromBotLUIS else print ");
                                 jsonObj = JObject.Parse(@"{
                                                                       'query': '',
                                                                       'topScoringIntent': {
@@ -316,6 +321,7 @@ namespace cjEmployeeChatBot.DB
                 catch (TaskCanceledException e)
                 {
                     Debug.WriteLine("GetIntentFromBotLUIS error = " + e.Message);
+                    HistoryLog("GetIntentFromBotLUIS error = " + e.Message);
                     //초기화
                     //jsonObj = JObject.Parse(@"{
                     //                'query':'',
@@ -826,5 +832,89 @@ namespace cjEmployeeChatBot.DB
 
             return image;
         }
+
+        public String GetQnAMaker(string query)
+        {
+            var task = Task<string>.Run(() => GetQnAMakerBot(query));
+            var msg = (string)task.Result;
+            return msg;
+        }
+
+        public static async Task<string> GetQnAMakerBot(string query)
+        {
+            //QnAMaker
+            var url =
+               "https://cjsapqna.azurewebsites.net/qnamaker/knowledgebases/de5cd645-059a-4e0b-b2a6-d084240d31a8/generateAnswer";
+            var httpContent = new StringContent("{'question':'" + query + "'}", Encoding.UTF8, "application/json");
+
+            var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("Authorization", "EndpointKey a5379adc-3395-431b-bfd4-ef53017e3323");
+            var httpResponse = await httpClient.PostAsync(url, httpContent);
+            var httpResponseMessage = await httpResponse.Content.ReadAsStringAsync();
+            dynamic httpResponseJson = JsonConvert.DeserializeObject(httpResponseMessage);
+            //var replyMessage = (string)httpResponseJson.answers[0].answer;
+            var replyMessage = "";
+
+            if (httpResponseJson.answers[0].score > 70.00)
+            {
+                replyMessage = httpResponseJson.answers[0].answer;
+            } else
+            {
+                replyMessage = "No good match";
+            }            
+
+            return replyMessage;           
+
+        }
+
+        //SSO 관련
+        public String GetSSO(string query)
+        {
+            var task = Task<string>.Run(() => GetSSORef(query));
+            var msg = (string)task.Result;
+            return msg;
+        }
+
+        public static async Task<string> GetSSORef(string id)
+        {
+            var url = "";
+            if (id.Substring(0,1) == "M")
+            {
+                url = "https://cjemployeeconnect.azurewebsites.net?M=" + id.Replace("Msso:", "");
+            }
+            else 
+            {
+                url = "https://cjemployeeconnect.azurewebsites.net?P=" + id.Replace("Psso:", "");
+            }
+            //Debug.WriteLine("url");
+            //HistoryLog("sso url====" + url);
+            var httpClient = new HttpClient();
+            var httpResponse = await httpClient.GetAsync(url);
+            var httpResponseMessage = await httpResponse.Content.ReadAsStringAsync();
+
+            return httpResponseMessage;
+        }
+
+        //SAP 비밀번호 초기화 관련
+        public String GetSapInit(string query)
+        {
+            var task = Task<string>.Run(() => GetSapInitRef(query));
+            var msg = (string)task.Result;
+            return msg;
+        }
+
+        public static async Task<string> GetSapInitRef(string id)
+        {
+            var url = "";
+
+            url = "https://cjemployeeconnect.azurewebsites.net?T=";
+
+            var httpClient = new HttpClient();
+            var httpResponse = await httpClient.GetAsync(url);
+            var httpResponseMessage = await httpResponse.Content.ReadAsStringAsync();
+
+            return httpResponseMessage;
+        }
+
     }
 }

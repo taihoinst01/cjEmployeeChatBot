@@ -16,6 +16,7 @@ C:\Users\User\Source\Repos\cjEmployeeChatBot\bin\Microsoft.Rest.ClientRuntime.dl
 C:\Users\User\Source\Repos\cjEmployeeChatBot\bin\Microsoft.WindowsAzure.Configuration.dll
 C:\Users\User\Source\Repos\cjEmployeeChatBot\bin\Moq.dll
 C:\Users\User\Source\Repos\cjEmployeeChatBot\bin\Newtonsoft.Json.dll
+C:\Users\User\Source\Repos\cjEmployeeChatBot\bin\SmartCJ.SSO.dll
 C:\Users\User\Source\Repos\cjEmployeeChatBot\bin\SSODecodeCJW.dll
 C:\Users\User\Source\Repos\cjEmployeeChatBot\bin\System.IdentityModel.Tokens.Jwt.dll
 C:\Users\User\Source\Repos\cjEmployeeChatBot\bin\System.Net.Http.Formatting.dll

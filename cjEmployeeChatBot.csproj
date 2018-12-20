@@ -89,6 +89,9 @@
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="SmartCJ.SSO">
+      <HintPath>..\cjEmployeeConnect\SampleDemo\wwwroot\Dll\SmartCJ.SSO.dll</HintPath>
+    </Reference>
     <Reference Include="SSODecodeCJW">
       <HintPath>..\..\..\Downloads\Crypto닷넷안내\SSODecodeCJW.dll</HintPath>
     </Reference>

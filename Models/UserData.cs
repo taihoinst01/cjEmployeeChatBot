@@ -10,6 +10,9 @@ namespace cjEmployeeChatBot.Models
         public string channelData;
         public string conversationsId;
         public int loop;
+        public int sap;
         public string userId;
+        public string sabun;
+        public string reissue;
     }
 }
