@@ -390,9 +390,9 @@ namespace cjEmployeeChatBot
                         orgMent = Regex.Replace(orgMent, @"[^a-zA-Z0-9ㄱ-힣]", "", RegexOptions.Singleline);
                         orgMent = orgMent.Replace(" ", "").ToLower();
                         queryStr = orgMent;
-                        //cacheList = db.CacheChk(cashOrgMent.Replace(" ", ""));                     // 캐시 체크 (TBL_QUERY_ANALYSIS_RESULT 조회..)
+                        cacheList = db.CacheChk(orgMent.Replace(" ", ""));                     // 캐시 체크 (TBL_QUERY_ANALYSIS_RESULT 조회..)
                         //cacheList.luisIntent 초기화
-                        cacheList.luisIntent = null;
+                        //cacheList.luisIntent = null;
                         //SAP 비밀번호 
                         if (orgMent.Equals("sap비밀번호초기화신청접수"))
                         {

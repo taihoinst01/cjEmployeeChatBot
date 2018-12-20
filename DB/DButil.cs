@@ -43,7 +43,7 @@ namespace cjEmployeeChatBot.DB
                     textList.Add(new string[] { MessagesController.LUIS_NM[i], MessagesController.LUIS_APP_ID[i], MessagesController.LUIS_SUBSCRIPTION, query });
                     Debug.WriteLine("GetMultiLUIS() LUIS_NM : " + MessagesController.LUIS_NM[i] + " | LUIS_APP_ID : " + MessagesController.LUIS_APP_ID[i]);
                 }
-
+                
                 //병렬처리 시간 체크
                 System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
                 watch.Start();
@@ -880,11 +880,11 @@ namespace cjEmployeeChatBot.DB
             var url = "";
             if (id.Substring(0,1) == "M")
             {
-                url = "https://cjemployeeconnect.azurewebsites.net?M=" + id.Replace("Msso:", "");
+                url = "https://cjemployeeconnect2.azurewebsites.net?M=" + id.Replace("Msso:", "");
             }
             else 
             {
-                url = "https://cjemployeeconnect.azurewebsites.net?P=" + id.Replace("Psso:", "");
+                url = "https://cjemployeeconnect2.azurewebsites.net?P=" + id.Replace("Psso:", "");
             }
             //Debug.WriteLine("url");
             //HistoryLog("sso url====" + url);
@@ -907,7 +907,7 @@ namespace cjEmployeeChatBot.DB
         {
             var url = "";
 
-            url = "https://cjemployeeconnect.azurewebsites.net?T=";
+            url = "https://cjemployeeconnect2.azurewebsites.net?T=";
 
             var httpClient = new HttpClient();
             var httpResponse = await httpClient.GetAsync(url);
@@ -915,6 +915,7 @@ namespace cjEmployeeChatBot.DB
 
             return httpResponseMessage;
         }
+
 
     }
 }

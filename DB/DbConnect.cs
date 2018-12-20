@@ -1581,5 +1581,102 @@ namespace cjEmployeeChatBot.DB
             }
             return userdata;
         }
+
+        public int ParallelYNConfirm
+        {
+            get
+            {                
+                SqlDataReader rdr = null;
+                int ParallelYN =0;
+
+                using (SqlConnection conn = new SqlConnection(connStr))
+                {
+
+                    conn.Open();
+                    SqlCommand cmd = new SqlCommand();
+                    cmd.Connection = conn;
+
+                    cmd.CommandText += "SELECT  COUNT(*) AS CNT ";
+                    cmd.CommandText += "FROM	TBL_PARALLEL ";
+                    cmd.CommandText += "WHERE	PARALLEL_INPUT < GETDATE() ";
+                    
+                    rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
+
+                    try
+                    {
+                        while (rdr.Read())
+                        {
+                            ParallelYN = Convert.ToInt32(rdr["CNT"]);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine(e.Message);
+                    }
+                    rdr.Close();
+
+                }
+                return ParallelYN;
+            }
+        }
+
+        public int ParallelYNUpdate(int val)
+        {
+
+            SqlDataReader rdr = null;
+            int result = 0;
+
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+
+                conn.Open();
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = conn;
+
+                cmd.CommandText += " UPDATE     TBL_PARALLEL ";
+                cmd.CommandText += " SET           PARALLEL_INPUT = GETDATE() ";
+
+                cmd.Parameters.AddWithValue("@val", val);
+
+                try
+                {
+                    result = cmd.ExecuteNonQuery();
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                }
+            }
+            return result;
+        }
+
+        public int ParallelYNInsert()
+        {
+
+            SqlDataReader rdr = null;
+            int result = 0;
+
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+
+                conn.Open();
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = conn;
+
+                cmd.CommandText += "INSERT INTO TBL_PARALLEL(PARALLEL_INPUT) ";
+                cmd.CommandText += " VALUES (GETDATE())";
+
+                try
+                {
+                    result = cmd.ExecuteNonQuery();
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                }
+
+            }
+            return result;
+        }
     }
 }
