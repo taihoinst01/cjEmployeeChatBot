@@ -167,13 +167,13 @@ namespace cjEmployeeChatBot.DB
                                 {
                                     if ((string)Luis["entities"][i]["type"] == "L>통근버스노선")
                                     {
-                                        MessagesController.luistTpyeEntities = Regex.Replace((string)Luis["entities"][i]["entity"], " ", "");
+                                        MessagesController.luistTypeEntities = Regex.Replace((string)Luis["entities"][i]["entity"], " ", "");
                                     }
                                 }
 
                             }
 
-                            Debug.WriteLine("통근버스노선" + MessagesController.luistTpyeEntities);
+                            Debug.WriteLine("통근버스노선" + MessagesController.luistTypeEntities);
 
                             /*
                             if (luisScore > Convert.ToDouble(MessagesController.LUIS_SCORE_LIMIT) && luisEntityCount > 0)
