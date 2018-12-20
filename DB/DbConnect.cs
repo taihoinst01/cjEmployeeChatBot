@@ -271,39 +271,39 @@ namespace cjEmployeeChatBot.DB
                                 dlgCard.gesture = dlg.gesture;
 
                                 //통근버스
-                                if (MessagesController.luisIntent.Equals("총무통근버스_통근버스노선안내"))
-                                {
-                                    switch (MessagesController.luistTpyeEntities)
-                                    {
-                                        case "분당":
-                                            dlgCard.cardText = "=분당=" + dlgCard.cardText;
-                                            break;
-                                        case "일산":
-                                            dlgCard.cardText = "=일산=" + dlgCard.cardText;
-                                            break;
-                                        case "공항":
-                                            dlgCard.cardText = "=공항=" + dlgCard.cardText;
-                                            break;
-                                        case "수지":
-                                            dlgCard.cardText = "=수지=" + dlgCard.cardText;
-                                            break;
-                                        case "인천":
-                                            dlgCard.cardText = "=인천=" + dlgCard.cardText;
-                                            break;
-                                        case "수원":
-                                            dlgCard.cardText = "=수원=" + dlgCard.cardText;
-                                            break;
-                                        case "부평":
-                                            dlgCard.cardText = "=부평=" + dlgCard.cardText;
-                                            break;
-                                        case "안양":
-                                            dlgCard.cardText = "=안양=" + dlgCard.cardText;
-                                            break;
-                                        default:
-                                            dlgCard.cardText = "지정되지 않은 노선입니다.";
-                                            break;
-                                    }
-                                }
+                                //if (MessagesController.luisIntent.Equals("총무통근버스_통근버스노선안내"))
+                                //{
+                                //    switch (MessagesController.luistTypeEntities)
+                                //    {
+                                //        case "분당":
+                                //            dlgCard.cardText = "=분당=" + dlgCard.cardText;
+                                //            break;
+                                //        case "일산":
+                                //            dlgCard.cardText = "=일산=" + dlgCard.cardText;
+                                //            break;
+                                //        case "공항":
+                                //            dlgCard.cardText = "=공항=" + dlgCard.cardText;
+                                //            break;
+                                //        case "수지":
+                                //            dlgCard.cardText = "=수지=" + dlgCard.cardText;
+                                //            break;
+                                //        case "인천":
+                                //            dlgCard.cardText = "=인천=" + dlgCard.cardText;
+                                //            break;
+                                //        case "수원":
+                                //            dlgCard.cardText = "=수원=" + dlgCard.cardText;
+                                //            break;
+                                //        case "부평":
+                                //            dlgCard.cardText = "=부평=" + dlgCard.cardText;
+                                //            break;
+                                //        case "안양":
+                                //            dlgCard.cardText = "=안양=" + dlgCard.cardText;
+                                //            break;
+                                //        default:
+                                //            dlgCard.cardText = "지정되지 않은 노선입니다.";
+                                //            break;
+                                //    }
+                                //}
 
                                 dialogCards.Add(dlgCard);
                             }

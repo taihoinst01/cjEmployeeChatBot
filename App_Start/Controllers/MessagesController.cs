@@ -57,7 +57,7 @@ namespace cjEmployeeChatBot
         public static string luisIntent = "";
         public static string luisEntities = "";
         public static string luisIntentScore = "";
-        public static string luistTpyeEntities = "";
+        public static string luistTypeEntities = "";
         public static string dlgId = "";        
         public static string queryStr = "";
         public static string luisQuery = "";        
@@ -609,7 +609,7 @@ namespace cjEmployeeChatBot
                             Debug.WriteLine("sapInit dialogue-------------");
 
                             luisIntent = "SAPINIT";
-                            luistTpyeEntities = "SAPINIT";
+                            luistTypeEntities = "SAPINIT";
 
                             Activity sapInitReply = activity.CreateReply();
                             sapInitReply.Recipient = activity.From;
@@ -746,7 +746,7 @@ namespace cjEmployeeChatBot
                             db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "sap");
                             replyresult = "Q";
                             luisIntent = "SAP";
-                            luistTpyeEntities = "SAP";
+                            luistTypeEntities = "SAP";
                         }
                         else
                         {
@@ -807,7 +807,7 @@ namespace cjEmployeeChatBot
                         db.insertHistory(activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), "", "", "", "", replyresult);
                         replyresult = "";
                         luisIntent = "";
-                        luistTpyeEntities = "";
+                        luistTypeEntities = "";
                     }
                 }
                 catch (Exception e)
@@ -855,7 +855,7 @@ namespace cjEmployeeChatBot
                     db.insertHistory(activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), luisIntent, luisEntities, luisIntentScore, "","E");
                     replyresult = "";
                     luisIntent = "";
-                    luistTpyeEntities = "";
+                    luistTypeEntities = "";
 
                     db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "loop");
                     db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "sap");
