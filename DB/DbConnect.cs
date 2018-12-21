@@ -1162,7 +1162,7 @@ namespace cjEmployeeChatBot.DB
                 }
                 else
                 {
-                    cmd.Parameters.AddWithValue("@chatbotCommentCode", intentName);
+                    cmd.Parameters.AddWithValue("@chatbotCommentCode", luis_intent);
                 }
 
                 cmd.Parameters.AddWithValue("@channel", channel);
