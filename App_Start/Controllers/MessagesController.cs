@@ -52,40 +52,29 @@ namespace cjEmployeeChatBot
         //public static int suggetionsMessageCnt = 0;
         public static int chatBotID = 0;
 
-        public static List<RelationList> relationList = new List<RelationList>();
-        public static string luisId = "";
-        public static string luisIntent = "";
-        public static string luisEntities = "";
-        public static string luisIntentScore = "";
-        public static string luistTypeEntities = "";
-        public static string dlgId = "";        
-        public static string queryStr = "";
-        public static string luisQuery = "";        
+        //public static List<RelationList> relationList = new List<RelationList>();
+        //public static string luisId = "";
+        //public static string luisIntent = "";
+        //public static string luisEntities = "";
+        //public static string luisIntentScore = "";
+        //public static string luistTypeEntities = "";
+        //public static string dlgId = "";        
+        //public static string queryStr = "";
+        //public static string luisQuery = "";        
         public static DateTime startTime;
 
         //사용자ID
         public static string userID = "";
 
-        //건의사항
-        public static string suggestions = "";
-
-        public static CacheList cacheList = new CacheList();
-        //결과 플레그 H : 정상 답변,  G : 건의사항, D : 답변 실패, E : 에러, S : SMALLTALK
-        public static String replyresult = "";
         public static String apiFlag = "";
 
         public static string channelID = "";
 
-        public static DbConnect db = new DbConnect();
-        public static DButil dbutil = new DButil();
-        public static TestEaiCall tec = new TestEaiCall();
-        //public static List<UserData> userData = new List<UserData>();
-
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
         {
 
-            //DbConnect db = new DbConnect();
-            //DButil dbutil = new DButil();
+            DbConnect db = new DbConnect();
+            DButil dbutil = new DButil();
             DButil.HistoryLog("db connect !! ");
             //HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.OK);
             HttpResponseMessage response;
@@ -357,6 +346,16 @@ namespace cjEmployeeChatBot
                     //}
                     //apiFlag = "COMMON";
 
+                    List<RelationList> relationList = new List<RelationList>();
+                    string luisId = "";
+                    string luisIntent = "";
+                    string luisEntities = "";
+                    string luisIntentScore = "";
+                    string luisTypeEntities = "";
+                    string dlgId = "";
+                    //결과 플레그 H : 정상 답변,  G : 건의사항, D : 답변 실패, E : 에러, S : SMALLTALK
+                    string replyresult = "";
+
                     //대화 시작 시간
                     startTime = DateTime.Now;
                     long unixTime = ((DateTimeOffset)startTime).ToUnixTimeSeconds();
@@ -384,6 +383,9 @@ namespace cjEmployeeChatBot
                         ////캐시 체크
                         //cashOrgMent = Regex.Replace(orgMent, @"[^a-zA-Z0-9ㄱ-힣]", "", RegexOptions.Singleline);
                         //cacheList = db.CacheChk(cashOrgMent.Replace(" ", ""));                     // 캐시 체크 (TBL_QUERY_ANALYSIS_RESULT 조회..)
+                        CacheList cacheList = new CacheList();
+                        string queryStr = "";
+                        string luisQuery = "";
 
                         //정규화
                         luisQuery = orgMent;
@@ -414,7 +416,7 @@ namespace cjEmployeeChatBot
                             }
                         }
                         //smalltalk 문자 확인                        
-                        String smallTalkSentenceConfirm = db.SmallTalkSentenceConfirm;
+                        String smallTalkSentenceConfirm = db.SmallTalkSentenceConfirm(orgMent);
 
                         //SAP 용어 확인
                         string qnAMakerAnswer = dbutil.GetQnAMaker(luisQuery);
@@ -441,7 +443,70 @@ namespace cjEmployeeChatBot
                             //cacheList.luisId = dbutil.GetMultiLUIS(orgMent);
                             //Debug.WriteLine("cacheList.luisId : " + cacheList.luisId);
 
-                            cacheList.luisIntent = dbutil.GetMultiLUIS(luisQuery);
+                            //cacheList.luisIntent = dbutil.GetMultiLUIS(luisQuery);
+
+                            List<string[]> textList = new List<string[]>(5);
+
+                            for (int i = 0; i < 5; i++)
+                            {
+                                //textList.Add(LUIS_APP_ID[i] +"|"+ LUIS_SUBSCRIPTION + "|" + query);
+                                textList.Add(new string[] { MessagesController.LUIS_NM[i], MessagesController.LUIS_APP_ID[i], MessagesController.LUIS_SUBSCRIPTION, orgMent });
+                                Debug.WriteLine("GetMultiLUIS() LUIS_NM : " + MessagesController.LUIS_NM[i] + " | LUIS_APP_ID : " + MessagesController.LUIS_APP_ID[i]);
+                            }
+
+                            Debug.WriteLine("activity.Conversation.Id : " + activity.Conversation.Id);
+
+                            JObject Luis_before = new JObject();
+                            float luisScoreCompare = 0.0f;
+                            JObject Luis = new JObject();
+
+                            //Task<JObject> t1 = Task<JObject>.Run(() => GetIntentFromBotLUIS2(textList, orgMent));
+                            Task<JObject> t1 = Task<JObject>.Run(async () => await GetIntentFromBotLUIS(textList, orgMent));
+
+                            await Task.Delay(1000);
+                            t1.Wait();
+
+                            //if (t1.Status.ToString() == "RanToCompletion")
+                            //{
+                                Luis = t1.Result;
+                            //}
+
+                            Debug.WriteLine("Luis : " + Luis);
+
+                            //entities 갯수가 0일겨우 intent를 None으로 처리
+                            if ((int)Luis["entities"].Count() != 0)
+                            {
+                                //if (!String.IsNullOrEmpty(LuisName))
+                                //{
+                                if (Luis != null || Luis.Count > 0)
+                                {
+                                    float luisScore = (float)Luis["intents"][0]["score"];
+                                    int luisEntityCount = (int)Luis["entities"].Count();
+
+                                    luisIntent = Luis["topScoringIntent"]["intent"].ToString();//add
+                                    luisScore = luisScoreCompare;
+                                    Debug.WriteLine("GetMultiLUIS() LUIS luisIntent : " + luisIntent);
+
+                                    //통근버스
+                                    if (luisIntent.Equals("총무통근버스_통근버스노선안내"))
+                                    {
+                                        for (int i = 0; i < (int)Luis["entities"].Count(); i++)
+                                        {
+                                            if ((string)Luis["entities"][i]["type"] == "L>통근버스노선")
+                                            {
+                                                luisTypeEntities = Regex.Replace((string)Luis["entities"][i]["entity"], " ", "");
+                                            }
+                                        }
+
+                                    }
+                                    Debug.WriteLine("통근버스노선" + luisTypeEntities);
+                                }
+                            }
+                            else
+                            {
+                                luisIntent = "None";
+                            }
+
                             Debug.WriteLine("cacheList.luisIntent : " + cacheList.luisIntent);
                             //Debug.WriteLine("cacheList.luisEntitiesValue : " + cacheList.luisEntitiesValue);
                             cacheList = db.CacheDataFromIntent(cacheList.luisIntent);
@@ -475,7 +540,7 @@ namespace cjEmployeeChatBot
                             //smalltalk 답변가져오기
                             if (orgMent.Length < 9)
                             {
-                                smallTalkConfirm = db.SmallTalkConfirm;
+                                smallTalkConfirm = db.SmallTalkConfirm(orgMent);
                             } else
                             {
                                 smallTalkConfirm = "";
@@ -488,9 +553,9 @@ namespace cjEmployeeChatBot
                         if (relationList != null)
                         {
                             dlgId = "";
-                            for (int m = 0; m < MessagesController.relationList.Count; m++)
+                            for (int m = 0; m < relationList.Count; m++)
                             {
-                                DialogList dlg = db.SelectDialog(MessagesController.relationList[m].dlgId);
+                                DialogList dlg = db.SelectDialog(relationList[m].dlgId);
                                 dlgId += Convert.ToString(dlg.dlgId) + ",";
                                 Activity commonReply = activity.CreateReply();
                                 Attachment tempAttachment = new Attachment();
@@ -607,12 +672,12 @@ namespace cjEmployeeChatBot
                         }
 
                         //sap 비밀번호 초기화
-                        else if ((userData[0].conversationsId == activity.Conversation.Id && (userData[0].sap == 1 || userData[0].sap == 2 || userData[0].sap == 3)))
+                        else if ((userData[0].conversationsId == activity.Conversation.Id && (userData[0].sap == 1 || userData[0].sap == 2 || userData[0].sap == 3 || userData[0].sap == 4)))
                         {
                             Debug.WriteLine("sapInit dialogue-------------");
 
                             luisIntent = "SAPINIT";
-                            luistTypeEntities = "SAPINIT";
+                            luisTypeEntities = "SAPINIT";
 
                             Activity sapInitReply = activity.CreateReply();
                             sapInitReply.Recipient = activity.From;
@@ -620,12 +685,39 @@ namespace cjEmployeeChatBot
                             sapInitReply.Attachments = new List<Attachment>();
 
                             List<TextList> text = new List<TextList>();
+                            List<CardAction> cardButtons = new List<CardAction>();
 
                             if (userData[0].sap == 1)
                             {
+                                CardAction plButton1 = new CardAction();
+                                plButton1 = new CardAction()
+                                {
+                                    Type = "imBack",
+                                    Value = "전사 ERP(PRD)",
+                                    Title = "전사 ERP(PRD)"
+                                };
+                                CardAction plButton2 = new CardAction();
+                                plButton2 = new CardAction()
+                                {
+                                    Type = "imBack",
+                                    Value = "전사 BI(BIP)",
+                                    Title = "전사 BI(BIP)"
+                                };
+                                CardAction plButton3 = new CardAction();
+                                plButton3 = new CardAction()
+                                {
+                                    Type = "imBack",
+                                    Value = "해외 BI(BW1)",
+                                    Title = "해외 BI(BW1)"
+                                };
+                                cardButtons.Add(plButton1);
+                                cardButtons.Add(plButton2);
+                                cardButtons.Add(plButton3);
+
                                 UserHeroCard plCard = new UserHeroCard()
                                 {
-                                    Text =  "초기화 안내 /n ["+ userID + "] 님 SAP 비밀번호 초기화를 위해 계정의 사원번호가 필요합니다. 사원번호 를 입력해주세요."
+                                    Text = "선택",
+                                    Buttons = cardButtons
                                 };
 
                                 Attachment plAttachment = plCard.ToAttachment();
@@ -633,6 +725,19 @@ namespace cjEmployeeChatBot
                                 db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 2, "sap");
                             }
                             else if (userData[0].sap == 2)
+                            {
+                                db.UserDataUpdateUserID(activity.ChannelId, activity.Conversation.Id, "OPTIONAL_1", luisQuery);
+
+                                UserHeroCard plCard = new UserHeroCard()
+                                {
+                                    Text =  "초기화 안내 /n ["+ userID + "] 님 SAP 비밀번호 초기화를 위해 계정의 사원번호가 필요합니다. 사원번호 를 입력해주세요."
+                                };
+
+                                Attachment plAttachment = plCard.ToAttachment();
+                                sapInitReply.Attachments.Add(plAttachment);
+                                db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 3, "sap");
+                            }
+                            else if (userData[0].sap == 3)
                             {
                                 int val;
                                 Debug.WriteLine(int.TryParse(orgMent, out val));
@@ -644,7 +749,7 @@ namespace cjEmployeeChatBot
                                     };
                                     Attachment plAttachment = plCard.ToAttachment();
                                     sapInitReply.Attachments.Add(plAttachment);
-                                    db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 2, "sap");
+                                    db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 3, "sap");
                                 } else
                                 {
                                     String sabun = "";
@@ -657,10 +762,10 @@ namespace cjEmployeeChatBot
                                     };
                                     Attachment plAttachment = plCard.ToAttachment();
                                     sapInitReply.Attachments.Add(plAttachment);
-                                    db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 3, "sap");
+                                    db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 4, "sap");
                                 }
                             }
-                            else if (userData[0].sap == 3)
+                            else if (userData[0].sap == 4)
                             {
                                 if (orgMent.Length < 6)
                                 {
@@ -672,7 +777,7 @@ namespace cjEmployeeChatBot
                                     Attachment plAttachment = plCard.ToAttachment();
                                     sapInitReply.Attachments.Add(plAttachment);
 
-                                    db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 3, "sap");
+                                    db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 4, "sap");
                                 }
                                 else
                                 {
@@ -749,7 +854,7 @@ namespace cjEmployeeChatBot
                             db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "sap");
                             replyresult = "Q";
                             luisIntent = "SAP";
-                            luistTypeEntities = "SAP";
+                            luisTypeEntities = "SAP";
                         }
                         else
                         {
@@ -757,7 +862,7 @@ namespace cjEmployeeChatBot
 
                             Activity intentNoneReply = activity.CreateReply();
 
-                            var message = MessagesController.queryStr;
+                            var message = queryStr;
 
                             Debug.WriteLine("NO DIALOGUE MESSAGE : " + message);
 
@@ -804,13 +909,14 @@ namespace cjEmployeeChatBot
                         DateTime endTime = DateTime.Now;
 
                         //analysis table insert
-                        int dbResult = db.insertUserQuery();
+                        int dbResult = db.insertUserQuery(relationList, luisId, luisIntent, luisEntities, luisIntentScore, replyresult,orgMent);
 
                         //history table insert
-                        db.insertHistory(activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), "", "", "", "", replyresult);
+                        //db.insertHistory(activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), "", "", "", "", replyresult);
+                        db.insertHistory(null, activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), luisIntent, luisEntities, luisIntentScore, dlgId, replyresult, queryStr);
                         replyresult = "";
                         luisIntent = "";
-                        luistTypeEntities = "";
+                        luisTypeEntities = "";
                     }
                 }
                 catch (Exception e)
@@ -820,6 +926,7 @@ namespace cjEmployeeChatBot
 
                     Activity sorryReply = activity.CreateReply();
 
+                    string queryStr = activity.Text;
                     sorryReply.Recipient = activity.From;
                     sorryReply.Type = "message";
                     sorryReply.Attachments = new List<Attachment>();
@@ -854,11 +961,9 @@ namespace cjEmployeeChatBot
                     SetActivity(sorryReply);
 
                     DateTime endTime = DateTime.Now;
-                    int dbResult = db.insertUserQuery();
-                    db.insertHistory(activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), luisIntent, luisEntities, luisIntentScore, "","E");
-                    replyresult = "";
-                    luisIntent = "";
-                    luistTypeEntities = "";
+                    int dbResult = db.insertUserQuery(null, "", "", "", "", "E", activity.Text);
+                    //db.insertHistory(activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), "", "", "", "","E");
+                    db.insertHistory(null, activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), "", "", "", "", "E", queryStr);
 
                     db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "loop");
                     db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "sap");
@@ -912,6 +1017,157 @@ namespace cjEmployeeChatBot
             return null;
         }
 
+        public static async Task<JObject> GetIntentFromBotLUIS(List<string[]> textList, string query)
+        {
 
+            JObject[] Luis_before = new JObject[5];
+            JObject Luis = new JObject();
+            float luisScoreCompare = 0.0f;
+            query = Uri.EscapeDataString(query);
+
+            for (int k = 0; k < textList.Count; k++)
+            {
+                string url = string.Format("https://eastasia.api.cognitive.microsoft.com/luis/v2.0/apps/{0}?subscription-key={1}&timezoneOffset=0&verbose=true&q={2}", textList[0][1], textList[0][2], query);
+
+
+                Debug.WriteLine("-----LUIS URL 보기");
+                Debug.WriteLine("-----LUIS URL : " + url);
+
+                using (HttpClient client = new HttpClient())
+                {
+                    //취소 시간 설정
+                    client.Timeout = TimeSpan.FromMilliseconds(MessagesController.LUIS_TIME_LIMIT); //3초
+                    var cts = new CancellationTokenSource();
+                    try
+                    {
+                        HttpResponseMessage msg = await client.GetAsync(url, cts.Token);
+
+                        int currentRetry = 0;
+
+                        Debug.WriteLine("msg.IsSuccessStatusCode1 = " + msg.IsSuccessStatusCode);
+                        //HistoryLog("msg.IsSuccessStatusCode1 = " + msg.IsSuccessStatusCode);
+
+                        if (msg.IsSuccessStatusCode)
+                        {
+                            var JsonDataResponse = await msg.Content.ReadAsStringAsync();
+                            Luis_before[k] = JObject.Parse(JsonDataResponse);
+                            currentRetry = 0;
+                        }
+                        else
+                        {
+                            //통신장애, 구독만료, url 오류                  
+                            //오류시 3번retry
+                            for (currentRetry = 0; currentRetry < 3; currentRetry++)
+                            {
+                                //테스용 url 설정
+                                //string url_re = string.Format("https://southeastasia.api.cognitive.microsoft.com/luis/v2.0/apps/{0}?subscription-key={1}&timezoneOffset=0&verbose=true&q={2}", luis_app_id, luis_subscription, query);
+                                string url_re = string.Format("https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/{0}?subscription-key={1}&timezoneOffset=0&verbose=true&q={2}", textList[0][1], textList[0][2], query);
+                                HttpResponseMessage msg_re = await client.GetAsync(url_re, cts.Token);
+
+                                if (msg_re.IsSuccessStatusCode)
+                                {
+                                    //다시 호출
+                                    Debug.WriteLine("msg.IsSuccessStatusCode2 = " + msg_re.IsSuccessStatusCode);
+                                    //HistoryLog("msg.IsSuccessStatusCode2 = " + msg.IsSuccessStatusCode);
+                                    var JsonDataResponse = await msg_re.Content.ReadAsStringAsync();
+                                    Luis_before[k] = JObject.Parse(JsonDataResponse);
+                                    luisScoreCompare = (float)Luis_before[k]["intents"][0]["score"];
+                                    currentRetry = 0;
+                                    break;
+                                }
+                                else
+                                {
+                                    //초기화
+                                    //jsonObj = JObject.Parse(@"{
+                                    //    'query':'',
+                                    //    'topScoringIntent':0,
+                                    //    'intents':[],
+                                    //    'entities':'[]'
+                                    //}");
+                                    Debug.WriteLine("GetIntentFromBotLUIS else print ");
+                                    //HistoryLog("GetIntentFromBotLUIS else print ");
+                                    Luis_before[k] = JObject.Parse(@"{
+                                                                        'query': '',
+                                                                        'topScoringIntent': {
+                                                                        'intent': 'None',
+                                                                        'score': 0.09
+                                                                        },
+                                                                        'intents': [
+                                                                        {
+                                                                            'intent': 'None',
+                                                                            'score': 0.09
+                                                                        }
+                                                                        ],
+                                                                        'entities': []
+                                                                    }
+                                                                    ");
+                                }
+                            }
+                        }
+
+                        msg.Dispose();
+                    }
+                    catch (TaskCanceledException e)
+                    {
+                        Debug.WriteLine("GetIntentFromBotLUIS error = " + e.Message);
+                        //HistoryLog("GetIntentFromBotLUIS error = " + e.Message);
+                        //초기화
+                        //jsonObj = JObject.Parse(@"{
+                        //                'query':'',
+                        //                'topScoringIntent':0,
+                        //                'intents':[],
+                        //                'entities':'[]'
+                        //            }");
+
+                        Luis_before[k] = JObject.Parse(@"{
+                                                            'query': '',
+                                                            'topScoringIntent': {
+                                                            'intent': 'None',
+                                                            'score': 0.09
+                                                            },
+                                                            'intents': [
+                                                            {
+                                                                'intent': 'None',
+                                                                'score': 0.09
+                                                            }
+                                                            ],
+                                                            'entities': []
+                                                        }
+                                                        ");
+
+                    }
+                }
+            }
+            for (int i = 0; i < 5; i++)
+            {
+                //entities 0일 경우 PASS
+                if ((int)Luis_before[i]["entities"].Count() > 0)
+                {
+                    //intent None일 경우 PASS
+                    if (Luis_before[i]["intents"][0]["intent"].ToString() != "None")
+                    {
+                        //제한점수 체크
+                        if ((float)Luis_before[i]["intents"][0]["score"] > Convert.ToDouble(MessagesController.LUIS_SCORE_LIMIT))
+                        {
+                            if ((float)Luis_before[i]["intents"][0]["score"] > luisScoreCompare)
+                            {
+                                //LuisName = returnLuisName[i];
+                                Luis = Luis_before[i];
+                                luisScoreCompare = (float)Luis_before[i]["intents"][0]["score"];
+                                //Debug.WriteLine("GetMultiLUIS() LuisName1 : " + LuisName);
+                            }
+                            else
+                            {
+                                //LuisName = returnLuisName[i];
+                                //Luis = Luis_before[i];
+                                //Debug.WriteLine("GetMultiLUIS() LuisName2 : " + LuisName);
+                            }
+
+                        }
+                    }
+                }
+            }
+            return Luis;
+        }
     }
 }

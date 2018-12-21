@@ -885,159 +885,157 @@ namespace cjEmployeeChatBot.DB
         // Query Analysis
         // Insert user chat message for history and analysis
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        public int insertUserQuery()
+        public int insertUserQuery(List<RelationList> relationList, string luisId, string luisIntent, string luisEntities, string luisScore, string replyresult, string queryStr)
         {
             int dbResult = 0;
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 String luisID = "", intentName = "", entities = "", result = "", intentScore = "";
 
-                int appID = 0, luisScore = 0;
-
+                int appID = 0;
 
                 //if(MessagesController.recommendResult != "recommend")
-                if (MessagesController.apiFlag != "RECOMMEND")
+
+                //if (MessagesController.relationList.Equals(null))
+                if (relationList == null)
                 {
-                    //if (MessagesController.relationList.Equals(null))
-                    if (MessagesController.relationList == null)
-                    {
-                        entities = "None";
-                        intentName = "None";
-                        luisID = "None";
-                        luisScore = 0;
-                    }
-                    else
-                    {
-
-                        if (MessagesController.relationList.Count() > 0)
-                        {
-                            if (String.IsNullOrEmpty(MessagesController.relationList[0].luisId))
-                            {
-                                luisID = "None";
-                            }
-                            else
-                            {
-                                luisID = MessagesController.relationList[0].luisId;
-                            }
-                            if (String.IsNullOrEmpty(MessagesController.relationList[0].luisIntent))
-                            {
-                                intentName = "None";
-                            }
-                            else
-                            {
-                                intentName = MessagesController.relationList[0].luisIntent;
-                            }
-                            if (String.IsNullOrEmpty(MessagesController.relationList[0].luisEntities))
-                            {
-                                entities = "None";
-                            }
-                            else
-                            {
-                                entities = MessagesController.relationList[0].luisEntities;
-                            }
-                            if (String.IsNullOrEmpty(MessagesController.relationList[0].luisScore.ToString()))
-                            {
-                                intentScore = "0";
-                            }
-                            else
-                            {
-                                intentScore = MessagesController.relationList[0].luisScore.ToString();
-                            }
-                        }
-                        else
-                        {
-                            if (String.IsNullOrEmpty(MessagesController.cacheList.luisId))
-                            {
-                                luisID = "None";
-                            }
-                            else
-                            {
-                                luisID = MessagesController.cacheList.luisId;
-                            }
-                            if (String.IsNullOrEmpty(MessagesController.cacheList.luisIntent))
-                            {
-                                intentName = "None";
-                            }
-                            else
-                            {
-                                intentName = MessagesController.cacheList.luisIntent;
-                            }
-                            if (String.IsNullOrEmpty(MessagesController.cacheList.luisEntities))
-                            {
-                                entities = "None";
-                            }
-                            else
-                            {
-                                entities = MessagesController.cacheList.luisEntities;
-                            }
-                            if (String.IsNullOrEmpty(MessagesController.cacheList.luisScore))
-                            {
-                                intentScore = "0";
-                            }
-                            else
-                            {
-                                intentScore = MessagesController.cacheList.luisScore;
-                            }
-                        }
-                    }
-
-                    if (String.IsNullOrEmpty(MessagesController.replyresult))
-                    {
-                        result = "D";
-                    }
-                    else
-                    {
-                        result = MessagesController.replyresult;
-                    }
-                    conn.Open();
-                    SqlCommand cmd = new SqlCommand();
-                    cmd.Connection = conn;
-                    cmd.CommandText = "sp_insertusehistory4";
-
-                    cmd.CommandType = CommandType.StoredProcedure;
-
-
-                    //if (result.Equals("S") || result.Equals("D"))
-                    //{
-                    //    cmd.Parameters.AddWithValue("@Query", "");
-                    //    cmd.Parameters.AddWithValue("@intentID", "");
-                    //    cmd.Parameters.AddWithValue("@entitiesIDS", "");
-                    //    cmd.Parameters.AddWithValue("@intentScore", "");
-                    //    cmd.Parameters.AddWithValue("@luisID", "");
-                    //    cmd.Parameters.AddWithValue("@result", result);
-                    //    cmd.Parameters.AddWithValue("@appID", appID);
-                    //}
-                    //else
-                    //{
-                    Debug.WriteLine("DDDDDD : " + Regex.Replace(MessagesController.queryStr, @"[^a-zA-Z0-9ㄱ-힣]", "", RegexOptions.Singleline).Trim().ToLower());
-                    cmd.Parameters.AddWithValue("@Query", Regex.Replace(MessagesController.queryStr, @"[^a-zA-Z0-9ㄱ-힣]", "", RegexOptions.Singleline).Trim().ToLower());
-                    cmd.Parameters.AddWithValue("@intentID", intentName.Trim());
-                    cmd.Parameters.AddWithValue("@entitiesIDS", entities.Trim().ToLower());
-                    if (result.Equals("D") || result.Equals("S") || result.Equals("G") || result.Equals("Q") || result.Equals("I"))
-                    {
-                        cmd.Parameters.AddWithValue("@intentScore", "0");
-                    }
-                    else
-                    {
-                        //if(MessagesController.relationList != null)
-                        //{
-                        if (MessagesController.relationList.Count > 0 && MessagesController.relationList[0].luisEntities != null)
-                        {
-                            cmd.Parameters.AddWithValue("@intentScore", MessagesController.relationList[0].luisScore);
-                        }
-                        //}
-                        else
-                        {
-                            cmd.Parameters.AddWithValue("@intentScore", MessagesController.cacheList.luisScore);
-                        }
-                    }
-                    cmd.Parameters.AddWithValue("@luisID", luisID);
-                    cmd.Parameters.AddWithValue("@result", result);
-                    cmd.Parameters.AddWithValue("@appID", appID);
-                    //}
-
-                    dbResult = cmd.ExecuteNonQuery();
+                    entities = "None";
+                    intentName = "None";
+                    luisID = "None";
+                    luisScore = "0";
                 }
+                else
+                {
+
+                    if (relationList.Count() > 0)
+                    {
+                        if (String.IsNullOrEmpty(relationList[0].luisId))
+                        {
+                            luisID = "None";
+                        }
+                        else
+                        {
+                            luisID = relationList[0].luisId;
+                        }
+                        if (String.IsNullOrEmpty(relationList[0].luisIntent))
+                        {
+                            intentName = "None";
+                        }
+                        else
+                        {
+                            intentName = relationList[0].luisIntent;
+                        }
+                        if (String.IsNullOrEmpty(relationList[0].luisEntities))
+                        {
+                            entities = "None";
+                        }
+                        else
+                        {
+                            entities = relationList[0].luisEntities;
+                        }
+                        if (String.IsNullOrEmpty(relationList[0].luisScore.ToString()))
+                        {
+                            intentScore = "0";
+                        }
+                        else
+                        {
+                            intentScore = relationList[0].luisScore.ToString();
+                        }
+                    }
+                    else
+                    {
+                        if (String.IsNullOrEmpty(luisId))
+                        {
+                            luisID = "None";
+                        }
+                        else
+                        {
+                            luisID = luisId;
+                        }
+                        if (String.IsNullOrEmpty(luisIntent))
+                        {
+                            intentName = "None";
+                        }
+                        else
+                        {
+                            intentName = luisIntent;
+                        }
+                        if (String.IsNullOrEmpty(luisEntities))
+                        {
+                            entities = "None";
+                        }
+                        else
+                        {
+                            entities = luisEntities;
+                        }
+                        if (String.IsNullOrEmpty(luisScore))
+                        {
+                            intentScore = "0";
+                        }
+                        else
+                        {
+                            intentScore = luisScore;
+                        }
+                    }
+                }
+
+                if (String.IsNullOrEmpty(replyresult))
+                {
+                    result = "D";
+                }
+                else
+                {
+                    result = replyresult;
+                }
+                conn.Open();
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = conn;
+                cmd.CommandText = "sp_insertusehistory4";
+
+                cmd.CommandType = CommandType.StoredProcedure;
+
+
+                //if (result.Equals("S") || result.Equals("D"))
+                //{
+                //    cmd.Parameters.AddWithValue("@Query", "");
+                //    cmd.Parameters.AddWithValue("@intentID", "");
+                //    cmd.Parameters.AddWithValue("@entitiesIDS", "");
+                //    cmd.Parameters.AddWithValue("@intentScore", "");
+                //    cmd.Parameters.AddWithValue("@luisID", "");
+                //    cmd.Parameters.AddWithValue("@result", result);
+                //    cmd.Parameters.AddWithValue("@appID", appID);
+                //}
+                //else
+                //{
+                Debug.WriteLine("DDDDDD : " + Regex.Replace(queryStr, @"[^a-zA-Z0-9ㄱ-힣]", "", RegexOptions.Singleline).Trim().ToLower());
+                cmd.Parameters.AddWithValue("@Query", Regex.Replace(queryStr, @"[^a-zA-Z0-9ㄱ-힣]", "", RegexOptions.Singleline).Trim().ToLower());
+                cmd.Parameters.AddWithValue("@intentID", intentName.Trim());
+                cmd.Parameters.AddWithValue("@entitiesIDS", entities.Trim().ToLower());
+                if (result.Equals("D") || result.Equals("S") || result.Equals("G") || result.Equals("Q") || result.Equals("I"))
+                {
+                    cmd.Parameters.AddWithValue("@intentScore", "0");
+                }
+                else
+                {
+                    //if(MessagesController.relationList != null)
+                    //{
+                    if (relationList.Count > 0 && relationList[0].luisEntities != null)
+                    {
+                        cmd.Parameters.AddWithValue("@intentScore", relationList[0].luisScore);
+                    }
+                    //}
+                    else
+                    {
+                        cmd.Parameters.AddWithValue("@intentScore", luisScore);
+                    }
+                }
+                cmd.Parameters.AddWithValue("@luisID", luisID);
+                cmd.Parameters.AddWithValue("@result", result);
+                cmd.Parameters.AddWithValue("@appID", appID);
+                //}
+
+                dbResult = cmd.ExecuteNonQuery();
+
 
 
             }
@@ -1072,7 +1070,7 @@ namespace cjEmployeeChatBot.DB
 
 
 
-        public int insertHistory(string userNumber, string channel, int responseTime, string luis_intent, string luis_entities, string luis_intent_score, string dlg_id, string replyr_result)
+        public int insertHistory(List<RelationList> relationList, string userNumber, string channel, int responseTime, string luis_intent, string luis_entities, string luis_intent_score, string dlg_id, string reply_result, string queryStr)
         {
             //SqlDataReader rdr = null;
             int appID = 0;
@@ -1080,37 +1078,37 @@ namespace cjEmployeeChatBot.DB
             String intentName = "";
 
             //if (MessagesController.relationList.Equals(null))
-            if (MessagesController.relationList == null)
+            if (relationList == null)
             {
                 intentName = "None";
             }
             else
             {
-                if (MessagesController.relationList.Count() > 0)
+                if (relationList.Count() > 0)
                 {
-                    if (String.IsNullOrEmpty(MessagesController.relationList[0].luisIntent))
+                    if (String.IsNullOrEmpty(relationList[0].luisIntent))
                     {
                         intentName = "None";
                     }
                     else
                     {
-                        intentName = MessagesController.relationList[0].luisIntent;
+                        intentName = relationList[0].luisIntent;
                     }
                 }
                 else
                 {
-                    if (String.IsNullOrEmpty(MessagesController.cacheList.luisIntent))
+                    if (String.IsNullOrEmpty(luis_intent))
                     {
                         intentName = "None";
                     }
                     else
                     {
-                        intentName = MessagesController.cacheList.luisIntent;
+                        intentName = luis_intent;
                     }
                 }
             }
 
-            
+
 
             if (string.IsNullOrEmpty(luis_intent))
             {
@@ -1144,21 +1142,21 @@ namespace cjEmployeeChatBot.DB
                 cmd.CommandText += " (@userNumber, @customerCommentKR, @chatbotCommentCode, @channel, @responseTime, CONVERT(VARCHAR,  GETDATE(), 101) + ' ' + CONVERT(VARCHAR,  DATEADD( HH, 9, GETDATE() ), 24), 0, @appID, @luis_intent, @luis_entities, @luis_intent_score, @dlg_id, @result, (SELECT TOP 1 USER_ID FROM TBL_USERDATA WHERE CHANNELDATA=@channel AND CONVERSATIONSID = @userNumber)) ";
 
                 cmd.Parameters.AddWithValue("@userNumber", userNumber);
-                cmd.Parameters.AddWithValue("@customerCommentKR", MessagesController.queryStr);
+                cmd.Parameters.AddWithValue("@customerCommentKR", queryStr);
 
-                if (MessagesController.replyresult.Equals("S"))
+                if (reply_result.Equals("S"))
                 {
                     cmd.Parameters.AddWithValue("@chatbotCommentCode", "SMALLTALK");
                 }
-                else if (MessagesController.replyresult.Equals("D"))
+                else if (reply_result.Equals("D"))
                 {
                     cmd.Parameters.AddWithValue("@chatbotCommentCode", "ERROR");
                 }
-                else if (MessagesController.replyresult.Equals("G"))
+                else if (reply_result.Equals("G"))
                 {
                     cmd.Parameters.AddWithValue("@chatbotCommentCode", "SUGGESTION");
                 }
-                else if (MessagesController.replyresult.Equals("I"))
+                else if (reply_result.Equals("I"))
                 {
                     cmd.Parameters.AddWithValue("@chatbotCommentCode", "SAPINIT");
                 }
@@ -1175,7 +1173,7 @@ namespace cjEmployeeChatBot.DB
                 cmd.Parameters.AddWithValue("@luis_entities", luis_entities);
                 cmd.Parameters.AddWithValue("@luis_intent_score", luis_intent_score);
                 cmd.Parameters.AddWithValue("@dlg_id", dlg_id);
-                cmd.Parameters.AddWithValue("@result", replyr_result);
+                cmd.Parameters.AddWithValue("@result", reply_result);
 
                 try
                 {
@@ -1267,98 +1265,96 @@ namespace cjEmployeeChatBot.DB
             return newMsg;
         }
 
-        public String SmallTalkSentenceConfirm
+        public String SmallTalkSentenceConfirm(string queryStr)
         {
-            get
+
+            String query = Regex.Replace(queryStr, @"[^a-zA-Z0-9ㄱ-힣-]", "", RegexOptions.Singleline).Replace(" ", "").ToLower();
+            SqlDataReader rdr = null;
+            String smallTalkAnswer = "";
+
+            using (SqlConnection conn = new SqlConnection(connStr))
             {
-                String query = Regex.Replace(MessagesController.queryStr, @"[^a-zA-Z0-9ㄱ-힣-]", "", RegexOptions.Singleline).Replace(" ", "").ToLower();
-                SqlDataReader rdr = null;
-                String smallTalkAnswer = "";
 
-                using (SqlConnection conn = new SqlConnection(connStr))
+                conn.Open();
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = conn;
+
+                cmd.CommandText += "SELECT TOP 1 MAX(A.ANSWER) AS ANSWER ";
+                cmd.CommandText += "FROM ";
+                cmd.CommandText += "    ( ";
+                cmd.CommandText += "        SELECT  S_ANSWER AS ANSWER FROM TBL_SMALLTALK ";
+                cmd.CommandText += "        WHERE  S_QUERY = @kr_query ";
+                cmd.CommandText += "        AND      USE_YN = 'Y' ";
+                cmd.CommandText += "    ) A ";
+
+                cmd.Parameters.AddWithValue("@kr_query", query);
+
+                rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
+
+                try
                 {
-
-                    conn.Open();
-                    SqlCommand cmd = new SqlCommand();
-                    cmd.Connection = conn;
-
-                    cmd.CommandText += "SELECT TOP 1 MAX(A.ANSWER) AS ANSWER ";
-                    cmd.CommandText += "FROM ";
-                    cmd.CommandText += "    ( ";
-                    cmd.CommandText += "        SELECT  S_ANSWER AS ANSWER FROM TBL_SMALLTALK ";
-                    cmd.CommandText += "        WHERE  S_QUERY = @kr_query ";
-                    cmd.CommandText += "        AND      USE_YN = 'Y' ";
-                    cmd.CommandText += "    ) A ";
-
-                    cmd.Parameters.AddWithValue("@kr_query", query);
-
-                    rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
-
-                    try
+                    while (rdr.Read())
                     {
-                        while (rdr.Read())
-                        {
-                            smallTalkAnswer = rdr["ANSWER"] as string;
-                        }
+                        smallTalkAnswer = rdr["ANSWER"] as string;
                     }
-                    catch (Exception e)
-                    {
-                        Debug.WriteLine(e.Message);
-                    }
-                    rdr.Close();
-
                 }
-                return smallTalkAnswer;
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                }
+                rdr.Close();
+
             }
+            return smallTalkAnswer;
+
         }
 
-        public String SmallTalkConfirm
+        public String SmallTalkConfirm(string queryStr)
         {
-            get
+
+            String query = Regex.Replace(queryStr, @"[^a-zA-Z0-9ㄱ-힣-]", "", RegexOptions.Singleline).Replace(" ", "").ToLower();
+            SqlDataReader rdr = null;
+            String smallTalkAnswer = "";
+
+            using (SqlConnection conn = new SqlConnection(connStr))
             {
-                String query = Regex.Replace(MessagesController.queryStr, @"[^a-zA-Z0-9ㄱ-힣-]", "", RegexOptions.Singleline).Replace(" ", "").ToLower();
-                SqlDataReader rdr = null;
-                String smallTalkAnswer = "";
 
-                using (SqlConnection conn = new SqlConnection(connStr))
+                conn.Open();
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = conn;
+
+                cmd.CommandText += "SELECT TOP 1 MAX(A.ANSWER) AS ANSWER ";
+                cmd.CommandText += "FROM ";
+                cmd.CommandText += "    ( ";
+                cmd.CommandText += "        SELECT  S_ANSWER AS ANSWER FROM TBL_SMALLTALK ";
+                cmd.CommandText += "        WHERE  S_QUERY = @kr_query ";
+                cmd.CommandText += "        AND      USE_YN = 'Y' ";
+                cmd.CommandText += "        UNION ALL ";
+                cmd.CommandText += "        SELECT  S_ANSWER FROM TBL_SMALLTALK ";
+                cmd.CommandText += "        WHERE  CHARINDEX(ENTITY, @kr_query) > 0 ";
+                cmd.CommandText += "        AND      USE_YN = 'Y' ";
+                cmd.CommandText += "    ) A ";
+
+                cmd.Parameters.AddWithValue("@kr_query", query);
+
+                rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
+
+                try
                 {
-
-                    conn.Open();
-                    SqlCommand cmd = new SqlCommand();
-                    cmd.Connection = conn;
-
-                    cmd.CommandText += "SELECT TOP 1 MAX(A.ANSWER) AS ANSWER ";
-                    cmd.CommandText += "FROM ";
-                    cmd.CommandText += "    ( ";
-                    cmd.CommandText += "        SELECT  S_ANSWER AS ANSWER FROM TBL_SMALLTALK ";
-                    cmd.CommandText += "        WHERE  S_QUERY = @kr_query ";
-                    cmd.CommandText += "        AND      USE_YN = 'Y' ";
-                    cmd.CommandText += "        UNION ALL ";
-                    cmd.CommandText += "        SELECT  S_ANSWER FROM TBL_SMALLTALK ";
-                    cmd.CommandText += "        WHERE  CHARINDEX(ENTITY, @kr_query) > 0 ";
-                    cmd.CommandText += "        AND      USE_YN = 'Y' ";
-                    cmd.CommandText += "    ) A ";
-
-                    cmd.Parameters.AddWithValue("@kr_query", query);
-
-                    rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
-
-                    try
+                    while (rdr.Read())
                     {
-                        while (rdr.Read())
-                        {
-                            smallTalkAnswer = rdr["ANSWER"] as string;
-                        }
+                        smallTalkAnswer = rdr["ANSWER"] as string;
                     }
-                    catch (Exception e)
-                    {
-                        Debug.WriteLine(e.Message);
-                    }
-                    rdr.Close();
-
                 }
-                return smallTalkAnswer;
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                }
+                rdr.Close();
+
             }
+            return smallTalkAnswer;
+
         }
 
 
