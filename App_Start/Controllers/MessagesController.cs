@@ -516,7 +516,8 @@ namespace cjEmployeeChatBot
                             luisEntities = cacheList.luisEntities;
                             luisIntentScore = cacheList.luisScore;
 
-                        } else
+                        }
+                        else
                         {
                             luisId = cacheList.luisId;
                             luisIntent = cacheList.luisIntent;
