@@ -669,7 +669,6 @@ namespace cjEmployeeChatBot
                             }
 
                             SetActivity(suggestionsReply);
-
                         }
 
                         //sap 비밀번호 초기화
