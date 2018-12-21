@@ -509,7 +509,7 @@ namespace cjEmployeeChatBot
 
                             Debug.WriteLine("cacheList.luisIntent : " + cacheList.luisIntent);
                             //Debug.WriteLine("cacheList.luisEntitiesValue : " + cacheList.luisEntitiesValue);
-                            cacheList = db.CacheDataFromIntent(cacheList.luisIntent);
+                            cacheList = db.CacheDataFromIntent(luisIntent);
 
                             luisId = cacheList.luisId;
                             luisIntent = cacheList.luisIntent;
@@ -1027,7 +1027,7 @@ namespace cjEmployeeChatBot
 
             for (int k = 0; k < textList.Count; k++)
             {
-                string url = string.Format("https://eastasia.api.cognitive.microsoft.com/luis/v2.0/apps/{0}?subscription-key={1}&timezoneOffset=0&verbose=true&q={2}", textList[0][1], textList[0][2], query);
+                string url = string.Format("https://eastasia.api.cognitive.microsoft.com/luis/v2.0/apps/{0}?subscription-key={1}&timezoneOffset=0&verbose=true&q={2}", textList[k][1], textList[k][2], query);
 
 
                 Debug.WriteLine("-----LUIS URL 보기");
@@ -1061,7 +1061,7 @@ namespace cjEmployeeChatBot
                             {
                                 //테스용 url 설정
                                 //string url_re = string.Format("https://southeastasia.api.cognitive.microsoft.com/luis/v2.0/apps/{0}?subscription-key={1}&timezoneOffset=0&verbose=true&q={2}", luis_app_id, luis_subscription, query);
-                                string url_re = string.Format("https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/{0}?subscription-key={1}&timezoneOffset=0&verbose=true&q={2}", textList[0][1], textList[0][2], query);
+                                string url_re = string.Format("https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/{0}?subscription-key={1}&timezoneOffset=0&verbose=true&q={2}", textList[k][1], textList[k][2], query);
                                 HttpResponseMessage msg_re = await client.GetAsync(url_re, cts.Token);
 
                                 if (msg_re.IsSuccessStatusCode)
