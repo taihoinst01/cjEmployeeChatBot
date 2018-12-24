@@ -1011,7 +1011,7 @@ namespace cjEmployeeChatBot.DB
                 cmd.Parameters.AddWithValue("@Query", Regex.Replace(queryStr, @"[^a-zA-Z0-9ㄱ-힣]", "", RegexOptions.Singleline).Trim().ToLower());
                 cmd.Parameters.AddWithValue("@intentID", intentName.Trim());
                 cmd.Parameters.AddWithValue("@entitiesIDS", entities.Trim().ToLower());
-                if (result.Equals("D") || result.Equals("S") || result.Equals("G") || result.Equals("Q") || result.Equals("I"))
+                if (result.Equals("D") || result.Equals("S") || result.Equals("G") || result.Equals("Q") || result.Equals("I") || result.Equals("E"))
                 {
                     cmd.Parameters.AddWithValue("@intentScore", "0");
                 }
@@ -1496,6 +1496,13 @@ namespace cjEmployeeChatBot.DB
                 SqlCommand cmd = new SqlCommand();
                 cmd.Connection = conn;
 
+                if (gubun.Equals("OPTIONAL_1"))
+                {
+                    cmd.CommandText += " UPDATE     TBL_USERDATA ";
+                    cmd.CommandText += " SET           OPTIONAL_1 = @val ";
+                    cmd.CommandText += " WHERE      CHANNELDATA = @channeldata ";
+                    cmd.CommandText += " AND          CONVERSATIONSID = @conversationsid ";
+                }
                 if (gubun.Equals("sabun"))
                 {
                     cmd.CommandText += " UPDATE     TBL_USERDATA ";

@@ -387,536 +387,635 @@ namespace cjEmployeeChatBot
                         string queryStr = "";
                         string luisQuery = "";
 
-                        //정규화
-                        luisQuery = orgMent;
-                        orgMent = Regex.Replace(orgMent, @"[^a-zA-Z0-9ㄱ-힣]", "", RegexOptions.Singleline);
-                        orgMent = orgMent.Replace(" ", "").ToLower();
-                        queryStr = orgMent;
-                        cacheList = db.CacheChk(orgMent.Replace(" ", ""));                     // 캐시 체크 (TBL_QUERY_ANALYSIS_RESULT 조회..)
-                        //cacheList.luisIntent 초기화
-                        //cacheList.luisIntent = null;
-                        //SAP 비밀번호 
-                        if (orgMent.Equals("sap비밀번호초기화신청접수"))
+                        //SAP 처리
+                        if (orgMent.Contains("SAP#"))
                         {
-                            if (userData[0].conversationsId == activity.Conversation.Id)
+                            //SAP 용어 확인
+                            string qnAMakerAnswer = dbutil.GetQnAMaker(orgMent.Replace("SAP#",""));
+
+                            if (!qnAMakerAnswer.Contains("No good match"))
                             {
-                                db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 1 , "sap");
-                                userData[0].sap = 1;
-                            }
-                        }
+                                Activity qnAMakerReply = activity.CreateReply();
 
-                        //건의사항
-                        if (orgMent.Contains("건의사항")|| orgMent.Contains("건의 사항"))
-                        {
-                            if (userData[0].conversationsId == activity.Conversation.Id)
-                            {
-                                //suggestions = "Y";
-                                db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 1, "loop");
-                                userData[0].loop = 1;
-                            }
-                        }
-                        //smalltalk 문자 확인                        
-                        String smallTalkSentenceConfirm = db.SmallTalkSentenceConfirm(orgMent);
+                                qnAMakerReply.Recipient = activity.From;
+                                qnAMakerReply.Type = "message";
+                                qnAMakerReply.Attachments = new List<Attachment>();
 
-                        //SAP 용어 확인
-                        string qnAMakerAnswer = dbutil.GetQnAMaker(luisQuery);
+                                List<CardList> text = new List<CardList>();
 
-                        //smalltalk 답변이 있을경우
-                        if (!string.IsNullOrEmpty(smallTalkSentenceConfirm))
-                        {
-                            luisId = "";
-                        }
-                        else if (!qnAMakerAnswer.Contains("No good match"))
-                        {
-                            luisId = "";                            
-                        }
-                        else if (userData[0].sap == 1 || userData[0].sap == 2 || userData[0].sap == 3)
-                        {
-                            luisId = "";
-                        }
-                        //luis 호출
-                        else if (cacheList.luisIntent == null || cacheList.luisEntities == null)
-                        {
-                            DButil.HistoryLog("cache none : " + orgMent);
-                            Debug.WriteLine("cache none : " + orgMent);
-                            //루이스 체크(intent를 루이스를 통해서 가져옴)
-                            //cacheList.luisId = dbutil.GetMultiLUIS(orgMent);
-                            //Debug.WriteLine("cacheList.luisId : " + cacheList.luisId);
-
-                            //cacheList.luisIntent = dbutil.GetMultiLUIS(luisQuery);
-
-                            List<string[]> textList = new List<string[]>(5);
-
-                            for (int i = 0; i < 5; i++)
-                            {
-                                //textList.Add(LUIS_APP_ID[i] +"|"+ LUIS_SUBSCRIPTION + "|" + query);
-                                textList.Add(new string[] { MessagesController.LUIS_NM[i], MessagesController.LUIS_APP_ID[i], MessagesController.LUIS_SUBSCRIPTION, orgMent });
-                                Debug.WriteLine("GetMultiLUIS() LUIS_NM : " + MessagesController.LUIS_NM[i] + " | LUIS_APP_ID : " + MessagesController.LUIS_APP_ID[i]);
-                            }
-
-                            Debug.WriteLine("activity.Conversation.Id : " + activity.Conversation.Id);
-
-                            JObject Luis_before = new JObject();
-                            float luisScoreCompare = 0.0f;
-                            JObject Luis = new JObject();
-
-                            //Task<JObject> t1 = Task<JObject>.Run(() => GetIntentFromBotLUIS2(textList, orgMent));
-                            Task<JObject> t1 = Task<JObject>.Run(async () => await GetIntentFromBotLUIS(textList, orgMent));
-
-                            await Task.Delay(1000);
-                            t1.Wait();
-
-                            //if (t1.Status.ToString() == "RanToCompletion")
-                            //{
-                                Luis = t1.Result;
-                            //}
-
-                            Debug.WriteLine("Luis : " + Luis);
-
-                            //entities 갯수가 0일겨우 intent를 None으로 처리
-                            if ((int)Luis["entities"].Count() != 0)
-                            {
-                                //if (!String.IsNullOrEmpty(LuisName))
-                                //{
-                                if (Luis != null || Luis.Count > 0)
+                                UserHeroCard plCard = new UserHeroCard()
                                 {
-                                    float luisScore = (float)Luis["intents"][0]["score"];
-                                    int luisEntityCount = (int)Luis["entities"].Count();
+                                    Title = "SAP 용어",
+                                    Text = qnAMakerAnswer
+                                };
 
-                                    luisIntent = Luis["topScoringIntent"]["intent"].ToString();//add
-                                    luisScore = luisScoreCompare;
-                                    Debug.WriteLine("GetMultiLUIS() LUIS luisIntent : " + luisIntent);
+                                Attachment plAttachment = plCard.ToAttachment();
+                                qnAMakerReply.Attachments.Add(plAttachment);
 
-                                    //통근버스
-                                    if (luisIntent.Equals("총무통근버스_통근버스노선안내"))
+                                SetActivity(qnAMakerReply);
+
+                                db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "loop");
+                                db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "sap");
+                                replyresult = "Q";
+                                luisIntent = "SAP";
+                                luisTypeEntities = "SAP";
+                            }
+                            else
+                            {
+                                Debug.WriteLine("no dialogue-------------");
+
+                                Activity intentNoneReply = activity.CreateReply();
+
+                                var message = queryStr;
+
+                                Debug.WriteLine("NO DIALOGUE MESSAGE : " + message);
+
+                                Activity sorryReply = activity.CreateReply();
+                                sorryReply.Recipient = activity.From;
+                                sorryReply.Type = "message";
+                                sorryReply.Attachments = new List<Attachment>();
+                                //sorryReply.AttachmentLayout = AttachmentLayoutTypes.Carousel;
+
+                                List<CardList> text = new List<CardList>();
+                                List<CardAction> cardButtons = new List<CardAction>();
+
+                                text = db.SelectSorryDialogText("5");
+                                for (int i = 0; i < text.Count; i++)
+                                {
+                                    CardAction plButton = new CardAction();
+                                    plButton = new CardAction()
                                     {
-                                        for (int i = 0; i < (int)Luis["entities"].Count(); i++)
+                                        Type = text[i].btn1Type,
+                                        Value = text[i].btn1Context,
+                                        Title = text[i].btn1Title
+                                    };
+                                    cardButtons.Add(plButton);
+
+                                    UserHeroCard plCard = new UserHeroCard()
+                                    {
+                                        //Title = text[i].cardTitle,
+                                        Text = text[i].cardText,
+                                        Buttons = cardButtons
+                                    };
+
+                                    Attachment plAttachment = plCard.ToAttachment();
+                                    sorryReply.Attachments.Add(plAttachment);
+                                }
+
+                                db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "loop");
+                                db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "sap");
+
+                                SetActivity(sorryReply);
+                                replyresult = "D";
+
+                            }
+
+                            DateTime endTime = DateTime.Now;
+
+                            //analysis table insert
+                            int dbResult = db.insertUserQuery(relationList, luisId, luisIntent, luisEntities, luisIntentScore, replyresult, orgMent);
+
+                            //history table insert
+                            //db.insertHistory(activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), "", "", "", "", replyresult);
+                            db.insertHistory(null, activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), luisIntent, luisEntities, luisIntentScore, dlgId, replyresult, queryStr);
+                            replyresult = "";
+                            luisIntent = "";
+                            luisTypeEntities = "";
+                        }
+                        //SAP 이외 처리
+                        else
+                        {
+                            //정규화
+                            luisQuery = orgMent;
+                            orgMent = Regex.Replace(orgMent, @"[^a-zA-Z0-9ㄱ-힣]", "", RegexOptions.Singleline);
+                            orgMent = orgMent.Replace(" ", "").ToLower();
+                            queryStr = orgMent;
+                            cacheList = db.CacheChk(orgMent.Replace(" ", ""));                     // 캐시 체크 (TBL_QUERY_ANALYSIS_RESULT 조회..)
+                            //cacheList.luisIntent 초기화
+                            //cacheList.luisIntent = null;
+                            //SAP 비밀번호 
+                            if (orgMent.Equals("sap비밀번호초기화신청접수"))
+                            {
+                                if (userData[0].conversationsId == activity.Conversation.Id)
+                                {
+                                    db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 1, "sap");
+                                    userData[0].sap = 1;
+                                }
+                            }
+
+                            //건의사항
+                            if (orgMent.Contains("건의사항") || orgMent.Contains("건의 사항"))
+                            {
+                                if (userData[0].conversationsId == activity.Conversation.Id)
+                                {
+                                    //suggestions = "Y";
+                                    db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 1, "loop");
+                                    userData[0].loop = 1;
+                                }
+                            }
+                            //smalltalk 문자 확인                        
+                            String smallTalkSentenceConfirm = db.SmallTalkSentenceConfirm(orgMent);
+
+                            //smalltalk 답변이 있을경우
+                            if (!string.IsNullOrEmpty(smallTalkSentenceConfirm))
+                            {
+                                luisId = "";
+                            }
+                            else if (userData[0].sap == 1 || userData[0].sap == 2 || userData[0].sap == 3 || userData[0].sap == 4)
+                            {
+                                luisId = "";
+                            }
+                            //luis 호출
+                            else if (cacheList.luisIntent == null || cacheList.luisEntities == null)
+                            {
+                                DButil.HistoryLog("cache none : " + orgMent);
+                                Debug.WriteLine("cache none : " + orgMent);
+                                //루이스 체크(intent를 루이스를 통해서 가져옴)
+                                //cacheList.luisId = dbutil.GetMultiLUIS(orgMent);
+                                //Debug.WriteLine("cacheList.luisId : " + cacheList.luisId);
+
+                                //cacheList.luisIntent = dbutil.GetMultiLUIS(luisQuery);
+
+                                List<string[]> textList = new List<string[]>(5);
+
+                                for (int i = 0; i < 5; i++)
+                                {
+                                    //textList.Add(LUIS_APP_ID[i] +"|"+ LUIS_SUBSCRIPTION + "|" + query);
+                                    textList.Add(new string[] { MessagesController.LUIS_NM[i], MessagesController.LUIS_APP_ID[i], MessagesController.LUIS_SUBSCRIPTION, orgMent });
+                                    Debug.WriteLine("GetMultiLUIS() LUIS_NM : " + MessagesController.LUIS_NM[i] + " | LUIS_APP_ID : " + MessagesController.LUIS_APP_ID[i]);
+                                }
+
+                                Debug.WriteLine("activity.Conversation.Id : " + activity.Conversation.Id);
+
+                                JObject Luis_before = new JObject();
+                                float luisScoreCompare = 0.0f;
+                                JObject Luis = new JObject();
+
+                                //Task<JObject> t1 = Task<JObject>.Run(() => GetIntentFromBotLUIS2(textList, orgMent));
+                                //루이스 처리
+                                Task<JObject> t1 = Task<JObject>.Run(async () => await GetIntentFromBotLUIS(textList, orgMent));
+
+                                //결과값 받기
+                                await Task.Delay(1000);
+                                t1.Wait();
+                                Luis = t1.Result;
+
+                                //Debug.WriteLine("Luis : " + Luis);
+
+                                //entities 갯수가 0일겨우 intent를 None으로 처리
+
+                                //if (Luis != null || Luis.Count > 0)
+                                if (Luis.Count != 0)
+                                {
+                                    if ((int)Luis["entities"].Count() != 0)
+                                    {
+                                        float luisScore = (float)Luis["intents"][0]["score"];
+                                        int luisEntityCount = (int)Luis["entities"].Count();
+
+                                        luisIntent = Luis["topScoringIntent"]["intent"].ToString();//add
+                                        luisScore = luisScoreCompare;
+                                        Debug.WriteLine("GetMultiLUIS() LUIS luisIntent : " + luisIntent);
+
+                                        //통근버스
+                                        if (luisIntent.Equals("총무통근버스_통근버스노선안내"))
                                         {
-                                            if ((string)Luis["entities"][i]["type"] == "L>통근버스노선")
+                                            for (int i = 0; i < (int)Luis["entities"].Count(); i++)
                                             {
-                                                luisTypeEntities = Regex.Replace((string)Luis["entities"][i]["entity"], " ", "");
+                                                if ((string)Luis["entities"][i]["type"] == "L>통근버스노선")
+                                                {
+                                                    luisTypeEntities = Regex.Replace((string)Luis["entities"][i]["entity"], " ", "");
+                                                }
                                             }
                                         }
-
-                                    }
-                                    Debug.WriteLine("통근버스노선" + luisTypeEntities);
-                                }
-                            }
-                            else
-                            {
-                                luisIntent = "None";
-                            }
-
-                            Debug.WriteLine("cacheList.luisIntent : " + cacheList.luisIntent);
-                            //Debug.WriteLine("cacheList.luisEntitiesValue : " + cacheList.luisEntitiesValue);
-                            cacheList = db.CacheDataFromIntent(luisIntent);
-
-                            luisId = cacheList.luisId;
-                            luisIntent = cacheList.luisIntent;
-                            luisEntities = cacheList.luisEntities;
-                            luisIntentScore = cacheList.luisScore;
-
-                        }
-                        else
-                        {
-                            luisId = cacheList.luisId;
-                            luisIntent = cacheList.luisIntent;
-                            luisEntities = cacheList.luisEntities;
-                            luisIntentScore = cacheList.luisScore;
-                        }
-
-                        DButil.HistoryLog("luisId : " + luisId);
-                        DButil.HistoryLog("luisIntent : " + luisIntent);
-                        DButil.HistoryLog("luisEntities : " + luisEntities);
-
-                        string smallTalkConfirm = "";
-
-                        if (!string.IsNullOrEmpty(luisIntent))
-                        {
-                            relationList = db.DefineTypeChkSpare(cacheList.luisIntent, cacheList.luisEntities);
-                        }
-                        else
-                        {
-                            relationList = null;
-                            //smalltalk 답변가져오기
-                            if (orgMent.Length < 9)
-                            {
-                                smallTalkConfirm = db.SmallTalkConfirm(orgMent);
-                            } else
-                            {
-                                smallTalkConfirm = "";
-                            }
-                            
-                        }
-
-                        //if (apiFlag.Equals("COMMON") && relationList != null)
-                        //if (relationList != null && string.IsNullOrEmpty(userData.GetProperty<string>("suggestion")))
-                        if (relationList != null)
-                        {
-                            dlgId = "";
-                            for (int m = 0; m < relationList.Count; m++)
-                            {
-                                DialogList dlg = db.SelectDialog(relationList[m].dlgId);
-                                dlgId += Convert.ToString(dlg.dlgId) + ",";
-                                Activity commonReply = activity.CreateReply();
-                                Attachment tempAttachment = new Attachment();
-                                DButil.HistoryLog("dlg.dlgType : " + dlg.dlgType);
-
-                                if (dlg.dlgType.Equals(CARDDLG))
-                                {
-                                    foreach (CardList tempcard in dlg.dialogCard)
-                                    {
-                                        
-                                        tempAttachment = dbutil.getAttachmentFromDialog(tempcard, activity);
-
-                                        if (tempAttachment != null)
-                                        {
-                                            commonReply.Attachments.Add(tempAttachment);
-                                        }
-
-                                        //2018-04-19:KSO:Carousel 만드는부분 추가
-                                        if (tempcard.card_order_no > 1)
-                                        {
-                                            commonReply.AttachmentLayout = AttachmentLayoutTypes.Carousel;
-                                        }
-
-                                    }
-                                }
-                                else
-                                {
-                                    //DButil.HistoryLog("* facebook dlg.dlgId : " + dlg.dlgId);
-                                    DButil.HistoryLog("* activity.ChannelId : " + activity.ChannelId);
-                                  
-                                    tempAttachment = dbutil.getAttachmentFromDialog(dlg, activity);
-                                    commonReply.Attachments.Add(tempAttachment);
-                                }
-
-                                if (commonReply.Attachments.Count > 0)
-                                {
-                                    SetActivity(commonReply);
-
-                                    replyresult = "H";
-
-                                }
-                            }
-                        }
-                        //SMALLTALK 확인
-                        //else if (!string.IsNullOrEmpty(smallTalkConfirm) && string.IsNullOrEmpty(userData.GetProperty<string>("suggestion")))
-                        else if (!string.IsNullOrEmpty(smallTalkConfirm))
-                        {
-                            Debug.WriteLine("smalltalk dialogue-------------");
-
-                            Random rand = new Random();
-                            
-                            //SMALLTALK 구분
-                            string[] smallTalkConfirm_result = smallTalkConfirm.Split('$');
-
-                            int smallTalkConfirmNum = rand.Next(0, smallTalkConfirm_result.Length);
-
-                            Activity smallTalkReply = activity.CreateReply();
-                            smallTalkReply.Recipient = activity.From;
-                            smallTalkReply.Type = "message";
-                            smallTalkReply.Attachments = new List<Attachment>();
-
-                            HeroCard plCard = new HeroCard()
-                            {
-                                Title = "",
-                                Text = smallTalkConfirm_result[smallTalkConfirmNum]
-                            };
-
-                            Attachment plAttachment = plCard.ToAttachment();
-                            smallTalkReply.Attachments.Add(plAttachment);
-
-                            SetActivity(smallTalkReply);
-                            replyresult = "S";
-                            db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "loop");
-                        }
-                        //건의사항
-                        else if ((userData[0].conversationsId == activity.Conversation.Id && (userData[0].loop==1 || userData[0].loop == 2)))
-                        {
-                            Debug.WriteLine("suggestions dialogue-------------");
-
-                            Activity suggestionsReply = activity.CreateReply();
-                            suggestionsReply.Recipient = activity.From;
-                            suggestionsReply.Type = "message";
-                            suggestionsReply.Attachments = new List<Attachment>();
-
-                            List<TextList> text = new List<TextList>();
-
-                            if (userData[0].loop == 1)
-                            {
-                                text = db.SelectSuggetionsDialogText("6");
-                                db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 2, "loop");
-                                replyresult = "G";
-                            }
-                            else
-                            {
-                                text = db.SelectSuggetionsDialogText("7");
-                                db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "loop");
-                                replyresult = "G";
-                            }
-
-                            for (int i = 0; i < text.Count; i++)
-                            {
-                                UserHeroCard plCard = new UserHeroCard()
-                                {
-                                    Title = text[i].cardTitle,
-                                    Text = text[i].cardText
-                                };
-
-                                Attachment plAttachment = plCard.ToAttachment();
-                                suggestionsReply.Attachments.Add(plAttachment);
-                            }
-
-                            SetActivity(suggestionsReply);
-                        }
-
-                        //sap 비밀번호 초기화
-                        else if ((userData[0].conversationsId == activity.Conversation.Id && (userData[0].sap == 1 || userData[0].sap == 2 || userData[0].sap == 3 || userData[0].sap == 4)))
-                        {
-                            Debug.WriteLine("sapInit dialogue-------------");
-
-                            luisIntent = "SAPINIT";
-                            luisTypeEntities = "SAPINIT";
-
-                            Activity sapInitReply = activity.CreateReply();
-                            sapInitReply.Recipient = activity.From;
-                            sapInitReply.Type = "message";
-                            sapInitReply.Attachments = new List<Attachment>();
-
-                            List<TextList> text = new List<TextList>();
-                            List<CardAction> cardButtons = new List<CardAction>();
-
-                            if (userData[0].sap == 1)
-                            {
-                                CardAction plButton1 = new CardAction();
-                                plButton1 = new CardAction()
-                                {
-                                    Type = "imBack",
-                                    Value = "전사 ERP(PRD)",
-                                    Title = "전사 ERP(PRD)"
-                                };
-                                CardAction plButton2 = new CardAction();
-                                plButton2 = new CardAction()
-                                {
-                                    Type = "imBack",
-                                    Value = "전사 BI(BIP)",
-                                    Title = "전사 BI(BIP)"
-                                };
-                                CardAction plButton3 = new CardAction();
-                                plButton3 = new CardAction()
-                                {
-                                    Type = "imBack",
-                                    Value = "해외 BI(BW1)",
-                                    Title = "해외 BI(BW1)"
-                                };
-                                cardButtons.Add(plButton1);
-                                cardButtons.Add(plButton2);
-                                cardButtons.Add(plButton3);
-
-                                UserHeroCard plCard = new UserHeroCard()
-                                {
-                                    Text = "선택",
-                                    Buttons = cardButtons
-                                };
-
-                                Attachment plAttachment = plCard.ToAttachment();
-                                sapInitReply.Attachments.Add(plAttachment);
-                                db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 2, "sap");
-                            }
-                            else if (userData[0].sap == 2)
-                            {
-                                db.UserDataUpdateUserID(activity.ChannelId, activity.Conversation.Id, "OPTIONAL_1", luisQuery);
-
-                                UserHeroCard plCard = new UserHeroCard()
-                                {
-                                    Text =  "초기화 안내 /n ["+ userID + "] 님 SAP 비밀번호 초기화를 위해 계정의 사원번호가 필요합니다. 사원번호 를 입력해주세요."
-                                };
-
-                                Attachment plAttachment = plCard.ToAttachment();
-                                sapInitReply.Attachments.Add(plAttachment);
-                                db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 3, "sap");
-                            }
-                            else if (userData[0].sap == 3)
-                            {
-                                int val;
-                                Debug.WriteLine(int.TryParse(orgMent, out val));
-                                if (int.TryParse(orgMent, out val) && orgMent.Length != 6)
-                                {
-                                    UserHeroCard plCard = new UserHeroCard()
-                                    {
-                                        Text = "정확한 사번을 입력해주세요."
-                                    };
-                                    Attachment plAttachment = plCard.ToAttachment();
-                                    sapInitReply.Attachments.Add(plAttachment);
-                                    db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 3, "sap");
-                                } else
-                                {
-                                    String sabun = "";
-                                    sabun = orgMent;
-                                    db.UserDataUpdateUserID(activity.ChannelId, activity.Conversation.Id, "sabun", sabun);
-
-                                    UserHeroCard plCard = new UserHeroCard()
-                                    {
-                                        Text = "재발급사유 를 입력해주세요. (5자 이상)"
-                                    };
-                                    Attachment plAttachment = plCard.ToAttachment();
-                                    sapInitReply.Attachments.Add(plAttachment);
-                                    db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 4, "sap");
-                                }
-                            }
-                            else if (userData[0].sap == 4)
-                            {
-                                if (orgMent.Length < 6)
-                                {
-                                    UserHeroCard plCard = new UserHeroCard()
-                                    {
-                                        Text = "재발급사유 를 입력해주세요. (5자 이상)."
-                                    };
-
-                                    Attachment plAttachment = plCard.ToAttachment();
-                                    sapInitReply.Attachments.Add(plAttachment);
-
-                                    db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 4, "sap");
-                                }
-                                else
-                                {
-                                    String reissue = "";
-                                    reissue = orgMent;
-                                    db.UserDataUpdateUserID(activity.ChannelId, activity.Conversation.Id, "reissue", reissue);
-
-                                    UserHeroCard plCard = new UserHeroCard()
-                                    {
-                                        Text = "SAP 비밀번호 초기화를 진행중입니다."
-                                    };
-
-                                    Attachment plAttachment = plCard.ToAttachment();
-                                    sapInitReply.Attachments.Add(plAttachment);
-
-                                    //SAP 초기화 리스트
-                                    string urlParameter = "";
-                                    List<UserData> uData = new List<UserData>();
-                                    uData = db.UserDataSapConfirm(activity.ChannelId, activity.Conversation.Id);
-                                    urlParameter = "&sabun=" + uData[0].sabun+ "sabun=" + uData[0].reissue;
-
-                                    //SAP 초기화 작업
-                                    string sapInit = dbutil.GetSapInit(urlParameter);
-
-                                    if (sapInit.Equals("S"))
-                                    {
-                                        UserHeroCard plCard1 = new UserHeroCard()
-                                        {
-                                            Text = "[" + userID + "]님의 SAP 비밀번호가 초기화 되었습니다. 초기화된 임시패스워드가 메일로 발송되었습니다. (5분이내수신)"
-                                        };
-                                        Attachment plAttachment1 = plCard1.ToAttachment();
-                                        sapInitReply.Attachments.Add(plAttachment1);
-                                        db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "sap");
+                                        Debug.WriteLine("통근버스노선" + luisTypeEntities);
                                     }
                                     else
                                     {
-                                        UserHeroCard plCard1 = new UserHeroCard()
-                                        {
-                                            Text = "[" + userID + "] 님의 SAP 비밀번호가 초기화가 실패되었습니다. 사원번호 및 사유를 재확인 부탁드립니다."
-                                        };
-                                        Attachment plAttachment1 = plCard1.ToAttachment();
-                                        sapInitReply.Attachments.Add(plAttachment1);
-                                        db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "sap");
-                                    }                                    
-                                }                                
+                                        luisIntent = "None";
+                                    }
+                                    
+                                }else
+                                {
+                                    luisIntent = "None";
+                                }
+                                //if ((int)Luis["entities"].Count() != 0)
+                                //{
+                                //    if (Luis != null || Luis.Count > 0)
+                                //    {
+                                //        float luisScore = (float)Luis["intents"][0]["score"];
+                                //        int luisEntityCount = (int)Luis["entities"].Count();
+
+                                //        luisIntent = Luis["topScoringIntent"]["intent"].ToString();//add
+                                //        luisScore = luisScoreCompare;
+                                //        Debug.WriteLine("GetMultiLUIS() LUIS luisIntent : " + luisIntent);
+
+                                //        //통근버스
+                                //        if (luisIntent.Equals("총무통근버스_통근버스노선안내"))
+                                //        {
+                                //            for (int i = 0; i < (int)Luis["entities"].Count(); i++)
+                                //            {
+                                //                if ((string)Luis["entities"][i]["type"] == "L>통근버스노선")
+                                //                {
+                                //                    luisTypeEntities = Regex.Replace((string)Luis["entities"][i]["entity"], " ", "");
+                                //                }
+                                //            }
+                                //        }
+                                //        Debug.WriteLine("통근버스노선" + luisTypeEntities);
+                                //    }
+                                //}
+                                //else
+                                //{
+                                //    luisIntent = "None";
+                                //}
+
+                                Debug.WriteLine("cacheList.luisIntent : " + cacheList.luisIntent);
+                                //Debug.WriteLine("cacheList.luisEntitiesValue : " + cacheList.luisEntitiesValue);
+                                cacheList = db.CacheDataFromIntent(luisIntent);
+
+                                luisId = cacheList.luisId;
+                                luisIntent = cacheList.luisIntent;
+                                luisEntities = cacheList.luisEntities;
+                                luisIntentScore = cacheList.luisScore;
+
                             }
-                            replyresult = "I";
-                            SetActivity(sapInitReply);
-
-                        }
-
-                        else if (!qnAMakerAnswer.Contains("No good match"))
-                        {
-                            Activity qnAMakerReply = activity.CreateReply();
-
-                            qnAMakerReply.Recipient = activity.From;
-                            qnAMakerReply.Type = "message";
-                            qnAMakerReply.Attachments = new List<Attachment>();
-
-                            List<CardList> text = new List<CardList>();
-
-                            UserHeroCard plCard = new UserHeroCard()
+                            else
                             {
-                                Title = "SAP 용어",
-                                Text = qnAMakerAnswer
-                            };
+                                luisId = cacheList.luisId;
+                                luisIntent = cacheList.luisIntent;
+                                luisEntities = cacheList.luisEntities;
+                                luisIntentScore = cacheList.luisScore;
+                            }
 
-                            Attachment plAttachment = plCard.ToAttachment();
-                            qnAMakerReply.Attachments.Add(plAttachment);
+                            DButil.HistoryLog("luisId : " + luisId);
+                            DButil.HistoryLog("luisIntent : " + luisIntent);
+                            DButil.HistoryLog("luisEntities : " + luisEntities);
 
-                            SetActivity(qnAMakerReply);
+                            string smallTalkConfirm = "";
 
-                            db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "loop");
-                            db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "sap");
-                            replyresult = "Q";
-                            luisIntent = "SAP";
-                            luisTypeEntities = "SAP";
-                        }
-                        else
-                        {
-                            Debug.WriteLine("no dialogue-------------");
-
-                            Activity intentNoneReply = activity.CreateReply();
-
-                            var message = queryStr;
-
-                            Debug.WriteLine("NO DIALOGUE MESSAGE : " + message);
-
-                            Activity sorryReply = activity.CreateReply();
-                            sorryReply.Recipient = activity.From;
-                            sorryReply.Type = "message";
-                            sorryReply.Attachments = new List<Attachment>();
-                            //sorryReply.AttachmentLayout = AttachmentLayoutTypes.Carousel;
-
-                            List<CardList> text = new List<CardList>();
-                            List<CardAction> cardButtons = new List<CardAction>();
-
-                            text = db.SelectSorryDialogText("5");
-                            for (int i = 0; i < text.Count; i++)
+                            if (!string.IsNullOrEmpty(luisIntent))
                             {
-                                CardAction plButton = new CardAction();
-                                plButton = new CardAction()
+                                relationList = db.DefineTypeChkSpare(cacheList.luisIntent, cacheList.luisEntities);
+                            }
+                            else
+                            {
+                                relationList = null;
+                                //smalltalk 답변가져오기
+                                if (orgMent.Length < 9)
                                 {
-                                    Type = text[i].btn1Type,
-                                    Value = text[i].btn1Context,
-                                    Title = text[i].btn1Title
-                                };
-                                cardButtons.Add(plButton);
+                                    smallTalkConfirm = db.SmallTalkConfirm(orgMent);
+                                }
+                                else
+                                {
+                                    smallTalkConfirm = "";
+                                }
 
-                                UserHeroCard plCard = new UserHeroCard()
+                            }
+
+                            //if (apiFlag.Equals("COMMON") && relationList != null)
+                            //if (relationList != null && string.IsNullOrEmpty(userData.GetProperty<string>("suggestion")))
+                            if (relationList != null)
+                            {
+                                dlgId = "";
+                                for (int m = 0; m < relationList.Count; m++)
                                 {
-                                    //Title = text[i].cardTitle,
-                                    Text = text[i].cardText,
-                                    Buttons = cardButtons
+                                    DialogList dlg = db.SelectDialog(relationList[m].dlgId);
+                                    dlgId += Convert.ToString(dlg.dlgId) + ",";
+                                    Activity commonReply = activity.CreateReply();
+                                    Attachment tempAttachment = new Attachment();
+                                    DButil.HistoryLog("dlg.dlgType : " + dlg.dlgType);
+
+                                    if (dlg.dlgType.Equals(CARDDLG))
+                                    {
+                                        foreach (CardList tempcard in dlg.dialogCard)
+                                        {
+
+                                            tempAttachment = dbutil.getAttachmentFromDialog(tempcard, activity);
+
+                                            if (tempAttachment != null)
+                                            {
+                                                commonReply.Attachments.Add(tempAttachment);
+                                            }
+
+                                            //2018-04-19:KSO:Carousel 만드는부분 추가
+                                            if (tempcard.card_order_no > 1)
+                                            {
+                                                commonReply.AttachmentLayout = AttachmentLayoutTypes.Carousel;
+                                            }
+
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //DButil.HistoryLog("* facebook dlg.dlgId : " + dlg.dlgId);
+                                        DButil.HistoryLog("* activity.ChannelId : " + activity.ChannelId);
+
+                                        tempAttachment = dbutil.getAttachmentFromDialog(dlg, activity);
+                                        commonReply.Attachments.Add(tempAttachment);
+                                    }
+
+                                    if (commonReply.Attachments.Count > 0)
+                                    {
+                                        SetActivity(commonReply);
+
+                                        replyresult = "H";
+
+                                    }
+                                }
+                            }
+                            //SMALLTALK 확인
+                            //else if (!string.IsNullOrEmpty(smallTalkConfirm) && string.IsNullOrEmpty(userData.GetProperty<string>("suggestion")))
+                            else if (!string.IsNullOrEmpty(smallTalkConfirm))
+                            {
+                                Debug.WriteLine("smalltalk dialogue-------------");
+
+                                Random rand = new Random();
+
+                                //SMALLTALK 구분
+                                string[] smallTalkConfirm_result = smallTalkConfirm.Split('$');
+
+                                int smallTalkConfirmNum = rand.Next(0, smallTalkConfirm_result.Length);
+
+                                Activity smallTalkReply = activity.CreateReply();
+                                smallTalkReply.Recipient = activity.From;
+                                smallTalkReply.Type = "message";
+                                smallTalkReply.Attachments = new List<Attachment>();
+
+                                HeroCard plCard = new HeroCard()
+                                {
+                                    Title = "",
+                                    Text = smallTalkConfirm_result[smallTalkConfirmNum]
                                 };
 
                                 Attachment plAttachment = plCard.ToAttachment();
-                                sorryReply.Attachments.Add(plAttachment);
+                                smallTalkReply.Attachments.Add(plAttachment);
+
+                                SetActivity(smallTalkReply);
+                                replyresult = "S";
+                                db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "loop");
+                            }
+                            //건의사항
+                            else if ((userData[0].conversationsId == activity.Conversation.Id && (userData[0].loop == 1 || userData[0].loop == 2)))
+                            {
+                                Debug.WriteLine("suggestions dialogue-------------");
+
+                                Activity suggestionsReply = activity.CreateReply();
+                                suggestionsReply.Recipient = activity.From;
+                                suggestionsReply.Type = "message";
+                                suggestionsReply.Attachments = new List<Attachment>();
+
+                                List<TextList> text = new List<TextList>();
+
+                                if (userData[0].loop == 1)
+                                {
+                                    text = db.SelectSuggetionsDialogText("6");
+                                    db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 2, "loop");
+                                    replyresult = "G";
+                                }
+                                else
+                                {
+                                    text = db.SelectSuggetionsDialogText("7");
+                                    db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "loop");
+                                    replyresult = "G";
+                                }
+
+                                for (int i = 0; i < text.Count; i++)
+                                {
+                                    UserHeroCard plCard = new UserHeroCard()
+                                    {
+                                        Title = text[i].cardTitle,
+                                        Text = text[i].cardText
+                                    };
+
+                                    Attachment plAttachment = plCard.ToAttachment();
+                                    suggestionsReply.Attachments.Add(plAttachment);
+                                }
+
+                                SetActivity(suggestionsReply);
                             }
 
-                            db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "loop");
-                            db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "sap");
+                            //sap 비밀번호 초기화
+                            else if ((userData[0].conversationsId == activity.Conversation.Id && (userData[0].sap == 1 || userData[0].sap == 2 || userData[0].sap == 3 || userData[0].sap == 4)))
+                            {
+                                Debug.WriteLine("sapInit dialogue-------------");
 
-                            SetActivity(sorryReply);
-                            replyresult = "D";
+                                luisIntent = "SAPINIT";
+                                luisTypeEntities = "SAPINIT";
 
+                                Activity sapInitReply = activity.CreateReply();
+                                sapInitReply.Recipient = activity.From;
+                                sapInitReply.Type = "message";
+                                sapInitReply.Attachments = new List<Attachment>();
+
+                                List<TextList> text = new List<TextList>();
+                                List<CardAction> cardButtons = new List<CardAction>();
+
+                                if (userData[0].sap == 1)
+                                {
+                                    CardAction plButton1 = new CardAction();
+                                    plButton1 = new CardAction()
+                                    {
+                                        Type = "imBack",
+                                        Value = "전사 ERP(PRD)",
+                                        Title = "전사 ERP(PRD)"
+                                    };
+                                    CardAction plButton2 = new CardAction();
+                                    plButton2 = new CardAction()
+                                    {
+                                        Type = "imBack",
+                                        Value = "전사 BI(BIP)",
+                                        Title = "전사 BI(BIP)"
+                                    };
+                                    CardAction plButton3 = new CardAction();
+                                    plButton3 = new CardAction()
+                                    {
+                                        Type = "imBack",
+                                        Value = "해외 BI(BW1)",
+                                        Title = "해외 BI(BW1)"
+                                    };
+                                    cardButtons.Add(plButton1);
+                                    cardButtons.Add(plButton2);
+                                    cardButtons.Add(plButton3);
+
+                                    UserHeroCard plCard = new UserHeroCard()
+                                    {
+                                        Text = "선택",
+                                        Buttons = cardButtons
+                                    };
+
+                                    Attachment plAttachment = plCard.ToAttachment();
+                                    sapInitReply.Attachments.Add(plAttachment);
+                                    db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 2, "sap");
+                                }
+                                else if (userData[0].sap == 2)
+                                {
+                                    db.UserDataUpdateUserID(activity.ChannelId, activity.Conversation.Id, "OPTIONAL_1", luisQuery);
+
+                                    UserHeroCard plCard = new UserHeroCard()
+                                    {
+                                        Text = "초기화 안내 /n [" + userID + "] 님 SAP 비밀번호 초기화를 위해 계정의 사원번호가 필요합니다. 사원번호 를 입력해주세요."
+                                    };
+
+                                    Attachment plAttachment = plCard.ToAttachment();
+                                    sapInitReply.Attachments.Add(plAttachment);
+                                    db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 3, "sap");
+                                }
+                                else if (userData[0].sap == 3)
+                                {
+                                    int val;
+                                    Debug.WriteLine(int.TryParse(orgMent, out val));
+                                    if (int.TryParse(orgMent, out val) && orgMent.Length != 6)
+                                    {
+                                        UserHeroCard plCard = new UserHeroCard()
+                                        {
+                                            Text = "정확한 사번을 입력해주세요."
+                                        };
+                                        Attachment plAttachment = plCard.ToAttachment();
+                                        sapInitReply.Attachments.Add(plAttachment);
+                                        db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 3, "sap");
+                                    }
+                                    else
+                                    {
+                                        String sabun = "";
+                                        sabun = orgMent;
+                                        db.UserDataUpdateUserID(activity.ChannelId, activity.Conversation.Id, "sabun", sabun);
+
+                                        UserHeroCard plCard = new UserHeroCard()
+                                        {
+                                            Text = "재발급사유 를 입력해주세요. (5자 이상)"
+                                        };
+                                        Attachment plAttachment = plCard.ToAttachment();
+                                        sapInitReply.Attachments.Add(plAttachment);
+                                        db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 4, "sap");
+                                    }
+                                }
+                                else if (userData[0].sap == 4)
+                                {
+                                    if (orgMent.Length < 6)
+                                    {
+                                        UserHeroCard plCard = new UserHeroCard()
+                                        {
+                                            Text = "재발급사유 를 입력해주세요. (5자 이상)."
+                                        };
+
+                                        Attachment plAttachment = plCard.ToAttachment();
+                                        sapInitReply.Attachments.Add(plAttachment);
+
+                                        db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 4, "sap");
+                                    }
+                                    else
+                                    {
+                                        String reissue = "";
+                                        reissue = orgMent;
+                                        db.UserDataUpdateUserID(activity.ChannelId, activity.Conversation.Id, "reissue", reissue);
+
+                                        UserHeroCard plCard = new UserHeroCard()
+                                        {
+                                            Text = "SAP 비밀번호 초기화를 진행중입니다."
+                                        };
+
+                                        Attachment plAttachment = plCard.ToAttachment();
+                                        sapInitReply.Attachments.Add(plAttachment);
+
+                                        //SAP 초기화 리스트
+                                        string urlParameter = "";
+                                        List<UserData> uData = new List<UserData>();
+                                        uData = db.UserDataSapConfirm(activity.ChannelId, activity.Conversation.Id);
+                                        urlParameter = "&sabun=" + uData[0].sabun + "sabun=" + uData[0].reissue;
+
+                                        //SAP 초기화 작업
+                                        string sapInit = dbutil.GetSapInit(urlParameter);
+
+                                        if (sapInit.Equals("S"))
+                                        {
+                                            UserHeroCard plCard1 = new UserHeroCard()
+                                            {
+                                                Text = "[" + userID + "]님의 SAP 비밀번호가 초기화 되었습니다. 초기화된 임시패스워드가 메일로 발송되었습니다. (5분이내수신)"
+                                            };
+                                            Attachment plAttachment1 = plCard1.ToAttachment();
+                                            sapInitReply.Attachments.Add(plAttachment1);
+                                            db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "sap");
+                                        }
+                                        else
+                                        {
+                                            UserHeroCard plCard1 = new UserHeroCard()
+                                            {
+                                                Text = "[" + userID + "] 님의 SAP 비밀번호가 초기화가 실패되었습니다. 사원번호 및 사유를 재확인 부탁드립니다."
+                                            };
+                                            Attachment plAttachment1 = plCard1.ToAttachment();
+                                            sapInitReply.Attachments.Add(plAttachment1);
+                                            db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "sap");
+                                        }
+                                    }
+                                }
+                                replyresult = "I";
+                                SetActivity(sapInitReply);
+
+                            }
+
+
+                            else
+                            {
+                                Debug.WriteLine("no dialogue-------------");
+
+                                Activity intentNoneReply = activity.CreateReply();
+
+                                var message = queryStr;
+
+                                Debug.WriteLine("NO DIALOGUE MESSAGE : " + message);
+
+                                Activity sorryReply = activity.CreateReply();
+                                sorryReply.Recipient = activity.From;
+                                sorryReply.Type = "message";
+                                sorryReply.Attachments = new List<Attachment>();
+                                //sorryReply.AttachmentLayout = AttachmentLayoutTypes.Carousel;
+
+                                List<CardList> text = new List<CardList>();
+                                List<CardAction> cardButtons = new List<CardAction>();
+
+                                text = db.SelectSorryDialogText("5");
+                                for (int i = 0; i < text.Count; i++)
+                                {
+                                    CardAction plButton = new CardAction();
+                                    plButton = new CardAction()
+                                    {
+                                        Type = text[i].btn1Type,
+                                        Value = text[i].btn1Context,
+                                        Title = text[i].btn1Title
+                                    };
+                                    cardButtons.Add(plButton);
+
+                                    UserHeroCard plCard = new UserHeroCard()
+                                    {
+                                        //Title = text[i].cardTitle,
+                                        Text = text[i].cardText,
+                                        Buttons = cardButtons
+                                    };
+
+                                    Attachment plAttachment = plCard.ToAttachment();
+                                    sorryReply.Attachments.Add(plAttachment);
+                                }
+
+                                db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "loop");
+                                db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "sap");
+
+                                SetActivity(sorryReply);
+                                replyresult = "D";
+
+                            }
+
+                            DateTime endTime = DateTime.Now;
+
+                            //analysis table insert
+                            int dbResult = db.insertUserQuery(relationList, luisId, luisIntent, luisEntities, luisIntentScore, replyresult, orgMent);
+
+                            //history table insert
+                            //db.insertHistory(activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), "", "", "", "", replyresult);
+                            db.insertHistory(null, activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), luisIntent, luisEntities, luisIntentScore, dlgId, replyresult, queryStr);
+                            replyresult = "";
+                            luisIntent = "";
+                            luisTypeEntities = "";
                         }
-
-                        DateTime endTime = DateTime.Now;
-
-                        //analysis table insert
-                        int dbResult = db.insertUserQuery(relationList, luisId, luisIntent, luisEntities, luisIntentScore, replyresult,orgMent);
-
-                        //history table insert
-                        //db.insertHistory(activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), "", "", "", "", replyresult);
-                        db.insertHistory(null, activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), luisIntent, luisEntities, luisIntentScore, dlgId, replyresult, queryStr);
-                        replyresult = "";
-                        luisIntent = "";
-                        luisTypeEntities = "";
+                        
                     }
                 }
                 catch (Exception e)
