@@ -912,7 +912,7 @@ namespace cjEmployeeChatBot
                                         string urlParameter = "";
                                         List<UserData> uData = new List<UserData>();
                                         uData = db.UserDataSapConfirm(activity.ChannelId, activity.Conversation.Id);
-                                        urlParameter = "&userid="+ uData[0].userId + "&sabun=" + uData[0].sabun + "&reissue=" + uData[0].reissue + "&optional_1=" + uData[0].reissue;
+                                        urlParameter = "&userid="+ uData[0].userId + "&sabun=" + uData[0].sabun + "&reissue=" + uData[0].reissue + "&optional_1=" + uData[0].optional_1;
 
                                         //SAP 초기화 작업
                                         string sapInit = dbutil.GetSapInit(urlParameter);
