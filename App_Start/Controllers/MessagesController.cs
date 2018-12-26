@@ -254,9 +254,15 @@ namespace cjEmployeeChatBot
             else if (activity.Type == ActivityTypes.Message && activity.Text.Contains("sso:"))
             {
                 DButil.HistoryLog("start sso : ");
-                //string txt = activity.Text;
-                userID = dbutil.GetSSO(activity.Text);
+                String ssoMessage = activity.Text;
+                userID = dbutil.GetSSO(ssoMessage);
+                //ID 입력
                 db.UserDataUpdateUserID(activity.ChannelId, activity.Conversation.Id, "userid" ,userID);
+                //모바일 여부
+                String mobileyn = activity.Text.Substring(0, 1);
+                db.UserDataUpdateUserID(activity.ChannelId, activity.Conversation.Id, "mobileyn", mobileyn);
+                db.UserDataUpdateUserID(activity.ChannelId, activity.Conversation.Id, "sso", ssoMessage.Replace("Msso:", "").Replace("Psso:", ""));
+
                 DButil.HistoryLog("sso : " + userID);
 
             }
@@ -598,35 +604,6 @@ namespace cjEmployeeChatBot
                                 {
                                     luisIntent = "None";
                                 }
-                                //if ((int)Luis["entities"].Count() != 0)
-                                //{
-                                //    if (Luis != null || Luis.Count > 0)
-                                //    {
-                                //        float luisScore = (float)Luis["intents"][0]["score"];
-                                //        int luisEntityCount = (int)Luis["entities"].Count();
-
-                                //        luisIntent = Luis["topScoringIntent"]["intent"].ToString();//add
-                                //        luisScore = luisScoreCompare;
-                                //        Debug.WriteLine("GetMultiLUIS() LUIS luisIntent : " + luisIntent);
-
-                                //        //통근버스
-                                //        if (luisIntent.Equals("총무통근버스_통근버스노선안내"))
-                                //        {
-                                //            for (int i = 0; i < (int)Luis["entities"].Count(); i++)
-                                //            {
-                                //                if ((string)Luis["entities"][i]["type"] == "L>통근버스노선")
-                                //                {
-                                //                    luisTypeEntities = Regex.Replace((string)Luis["entities"][i]["entity"], " ", "");
-                                //                }
-                                //            }
-                                //        }
-                                //        Debug.WriteLine("통근버스노선" + luisTypeEntities);
-                                //    }
-                                //}
-                                //else
-                                //{
-                                //    luisIntent = "None";
-                                //}
 
                                 Debug.WriteLine("cacheList.luisIntent : " + cacheList.luisIntent);
                                 //Debug.WriteLine("cacheList.luisEntitiesValue : " + cacheList.luisEntitiesValue);

@@ -1517,6 +1517,20 @@ namespace cjEmployeeChatBot.DB
                     cmd.CommandText += " WHERE      CHANNELDATA = @channeldata ";
                     cmd.CommandText += " AND          CONVERSATIONSID = @conversationsid ";
                 }
+                else if (gubun.Equals("mobileyn"))
+                {
+                    cmd.CommandText += " UPDATE     TBL_USERDATA ";
+                    cmd.CommandText += " SET           MOBILE_YN = @val ";
+                    cmd.CommandText += " WHERE      CHANNELDATA = @channeldata ";
+                    cmd.CommandText += " AND          CONVERSATIONSID = @conversationsid ";
+                }
+                else if (gubun.Equals("sso"))
+                {
+                    cmd.CommandText += " UPDATE     TBL_USERDATA ";
+                    cmd.CommandText += " SET           SSO = @val ";
+                    cmd.CommandText += " WHERE      CHANNELDATA = @channeldata ";
+                    cmd.CommandText += " AND          CONVERSATIONSID = @conversationsid ";
+                }
                 else
                 {
                     cmd.CommandText += " UPDATE     TBL_USERDATA ";
