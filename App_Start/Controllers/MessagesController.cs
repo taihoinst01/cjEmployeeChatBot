@@ -917,17 +917,17 @@ namespace cjEmployeeChatBot
                                         //SAP 초기화 작업
                                         string sapInit = dbutil.GetSapInit(urlParameter);
 
-                                        if (sapInit.Equals("S"))
+                                        if (string.IsNullOrEmpty(sapInit))
                                         {
                                             UserHeroCard plCard1 = new UserHeroCard()
                                             {
-                                                Text = "[" + userID + "]님의 SAP 비밀번호가 초기화 되었습니다. 초기화된 임시패스워드가 메일로 발송되었습니다. (5분이내수신)"
+                                                //Text = "[" + userID + "]님의 SAP 비밀번호가 초기화 되었습니다. 초기화된 임시패스워드가 메일로 발송되었습니다. (5분이내수신)"
+                                                Text = "sapInit"
                                             };
                                             Attachment plAttachment1 = plCard1.ToAttachment();
                                             sapInitReply.Attachments.Add(plAttachment1);
                                             db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "sap");
-                                        }
-                                        else
+                                        } else
                                         {
                                             UserHeroCard plCard1 = new UserHeroCard()
                                             {
@@ -937,6 +937,27 @@ namespace cjEmployeeChatBot
                                             sapInitReply.Attachments.Add(plAttachment1);
                                             db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "sap");
                                         }
+
+                                        //if (sapInit.Equals("S"))
+                                        //{
+                                        //    UserHeroCard plCard1 = new UserHeroCard()
+                                        //    {
+                                        //        Text = "[" + userID + "]님의 SAP 비밀번호가 초기화 되었습니다. 초기화된 임시패스워드가 메일로 발송되었습니다. (5분이내수신)"
+                                        //    };
+                                        //    Attachment plAttachment1 = plCard1.ToAttachment();
+                                        //    sapInitReply.Attachments.Add(plAttachment1);
+                                        //    db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "sap");
+                                        //}
+                                        //else
+                                        //{
+                                        //    UserHeroCard plCard1 = new UserHeroCard()
+                                        //    {
+                                        //        Text = "[" + userID + "] 님의 SAP 비밀번호가 초기화가 실패되었습니다. 사원번호 및 사유를 재확인 부탁드립니다."
+                                        //    };
+                                        //    Attachment plAttachment1 = plCard1.ToAttachment();
+                                        //    sapInitReply.Attachments.Add(plAttachment1);
+                                        //    db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "sap");
+                                        //}
                                     }
                                 }
                                 replyresult = "I";
