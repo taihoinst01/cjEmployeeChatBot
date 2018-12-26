@@ -880,11 +880,11 @@ namespace cjEmployeeChatBot.DB
             var url = "";
             if (id.Substring(0,1) == "M")
             {
-                url = "https://cjemployeeconnect2.azurewebsites.net?M=" + id.Replace("Msso:", "");
+                url = "https://cjemployeeconnect3.azurewebsites.net?M=" + id.Replace("Msso:", "");
             }
             else 
             {
-                url = "https://cjemployeeconnect2.azurewebsites.net?P=" + id.Replace("Psso:", "");
+                url = "https://cjemployeeconnect3.azurewebsites.net?P=" + id.Replace("Psso:", "");
             }
             //Debug.WriteLine("url");
             //HistoryLog("sso url====" + url);
@@ -907,7 +907,7 @@ namespace cjEmployeeChatBot.DB
         {
             var url = "";
 
-            url = "https://cjemployeeconnect2.azurewebsites.net?T=";
+            url = "https://cjemployeeconnect3.azurewebsites.net?T="+ id;
 
             var httpClient = new HttpClient();
             var httpResponse = await httpClient.GetAsync(url);
