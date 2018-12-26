@@ -839,7 +839,7 @@ namespace cjEmployeeChatBot
                                             optional_1 = "CJG_BI";
                                             break;
                                     }
-
+                                     
                                     db.UserDataUpdateUserID(activity.ChannelId, activity.Conversation.Id, "OPTIONAL_1", optional_1);
 
                                     UserHeroCard plCard = new UserHeroCard()
