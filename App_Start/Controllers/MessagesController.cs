@@ -964,7 +964,6 @@ namespace cjEmployeeChatBot
 
                             }
 
-
                             else
                             {
                                 Debug.WriteLine("no dialogue-------------");
