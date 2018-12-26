@@ -1568,7 +1568,7 @@ namespace cjEmployeeChatBot.DB
                 //SqlCommand cmd = new SqlCommand();
                 cmd.Connection = conn;
 
-                cmd.CommandText += "SELECT  TOP 1 USER_ID, SABUN, REISSUE ";
+                cmd.CommandText += "SELECT  TOP 1 USER_ID, SABUN, REISSUE, OPTIONAL_1 ";
                 cmd.CommandText += "FROM    TBL_USERDATA ";
                 cmd.CommandText += "WHERE  CHANNELDATA = @channeldata ";
                 cmd.CommandText += "AND      CONVERSATIONSID = @conversationsId ";
@@ -1586,6 +1586,8 @@ namespace cjEmployeeChatBot.DB
                         userData.userId = rdr["USER_ID"] as string;
                         userData.sabun = rdr["SABUN"] as string;
                         userData.reissue = rdr["REISSUE"] as string;
+                        userData.optional_1 = rdr["OPTIONAL_1"] as string;
+                        
                         userdata.Add(userData);
 
                     }

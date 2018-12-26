@@ -825,7 +825,22 @@ namespace cjEmployeeChatBot
                                 }
                                 else if (userData[0].sap == 2)
                                 {
-                                    db.UserDataUpdateUserID(activity.ChannelId, activity.Conversation.Id, "OPTIONAL_1", luisQuery);
+                                    string optional_1 = "";
+
+                                    switch (luisQuery)
+                                    {
+                                        case "전사 ERP(PRD)":
+                                            optional_1 = "CJ_SAP";
+                                            break;
+                                        case "전사 BI(BIP)":
+                                            optional_1 = "CJ_BI";
+                                            break;
+                                        default:
+                                            optional_1 = "CJG_BI";
+                                            break;
+                                    }
+
+                                    db.UserDataUpdateUserID(activity.ChannelId, activity.Conversation.Id, "OPTIONAL_1", optional_1);
 
                                     UserHeroCard plCard = new UserHeroCard()
                                     {
@@ -897,7 +912,7 @@ namespace cjEmployeeChatBot
                                         string urlParameter = "";
                                         List<UserData> uData = new List<UserData>();
                                         uData = db.UserDataSapConfirm(activity.ChannelId, activity.Conversation.Id);
-                                        urlParameter = "&userid="+ uData[0].userId + "&sabun=" + uData[0].sabun + "&reissue=" + uData[0].reissue;
+                                        urlParameter = "&userid="+ uData[0].userId + "&sabun=" + uData[0].sabun + "&reissue=" + uData[0].reissue + "&optional_1=" + uData[0].reissue;
 
                                         //SAP 초기화 작업
                                         string sapInit = dbutil.GetSapInit(urlParameter);
