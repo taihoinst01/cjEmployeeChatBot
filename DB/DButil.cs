@@ -908,7 +908,7 @@ namespace cjEmployeeChatBot.DB
             var url = "";
 
             url = "https://cjemployeeconnect3.azurewebsites.net?T="+ id;
-
+            HistoryLog("url==" + url);
             var httpClient = new HttpClient();
             var httpResponse = await httpClient.GetAsync(url);
             var httpResponseMessage = await httpResponse.Content.ReadAsStringAsync();
