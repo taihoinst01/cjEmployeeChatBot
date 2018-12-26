@@ -1503,7 +1503,7 @@ namespace cjEmployeeChatBot.DB
                     cmd.CommandText += " WHERE      CHANNELDATA = @channeldata ";
                     cmd.CommandText += " AND          CONVERSATIONSID = @conversationsid ";
                 }
-                if (gubun.Equals("sabun"))
+                else if (gubun.Equals("sabun"))
                 {
                     cmd.CommandText += " UPDATE     TBL_USERDATA ";
                     cmd.CommandText += " SET           SABUN = @val ";
