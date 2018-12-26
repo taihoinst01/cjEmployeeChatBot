@@ -922,7 +922,7 @@ namespace cjEmployeeChatBot
                                             UserHeroCard plCard1 = new UserHeroCard()
                                             {
                                                 //Text = "[" + userID + "]님의 SAP 비밀번호가 초기화 되었습니다. 초기화된 임시패스워드가 메일로 발송되었습니다. (5분이내수신)"
-                                                Text = "sapInit"
+                                                Text = sapInit
                                             };
                                             Attachment plAttachment1 = plCard1.ToAttachment();
                                             sapInitReply.Attachments.Add(plAttachment1);
