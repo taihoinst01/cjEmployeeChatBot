@@ -937,7 +937,6 @@ namespace cjEmployeeChatBot
                                             sapInitReply.Attachments.Add(plAttachment1);
                                             db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "sap");
                                         }
-
                                         //if (sapInit.Equals("S"))
                                         //{
                                         //    UserHeroCard plCard1 = new UserHeroCard()
