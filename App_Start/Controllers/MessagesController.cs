@@ -888,7 +888,7 @@ namespace cjEmployeeChatBot
                                         {
                                             Text = "재발급사유 를 입력해주세요. (5자 이상)."
                                         };
-
+                                         
                                         Attachment plAttachment = plCard.ToAttachment();
                                         sapInitReply.Attachments.Add(plAttachment);
 
