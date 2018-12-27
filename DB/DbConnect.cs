@@ -178,7 +178,7 @@ namespace cjEmployeeChatBot.DB
             return dialogs;
         }
 
-        public DialogList SelectDialog(int dlgID)
+        public DialogList SelectDialog(int dlgID, string mobileyn)
         {
             SqlDataReader rdr = null;
             DialogList dlg = new DialogList();
@@ -238,7 +238,7 @@ namespace cjEmployeeChatBot.DB
                         else if (dlg.dlgType.Equals(CARDDLG))
                         {
                             cmd2.CommandText = "SELECT CARD_TITLE, CARD_SUBTITLE, CARD_TEXT, IMG_URL," +
-                                    "BTN_1_TYPE, BTN_1_TITLE, BTN_1_CONTEXT, BTN_2_TYPE, BTN_2_TITLE, BTN_2_CONTEXT, BTN_3_TYPE, BTN_3_TITLE, BTN_3_CONTEXT, BTN_4_TYPE, BTN_4_TITLE, BTN_4_CONTEXT, " +
+                                    "BTN_1_TYPE, BTN_1_TITLE, BTN_1_CONTEXT, BTN_1_CONTEXT_M, BTN_2_TYPE, BTN_2_TITLE, BTN_2_CONTEXT, BTN_3_TYPE, BTN_3_TITLE, BTN_3_CONTEXT, BTN_4_TYPE, BTN_4_TITLE, BTN_4_CONTEXT, " +
                                     "CARD_DIVISION, CARD_VALUE, CARD_ORDER_NO " +
                                     "FROM TBL_DLG_CARD WHERE DLG_ID = @dlgID AND USE_YN = 'Y' ORDER BY CARD_ORDER_NO";
                             cmd2.Parameters.AddWithValue("@dlgID", dlg.dlgId);
@@ -254,6 +254,12 @@ namespace cjEmployeeChatBot.DB
                                 dlgCard.btn1Type = rdr2["BTN_1_TYPE"] as string;
                                 dlgCard.btn1Title = rdr2["BTN_1_TITLE"] as string;
                                 dlgCard.btn1Context = rdr2["BTN_1_CONTEXT"] as string;
+                                dlgCard.btn1ContextM = rdr2["BTN_1_CONTEXT_M"] as string;
+                                //모바일 URL 적용
+                                if (mobileyn.Equals("M"))
+                                {
+                                    dlgCard.btn1Context = rdr2["BTN_1_CONTEXT_M"] as string;
+                                }
                                 dlgCard.btn2Type = rdr2["BTN_2_TYPE"] as string;
                                 dlgCard.btn2Title = rdr2["BTN_2_TITLE"] as string;
                                 dlgCard.btn2Context = rdr2["BTN_2_CONTEXT"] as string;
@@ -1160,6 +1166,10 @@ namespace cjEmployeeChatBot.DB
                 {
                     cmd.Parameters.AddWithValue("@chatbotCommentCode", "SAPINIT");
                 }
+                else if (reply_result.Equals("Q"))
+                {
+                    cmd.Parameters.AddWithValue("@chatbotCommentCode", "SAP");
+                }
                 else
                 {
                     cmd.Parameters.AddWithValue("@chatbotCommentCode", luis_intent);
@@ -1452,7 +1462,7 @@ namespace cjEmployeeChatBot.DB
                 //SqlCommand cmd = new SqlCommand();
                 cmd.Connection = conn;
 
-                cmd.CommandText += "SELECT  TOP 1 CHANNELDATA, CONVERSATIONSID, LOOP, SAP ";
+                cmd.CommandText += "SELECT  TOP 1 CHANNELDATA, CONVERSATIONSID, LOOP, SAP, SSO, MOBILE_YN ";
                 cmd.CommandText += "FROM    TBL_USERDATA ";
                 cmd.CommandText += "WHERE  CHANNELDATA = @channeldata ";
                 cmd.CommandText += "AND      CONVERSATIONSID = @conversationsId ";
@@ -1471,6 +1481,9 @@ namespace cjEmployeeChatBot.DB
                         userData.conversationsId = rdr["CONVERSATIONSID"] as string;
                         userData.loop = Convert.ToInt32(rdr["LOOP"]);
                         userData.sap = Convert.ToInt32(rdr["SAP"]);
+                        userData.sso = rdr["SSO"] as string;
+                        userData.mobileYN = rdr["MOBILE_YN"] as string;
+                        
                         userdata.Add(userData);
                     }
                 }
@@ -1601,45 +1614,7 @@ namespace cjEmployeeChatBot.DB
             return userdata;
         }
 
-        public int ParallelYNConfirm
-        {
-            get
-            {                
-                SqlDataReader rdr = null;
-                int ParallelYN =0;
-
-                using (SqlConnection conn = new SqlConnection(connStr))
-                {
-
-                    conn.Open();
-                    SqlCommand cmd = new SqlCommand();
-                    cmd.Connection = conn;
-
-                    cmd.CommandText += "SELECT  COUNT(*) AS CNT ";
-                    cmd.CommandText += "FROM	TBL_PARALLEL ";
-                    cmd.CommandText += "WHERE	PARALLEL_INPUT < GETDATE() ";
-                    
-                    rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
-
-                    try
-                    {
-                        while (rdr.Read())
-                        {
-                            ParallelYN = Convert.ToInt32(rdr["CNT"]);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.WriteLine(e.Message);
-                    }
-                    rdr.Close();
-
-                }
-                return ParallelYN;
-            }
-        }
-
-        public int ParallelYNUpdate(int val)
+        public int UserDataDeleteUserID(string userid)
         {
 
             SqlDataReader rdr = null;
@@ -1652,38 +1627,12 @@ namespace cjEmployeeChatBot.DB
                 SqlCommand cmd = new SqlCommand();
                 cmd.Connection = conn;
 
-                cmd.CommandText += " UPDATE     TBL_PARALLEL ";
-                cmd.CommandText += " SET           PARALLEL_INPUT = GETDATE() ";
+                cmd.CommandText += "DELETE FROM TBL_USERDATA ";
+                cmd.CommandText += " WHERE USER_ID = @userid";
 
-                cmd.Parameters.AddWithValue("@val", val);
+                cmd.Parameters.AddWithValue("@userid", userid);
 
-                try
-                {
-                    result = cmd.ExecuteNonQuery();
-                }
-                catch (Exception e)
-                {
-                    Debug.WriteLine(e.Message);
-                }
-            }
-            return result;
-        }
-
-        public int ParallelYNInsert()
-        {
-
-            SqlDataReader rdr = null;
-            int result = 0;
-
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {
-
-                conn.Open();
-                SqlCommand cmd = new SqlCommand();
-                cmd.Connection = conn;
-
-                cmd.CommandText += "INSERT INTO TBL_PARALLEL(PARALLEL_INPUT) ";
-                cmd.CommandText += " VALUES (GETDATE())";
+                //rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
 
                 try
                 {
@@ -1697,5 +1646,6 @@ namespace cjEmployeeChatBot.DB
             }
             return result;
         }
+        
     }
 }

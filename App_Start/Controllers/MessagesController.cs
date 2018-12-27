@@ -206,7 +206,7 @@ namespace cjEmployeeChatBot
                     {
                         foreach (CardList tempcard in dialogs.dialogCard)
                         {
-                            tempAttachment = dbutil.getAttachmentFromDialog(tempcard, activity);
+                            tempAttachment = dbutil.getAttachmentFromDialog(tempcard, activity, "INIT");
                             initReply.Attachments.Add(tempAttachment);
 
                             //2018-11-26:KSO:INIT Carousel 만드는부분 추가
@@ -256,11 +256,14 @@ namespace cjEmployeeChatBot
                 DButil.HistoryLog("start sso : ");
                 String ssoMessage = activity.Text;
                 userID = dbutil.GetSSO(ssoMessage);
+                //기존 계정 삭제
+                db.UserDataDeleteUserID(userID);
                 //ID 입력
                 db.UserDataUpdateUserID(activity.ChannelId, activity.Conversation.Id, "userid" ,userID);
-                //모바일 여부
+                //모바일 여부 입력
                 String mobileyn = activity.Text.Substring(0, 1);
                 db.UserDataUpdateUserID(activity.ChannelId, activity.Conversation.Id, "mobileyn", mobileyn);
+                //sso입력
                 db.UserDataUpdateUserID(activity.ChannelId, activity.Conversation.Id, "sso", ssoMessage.Replace("Msso:", "").Replace("Psso:", ""));
 
                 DButil.HistoryLog("sso : " + userID);
@@ -472,18 +475,18 @@ namespace cjEmployeeChatBot
                                 db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "sap");
 
                                 SetActivity(sorryReply);
-                                replyresult = "D";
+                                replyresult = "Q";
 
                             }
 
                             DateTime endTime = DateTime.Now;
 
                             //analysis table insert
-                            int dbResult = db.insertUserQuery(relationList, luisId, luisIntent, luisEntities, luisIntentScore, replyresult, orgMent);
+                            int dbResult = db.insertUserQuery(relationList, luisId, luisIntent, luisEntities, luisIntentScore, replyresult, orgMent.Replace("SAP#",""));
 
                             //history table insert
                             //db.insertHistory(activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), "", "", "", "", replyresult);
-                            db.insertHistory(null, activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), luisIntent, luisEntities, luisIntentScore, dlgId, replyresult, queryStr);
+                            db.insertHistory(null, activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), luisIntent, luisEntities, luisIntentScore, dlgId, replyresult, orgMent.Replace("SAP#", ""));
                             replyresult = "";
                             luisIntent = "";
                             luisTypeEntities = "";
@@ -653,20 +656,30 @@ namespace cjEmployeeChatBot
                             if (relationList != null)
                             {
                                 dlgId = "";
+                                //List<UserData> userData = db.UserDataConfirm(activity.ChannelId, activity.Conversation.Id);
+
                                 for (int m = 0; m < relationList.Count; m++)
                                 {
-                                    DialogList dlg = db.SelectDialog(relationList[m].dlgId);
+                                    DialogList dlg = db.SelectDialog(relationList[m].dlgId, userData[0].mobileYN);
                                     dlgId += Convert.ToString(dlg.dlgId) + ",";
                                     Activity commonReply = activity.CreateReply();
                                     Attachment tempAttachment = new Attachment();
                                     DButil.HistoryLog("dlg.dlgType : " + dlg.dlgType);
+
+                                    string userSSO = "NONE";
+                                    List<UserData> uData = new List<UserData>();
+                                    uData = db.UserDataConfirm(activity.ChannelId, activity.Conversation.Id);
+                                    if (uData[0].sso != null)
+                                    {
+                                        userSSO = uData[0].sso;
+                                    }
 
                                     if (dlg.dlgType.Equals(CARDDLG))
                                     {
                                         foreach (CardList tempcard in dlg.dialogCard)
                                         {
 
-                                            tempAttachment = dbutil.getAttachmentFromDialog(tempcard, activity);
+                                            tempAttachment = dbutil.getAttachmentFromDialog(tempcard, activity, userSSO);
 
                                             if (tempAttachment != null)
                                             {

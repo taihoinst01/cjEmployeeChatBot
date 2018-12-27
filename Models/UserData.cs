@@ -15,5 +15,7 @@ namespace cjEmployeeChatBot.Models
         public string sabun;
         public string reissue;
         public string optional_1;
+        public string sso;
+        public string mobileYN;
     }
 }

@@ -551,7 +551,7 @@ namespace cjEmployeeChatBot.DB
         }
 
 
-        public Attachment getAttachmentFromDialog(CardList card, Activity activity)
+        public Attachment getAttachmentFromDialog(CardList card, Activity activity, string userSSO)
         {
             ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
             Attachment returnAttachment = new Attachment();
@@ -571,6 +571,10 @@ namespace cjEmployeeChatBot.DB
 
             HistoryLog("CARD BTN1 START");
 
+            if (!userSSO.Equals("INIT"))
+            {
+                card = chkOpenUrlDlg(card, userSSO);
+            }
 
             if (activity.ChannelId.Equals("facebook") && card.btn1Type == null && !string.IsNullOrEmpty(card.cardDivision) && card.cardDivision.Equals("play") && !string.IsNullOrEmpty(card.cardValue))
             {
@@ -916,6 +920,36 @@ namespace cjEmployeeChatBot.DB
             return httpResponseMessage;
         }
 
+        public CardList chkOpenUrlDlg(CardList inputCardList, string userSSO)
+        {
+            if (inputCardList.btn1Type != null && inputCardList.btn1Type.Equals("openUrl"))
+            {
+                inputCardList.btn1Context = chkUrlStr(inputCardList.btn1Context, userSSO);
+            }
+            else if (inputCardList.btn2Type != null && inputCardList.btn2Type.Equals("openUrl"))
+            {
+                inputCardList.btn2Context = chkUrlStr(inputCardList.btn2Context, userSSO);
+            }
+            else if (inputCardList.btn3Type != null && inputCardList.btn3Type.Equals("openUrl"))
+            {
+                inputCardList.btn3Context = chkUrlStr(inputCardList.btn3Context, userSSO);
+            }
+            else if (inputCardList.btn4Type != null && inputCardList.btn4Type.Equals("openUrl"))
+            {
+                inputCardList.btn4Context = chkUrlStr(inputCardList.btn4Context, userSSO);
+            }
 
+            return inputCardList;
+        }
+
+        public string chkUrlStr(string btnContext, string userSSO)
+        {
+            string returnStr = btnContext;
+            if (btnContext.Contains("https://cjemployeechatbot-web.azurewebsites.net") && btnContext.Contains("&cjworld_id="))
+            {
+                returnStr += userSSO;
+            }
+            return returnStr;
+        }
     }
 }

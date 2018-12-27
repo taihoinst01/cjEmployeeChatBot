@@ -16,6 +16,7 @@ namespace cjEmployeeChatBot.Models
         public string btn1Type;
         public string btn1Title;
         public String btn1Context;
+        public String btn1ContextM;
         public string btn2Type;
         public string btn2Title;
         public String btn2Context;
