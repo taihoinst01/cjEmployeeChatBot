@@ -256,7 +256,7 @@ namespace cjEmployeeChatBot.DB
                                 dlgCard.btn1Context = rdr2["BTN_1_CONTEXT"] as string;
                                 dlgCard.btn1ContextM = rdr2["BTN_1_CONTEXT_M"] as string;
                                 //모바일 URL 적용
-                                if (mobileyn.Equals("M"))
+                                if (mobileyn.Equals("M") || !string.IsNullOrEmpty(mobileyn))
                                 {
                                     dlgCard.btn1Context = rdr2["BTN_1_CONTEXT_M"] as string;
                                 }
@@ -1462,7 +1462,7 @@ namespace cjEmployeeChatBot.DB
                 //SqlCommand cmd = new SqlCommand();
                 cmd.Connection = conn;
 
-                cmd.CommandText += "SELECT  TOP 1 CHANNELDATA, CONVERSATIONSID, LOOP, SAP, SSO, MOBILE_YN ";
+                cmd.CommandText += "SELECT  TOP 1 CHANNELDATA, CONVERSATIONSID, LOOP, SAP, SSO, ISNULL(MOBILE_YN,'P') AS MOBILE_YN ";
                 cmd.CommandText += "FROM    TBL_USERDATA ";
                 cmd.CommandText += "WHERE  CHANNELDATA = @channeldata ";
                 cmd.CommandText += "AND      CONVERSATIONSID = @conversationsId ";
