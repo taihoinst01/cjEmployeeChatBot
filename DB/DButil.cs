@@ -89,8 +89,7 @@ namespace cjEmployeeChatBot.DB
         //        //    Debug.WriteLine("error = " + e.Message);
         //        //    return "";
         //        //}
-
-
+        
         //        string luisEntities = "";
         //        string luisIntent = "";
         //        float luisScoreCompare = 0.0f;
