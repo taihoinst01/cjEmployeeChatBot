@@ -1044,8 +1044,8 @@ namespace cjEmployeeChatBot
                 catch (Exception e)
                 {
                     Debug.Print(e.StackTrace);
+                    DButil.HistoryLog("ERROR==="+e.StackTrace);
                     //int sorryMessageCheck = db.SelectUserQueryErrorMessageCheck(activity.Conversation.Id, MessagesController.chatBotID);
-
                     Activity sorryReply = activity.CreateReply();
 
                     string queryStr = activity.Text;
