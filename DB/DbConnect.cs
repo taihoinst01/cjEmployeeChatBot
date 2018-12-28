@@ -256,7 +256,7 @@ namespace cjEmployeeChatBot.DB
                                 dlgCard.btn1Context = rdr2["BTN_1_CONTEXT"] as string;
                                 dlgCard.btn1ContextM = rdr2["BTN_1_CONTEXT_M"] as string;
                                 //모바일 URL 적용
-                                if (mobileyn.Equals("M"))
+                                if (!string.IsNullOrEmpty(dlgCard.btn1ContextM))
                                 {
                                     dlgCard.btn1Context = rdr2["BTN_1_CONTEXT_M"] as string;
                                 }
