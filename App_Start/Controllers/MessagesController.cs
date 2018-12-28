@@ -647,7 +647,7 @@ namespace cjEmployeeChatBot
                                             //DButil.HistoryLog("uData[0].userId ==" + uData[0].userId);
                                             if (tempcard.btn1Context.Contains("http://116.121.31.148/visitor2/menu1.asp?emailAlias="))
                                             {
-                                                DButil.HistoryLog("btn1Context ==1" + tempcard.btn1Context);
+                                                //DButil.HistoryLog("btn1Context ==1" + tempcard.btn1Context);
                                                 tempcard.btn1Context += uData[0].userId;
                                                 DButil.HistoryLog("btn1Context ==2" + tempcard.btn1Context);
                                             }
