@@ -482,11 +482,11 @@ namespace cjEmployeeChatBot
                             DateTime endTime = DateTime.Now;
 
                             //analysis table insert
-                            int dbResult = db.insertUserQuery(relationList, luisId, luisIntent, luisEntities, luisIntentScore, replyresult, orgMent.Replace("SAP#",""));
+                            int dbResult = db.insertUserQuery(relationList, luisId, luisIntent, luisEntities, luisIntentScore, replyresult, orgMent);
 
                             //history table insert
                             //db.insertHistory(activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), "", "", "", "", replyresult);
-                            db.insertHistory(null, activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), luisIntent, luisEntities, luisIntentScore, dlgId, replyresult, orgMent.Replace("SAP#", ""));
+                            db.insertHistory(null, activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), luisIntent, luisEntities, luisIntentScore, dlgId, replyresult, orgMent);
                             replyresult = "";
                             luisIntent = "";
                             luisTypeEntities = "";
@@ -667,7 +667,8 @@ namespace cjEmployeeChatBot
 
                                     string userSSO = "NONE";
                                     List<UserData> uData = new List<UserData>();
-                                    uData = db.UserDataConfirm(activity.ChannelId, activity.Conversation.Id);
+                                    uData = db.UserDataConfirm(activity.ChannelId, activity.Conversation.Id);
+
                                     if (uData[0].sso != null)
                                     {
                                         userSSO = uData[0].sso;
@@ -1033,7 +1034,7 @@ namespace cjEmployeeChatBot
 
                             //history table insert
                             //db.insertHistory(activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), "", "", "", "", replyresult);
-                            db.insertHistory(null, activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), luisIntent, luisEntities, luisIntentScore, dlgId, replyresult, queryStr);
+                            db.insertHistory(null, activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), luisIntent, luisEntities, luisIntentScore, dlgId, replyresult, orgMent);
                             replyresult = "";
                             luisIntent = "";
                             luisTypeEntities = "";
@@ -1045,10 +1046,14 @@ namespace cjEmployeeChatBot
                 {
                     Debug.Print(e.StackTrace);
                     DButil.HistoryLog("ERROR==="+e.StackTrace);
-                    //int sorryMessageCheck = db.SelectUserQueryErrorMessageCheck(activity.Conversation.Id, MessagesController.chatBotID);
+
                     Activity sorryReply = activity.CreateReply();
 
                     string queryStr = activity.Text;
+
+                    queryStr = Regex.Replace(queryStr, @"[^a-zA-Z0-9ㄱ-힣]", "", RegexOptions.Singleline);
+                    queryStr = queryStr.Replace(" ", "").ToLower();
+
                     sorryReply.Recipient = activity.From;
                     sorryReply.Type = "message";
                     sorryReply.Attachments = new List<Attachment>();
@@ -1083,7 +1088,7 @@ namespace cjEmployeeChatBot
                     SetActivity(sorryReply);
 
                     DateTime endTime = DateTime.Now;
-                    int dbResult = db.insertUserQuery(null, "", "", "", "", "E", activity.Text);
+                    int dbResult = db.insertUserQuery(null, "", "", "", "", "E", queryStr);
                     //db.insertHistory(activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), "", "", "", "","E");
                     db.insertHistory(null, activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), "", "", "", "", "E", queryStr);
 

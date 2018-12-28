@@ -500,11 +500,11 @@ namespace cjEmployeeChatBot.DB
                     //cardVal = priceMediaDlgList[i].cardValue.Replace();
                     cardVal = dlg.cardValue;
                 }
-                HistoryLog("!!!!!FB CARD BTN1 START channelID.Equals(facebook) && cardButtons.Count < 1 && cardImages.Count < 1");
+                //HistoryLog("!!!!!FB CARD BTN1 START channelID.Equals(facebook) && cardButtons.Count < 1 && cardImages.Count < 1");
                 HeroCard plCard = new UserHeroCard();
                 if (activity.ChannelId == "facebook" && string.IsNullOrEmpty(dlg.cardTitle))
                 {
-                    HistoryLog("FB CARD BTN1 START channelID.Equals(facebook) && string.IsNullOrEmpty(card.cardTitle)");
+                    //HistoryLog("FB CARD BTN1 START channelID.Equals(facebook) && string.IsNullOrEmpty(card.cardTitle)");
                     plCard = new UserHeroCard()
                     {
                         Title = "선택해 주세요",
@@ -518,7 +518,7 @@ namespace cjEmployeeChatBot.DB
                 }
                 else if (activity.ChannelId == "facebook" && string.IsNullOrEmpty(dlg.cardValue))
                 {
-                    HistoryLog("FB CARD BTN1 START channelID.Equals(facebook) && string.IsNullOrEmpty(card.cardValue)");
+                    //HistoryLog("FB CARD BTN1 START channelID.Equals(facebook) && string.IsNullOrEmpty(card.cardValue)");
                     plCard = new UserHeroCard()
                     {
                         Title = dlg.cardTitle,
@@ -529,7 +529,7 @@ namespace cjEmployeeChatBot.DB
                 }
                 else
                 {
-                    HistoryLog("!!!!!!!!FB CARD BTN1 START channelID.Equals(facebook) && string.IsNullOrEmpty(card.cardTitle)");
+                    //HistoryLog("!!!!!!!!FB CARD BTN1 START channelID.Equals(facebook) && string.IsNullOrEmpty(card.cardTitle)");
                     plCard = new UserHeroCard()
                     {
                         Title = dlg.cardTitle,
@@ -654,21 +654,21 @@ namespace cjEmployeeChatBot.DB
 
             if(activity.ChannelId.Equals("facebook") && cardButtons.Count < 1 && cardImages.Count < 1)
             {
-                HistoryLog("FB CARD BTN1 START channelID.Equals(facebook) && cardButtons.Count < 1 && cardImages.Count < 1");
+                //HistoryLog("FB CARD BTN1 START channelID.Equals(facebook) && cardButtons.Count < 1 && cardImages.Count < 1");
                 Activity reply_facebook = activity.CreateReply();
                 reply_facebook.Recipient = activity.From;
                 reply_facebook.Type = "message";
-                HistoryLog("facebook  card Text : " + card.cardText);
+                //HistoryLog("facebook  card Text : " + card.cardText);
                 reply_facebook.Text = card.cardText;
                 var reply_ment_facebook = connector.Conversations.SendToConversationAsync(reply_facebook);
             }
             else
             {
-                HistoryLog("!!!!!FB CARD BTN1 START channelID.Equals(facebook) && cardButtons.Count < 1 && cardImages.Count < 1");
+                //HistoryLog("!!!!!FB CARD BTN1 START channelID.Equals(facebook) && cardButtons.Count < 1 && cardImages.Count < 1");
                 HeroCard plCard = new UserHeroCard();
                 if (activity.ChannelId == "facebook" && string.IsNullOrEmpty(card.cardValue))
                 {
-                    HistoryLog("FB CARD BTN1 START channelID.Equals(facebook) && string.IsNullOrEmpty(card.cardValue)");
+                    //HistoryLog("FB CARD BTN1 START channelID.Equals(facebook) && string.IsNullOrEmpty(card.cardValue)");
                     plCard = new UserHeroCard()
                     {
                         Title = card.cardTitle,
@@ -680,10 +680,10 @@ namespace cjEmployeeChatBot.DB
                 }
                 else
                 {
-                    HistoryLog("!!!!!!!FB CARD BTN1 START channelID.Equals(facebook) && string.IsNullOrEmpty(card.cardValue)");
+                    //HistoryLog("!!!!!!!FB CARD BTN1 START channelID.Equals(facebook) && string.IsNullOrEmpty(card.cardValue)");
                     if (activity.ChannelId == "facebook" && string.IsNullOrEmpty(card.cardTitle))
                     {
-                        HistoryLog("FB CARD BTN1 START channelID.Equals(facebook) && string.IsNullOrEmpty(card.cardTitle)");
+                        //HistoryLog("FB CARD BTN1 START channelID.Equals(facebook) && string.IsNullOrEmpty(card.cardTitle)");
                         plCard = new UserHeroCard()
                         {
                             Title = "선택해 주세요",
@@ -698,7 +698,7 @@ namespace cjEmployeeChatBot.DB
                     }
                     else
                     {
-                        HistoryLog("!!!!!!!!FB CARD BTN1 START channelID.Equals(facebook) && string.IsNullOrEmpty(card.cardTitle)");
+                        //HistoryLog("!!!!!!!!FB CARD BTN1 START channelID.Equals(facebook) && string.IsNullOrEmpty(card.cardTitle)");
                         plCard = new UserHeroCard()
                         {
                             Title = card.cardTitle,
@@ -921,21 +921,30 @@ namespace cjEmployeeChatBot.DB
 
         public CardList chkOpenUrlDlg(CardList inputCardList, string userSSO)
         {
+            HistoryLog("userSSO == " + userSSO);
             if (inputCardList.btn1Type != null && inputCardList.btn1Type.Equals("openUrl"))
             {
+                HistoryLog("chkOpenUrlDlg 1");
                 inputCardList.btn1Context = chkUrlStr(inputCardList.btn1Context, userSSO);
+                HistoryLog("chkOpenUrlDlg 2");
             }
-            else if (inputCardList.btn2Type != null && inputCardList.btn2Type.Equals("openUrl"))
+            if (inputCardList.btn2Type != null && inputCardList.btn2Type.Equals("openUrl"))
             {
+                HistoryLog("chkOpenUrlDlg 3");
                 inputCardList.btn2Context = chkUrlStr(inputCardList.btn2Context, userSSO);
+                HistoryLog("chkOpenUrlDlg 4");
             }
-            else if (inputCardList.btn3Type != null && inputCardList.btn3Type.Equals("openUrl"))
+            if (inputCardList.btn3Type != null && inputCardList.btn3Type.Equals("openUrl"))
             {
+                HistoryLog("chkOpenUrlDlg 5");
                 inputCardList.btn3Context = chkUrlStr(inputCardList.btn3Context, userSSO);
+                HistoryLog("chkOpenUrlDlg 6");
             }
-            else if (inputCardList.btn4Type != null && inputCardList.btn4Type.Equals("openUrl"))
+            if (inputCardList.btn4Type != null && inputCardList.btn4Type.Equals("openUrl"))
             {
+                HistoryLog("chkOpenUrlDlg 7");
                 inputCardList.btn4Context = chkUrlStr(inputCardList.btn4Context, userSSO);
+                HistoryLog("chkOpenUrlDlg 8");
             }
 
             return inputCardList;
@@ -944,8 +953,10 @@ namespace cjEmployeeChatBot.DB
         public string chkUrlStr(string btnContext, string userSSO)
         {
             string returnStr = btnContext;
+            HistoryLog("chkUrlStr 9");
             if (btnContext.Contains("https://cjemployeechatbot-web.azurewebsites.net") && btnContext.Contains("&cjworld_id="))
             {
+                HistoryLog("chkUrlStr 10");
                 returnStr += userSSO;
             }
             return returnStr;
