@@ -1256,7 +1256,7 @@ namespace cjEmployeeChatBot.DB
                 conn.Open();
                 cmd.Connection = conn;
 
-                cmd.CommandText += "SELECT  TOP 1 CHANNELDATA, CONVERSATIONSID, LOOP, SAP, SSO, ISNULL(MOBILE_YN, 'P') AS MOBILE_YN ";
+                cmd.CommandText += "SELECT  TOP 1 USER_ID, CHANNELDATA, CONVERSATIONSID, LOOP, SAP, SSO, ISNULL(MOBILE_YN, 'P') AS MOBILE_YN ";
                 cmd.CommandText += "FROM    TBL_USERDATA ";
                 cmd.CommandText += "WHERE  CHANNELDATA = @channeldata ";
                 cmd.CommandText += "AND      CONVERSATIONSID = @conversationsId ";
@@ -1271,6 +1271,8 @@ namespace cjEmployeeChatBot.DB
                     while (rdr.Read())
                     {
                         UserData userData = new UserData();
+                        
+                        userData.userId = rdr["USER_ID"] as string;
                         userData.channelData = rdr["CHANNELDATA"] as string;
                         userData.conversationsId = rdr["CONVERSATIONSID"] as string;
                         userData.loop = Convert.ToInt32(rdr["LOOP"]);
