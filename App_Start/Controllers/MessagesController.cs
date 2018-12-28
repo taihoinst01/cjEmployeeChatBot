@@ -962,7 +962,7 @@ namespace cjEmployeeChatBot
                                 sorryReply.Type = "message";
                                 sorryReply.Attachments = new List<Attachment>();
                                 //sorryReply.AttachmentLayout = AttachmentLayoutTypes.Carousel;
-
+                                 
                                 List<CardList> text = new List<CardList>();
                                 List<CardAction> cardButtons = new List<CardAction>();
 
