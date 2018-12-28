@@ -19,11 +19,8 @@ namespace cjEmployeeChatBot.DB
     {
         static Configuration rootWebConfig = WebConfigurationManager.OpenWebConfiguration("/");
         const string CONSTRINGNAME = "conString";
-        //ConnectionStringSettings connStr = rootWebConfig.ConnectionStrings.ConnectionStrings[CONSTRINGNAME]
         string connStr = rootWebConfig.ConnectionStrings.ConnectionStrings[CONSTRINGNAME].ToString();
-        //string connStr = "Data Source=taiholab.database.windows.net;Initial Catalog=taihoLab_2;User ID=taihoinst;Password=taiho9788!;";
-        //string connStr = "Data Source=10.6.222.21,1433;Initial Catalog=konadb;User ID=konadb;Password=Didwoehd20-9!;";
-        //StringBuilder sb = new StringBuilder();
+
         public readonly string TEXTDLG = "2";
         public readonly string CARDDLG = "3";
         public readonly string MEDIADLG = "4";
@@ -108,10 +105,7 @@ namespace cjEmployeeChatBot.DB
                                     "BTN_1_TYPE, BTN_1_TITLE, BTN_1_CONTEXT, BTN_2_TYPE, BTN_2_TITLE, BTN_2_CONTEXT, BTN_3_TYPE, BTN_3_TITLE, BTN_3_CONTEXT, BTN_4_TYPE, BTN_4_TITLE, BTN_4_CONTEXT, " +
                                     "CARD_DIVISION, CARD_VALUE, CARD_ORDER_NO " +
                                     "FROM TBL_DLG_CARD WHERE DLG_ID = @dlgID AND USE_YN = 'Y' ";
-                            //if (channel.Equals("facebook"))
-                            //{
-                            //    cmd2.CommandText += "FB_USE_YN = 'Y' ";
-                            //}
+
                             cmd2.CommandText += "ORDER BY CARD_ORDER_NO";
                             cmd2.Parameters.AddWithValue("@dlgID", dlg.dlgId);
                             rdr2 = cmd2.ExecuteReader(CommandBehavior.CloseConnection);
@@ -355,70 +349,7 @@ namespace cjEmployeeChatBot.DB
             return dlg;
         }
 
-        public List<CardList> SelectDialogCard(int dlgID)
-        {
-            SqlDataReader rdr = null;
-            List<CardList> dialogCard = new List<CardList>();
-
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand();
-                cmd.Connection = conn;
-                cmd.CommandText = "SELECT CARD_DLG_ID, DLG_ID, CARD_TITLE, CARD_SUBTITLE, CARD_TEXT, IMG_URL," +
-                    "BTN_1_TYPE, BTN_1_TITLE, BTN_1_CONTEXT, BTN_2_TYPE, BTN_2_TITLE, BTN_2_CONTEXT, BTN_3_TYPE, BTN_3_TITLE, BTN_3_CONTEXT, " +
-                    "CARD_DIVISION, CARD_VALUE " +
-                    "FROM TBL_DLG_CARD WHERE DLG_ID = @dlgID AND USE_YN = 'Y' AND DLG_ID > 999 ORDER BY CARD_ORDER_NO";
-                //"FROM TBL_SECCS_DLG_CARD WHERE DLG_ID = @dlgID AND USE_YN = 'Y' AND DLG_ID > 999 ORDER BY CARD_ORDER_NO";
-
-                cmd.Parameters.AddWithValue("@dlgID", dlgID);
-
-                rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
-
-                while (rdr.Read())
-                {
-                    int cardDlgId = Convert.ToInt32(rdr["CARD_DLG_ID"]);
-                    int dlgId = Convert.ToInt32(rdr["DLG_ID"]);
-                    string cardTitle = rdr["CARD_TITLE"] as string;
-                    string cardSubTitle = rdr["CARD_SUBTITLE"] as string;
-                    string cardText = rdr["CARD_TEXT"] as string;
-                    string imgUrl = rdr["IMG_URL"] as string;
-                    string btn1Type = rdr["BTN_1_TYPE"] as string;
-                    string btn1Title = rdr["BTN_1_TITLE"] as string;
-                    string btn1Context = rdr["BTN_1_CONTEXT"] as string;
-                    string btn2Type = rdr["BTN_2_TYPE"] as string;
-                    string btn2Title = rdr["BTN_2_TITLE"] as string;
-                    string btn2Context = rdr["BTN_2_CONTEXT"] as string;
-                    string btn3Type = rdr["BTN_3_TYPE"] as string;
-                    string btn3Title = rdr["BTN_3_TITLE"] as string;
-                    string btn3Context = rdr["BTN_3_CONTEXT"] as string;
-                    string cardDivision = rdr["CARD_DIVISION"] as string;
-                    string cardValue = rdr["CARD_VALUE"] as string;
-
-                    CardList dlgCard = new CardList();
-                    dlgCard.cardDlgId = cardDlgId;
-                    dlgCard.dlgId = dlgId;
-                    dlgCard.cardTitle = cardTitle;
-                    dlgCard.cardSubTitle = cardSubTitle;
-                    dlgCard.cardText = cardText;
-                    dlgCard.imgUrl = imgUrl;
-                    dlgCard.btn1Type = btn1Type;
-                    dlgCard.btn1Title = btn1Title;
-                    dlgCard.btn1Context = btn1Context;
-                    dlgCard.btn2Type = btn2Type;
-                    dlgCard.btn2Title = btn2Title;
-                    dlgCard.btn2Context = btn2Context;
-                    dlgCard.btn3Type = btn3Type;
-                    dlgCard.btn3Title = btn3Title;
-                    dlgCard.btn3Context = btn3Context;
-                    dlgCard.cardDivision = cardDivision;
-                    dlgCard.cardValue = cardValue;
-
-                    dialogCard.Add(dlgCard);
-                }
-            }
-            return dialogCard;
-        }
+        
 
         public List<TextList> SelectDialogText(int dlgID)
         {
@@ -654,37 +585,7 @@ namespace cjEmployeeChatBot.DB
             }
             return result;
         }
-        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 이부분(수정해야함)
-        public String ContextChk(string luisIntent)
-        {
-            SqlDataReader rdr = null;
-            string result = "";
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand();
-                cmd.Connection = conn;
-                cmd.CommandText += " SELECT LUIS_ID, LUIS_INTENT, LUIS_ENTITIES, DLG_ID, ContextLabel, MissingEntities  ";
-                cmd.CommandText += " FROM TBL_DLG_RELATION_LUIS                                                         ";
-                cmd.CommandText += " WHERE LUIS_INTENT = @luisIntent AND MissingEntities is NULL                        ";
-
-                cmd.Parameters.AddWithValue("@luisIntent", luisIntent);
-                Debug.WriteLine("* luisIntent : " + luisIntent);
-                Debug.WriteLine("* cmd.CommandText : " + cmd.CommandText);
-                rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
-
-                while (rdr.Read())
-                {
-                    string ContextLabel = rdr["ContextLabel"] as String;
-                    result = ContextLabel;
-                }
-            }
-            return result;
-        }
-
-        
-
-
+              
         public List<RelationList> DefineTypeChk(string luisId, string intentId, string entitiesId)
         {
             SqlDataReader rdr = null;
@@ -854,43 +755,7 @@ namespace cjEmployeeChatBot.DB
             return conflist;
         }
 
-        public string SelectChgMsg(string oldMsg)
-        {
-            SqlDataReader rdr = null;
-            string newMsg = "";
-
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand();
-                cmd.Connection = conn;
-
-                cmd.CommandText += "	SELECT FIND.CHG  CHG_WORD FROM(    					    ";
-                cmd.CommandText += "	SELECT                                                  ";
-                cmd.CommandText += "			CASE WHEN LEN(ORG_WORD) = LEN(@oldMsg)          ";
-                cmd.CommandText += "				THEN CHARINDEX(ORG_WORD, @oldMsg)           ";
-                cmd.CommandText += "				ELSE 0                                      ";
-                cmd.CommandText += "				END AS FIND_NUM,                            ";
-                cmd.CommandText += "				REPLACE(@oldMsg, ORG_WORD, CHG_WORD) CHG    ";
-                cmd.CommandText += "	  FROM TBL_WORD_CHG_DICT                                ";
-                cmd.CommandText += "	  ) FIND                                                ";
-                cmd.CommandText += "	  WHERE FIND.FIND_NUM > 0                               ";
-
-
-
-
-
-                cmd.Parameters.AddWithValue("@oldMsg", oldMsg);
-
-                rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
-
-                while (rdr.Read())
-                {
-                    newMsg = rdr["CHG_WORD"] as string;
-                }
-            }
-            return newMsg;
-        }
+        
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Query Analysis
         // Insert user chat message for history and analysis
@@ -1162,6 +1027,10 @@ namespace cjEmployeeChatBot.DB
                 {
                     cmd.Parameters.AddWithValue("@chatbotCommentCode", "ERROR");
                 }
+                else if (reply_result.Equals("E"))
+                {
+                    cmd.Parameters.AddWithValue("@chatbotCommentCode", "ERROR");
+                }
                 else if (reply_result.Equals("G"))
                 {
                     cmd.Parameters.AddWithValue("@chatbotCommentCode", "SUGGESTION");
@@ -1201,83 +1070,7 @@ namespace cjEmployeeChatBot.DB
                 //Debug.WriteLine("result : " + result);
             }
             return result;
-        }
-
-        public int SelectUserQueryErrorMessageCheck(string userID, int appID)
-        {
-            SqlDataReader rdr = null;
-            int result = 0;
-            //userID = arg.Replace("'", "''");
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand();
-                cmd.Connection = conn;
-
-                cmd.CommandText += " SELECT TOP 1 A.CHATBOT_COMMENT_CODE ";
-                cmd.CommandText += " FROM ( ";
-                cmd.CommandText += " 	SELECT  ";
-                cmd.CommandText += " 		SID, ";
-                cmd.CommandText += " 		CASE  CHATBOT_COMMENT_CODE  ";
-                cmd.CommandText += " 			WHEN 'SEARCH' THEN '1' ";
-                cmd.CommandText += " 			WHEN 'ERROR' THEN '1' ";
-                cmd.CommandText += " 			ELSE '0' ";
-                cmd.CommandText += " 		END CHATBOT_COMMENT_CODE ";
-                cmd.CommandText += " 	FROM TBL_HISTORY_QUERY WHERE USER_NUMBER = '" + userID + "' AND APP_ID = " + appID;
-                cmd.CommandText += " ) A ";
-                cmd.CommandText += " ORDER BY A.SID DESC ";
-
-                rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
-
-                while (rdr.Read())
-                {
-                    result = Convert.ToInt32(rdr["CHATBOT_COMMENT_CODE"]);
-                }
-                rdr.Close();
-            }
-            return result;
-        }
-
-
-
-        public string SelectArray(string entities)
-        {
-            SqlDataReader rdr = null;
-            string newMsg = "";
-
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand();
-                cmd.Connection = conn;
-
-                cmd.CommandText += "	SELECT ";
-                cmd.CommandText += "        ISNULL(MAX(CASE WHEN POS = 1 THEN VAL1 END), '') ";
-                cmd.CommandText += "        + ISNULL(MAX(CASE WHEN POS = 2 THEN ',' + VAL1 END), '') ";
-                cmd.CommandText += "        + ISNULL(MAX(CASE WHEN POS = 3 THEN ',' + VAL1 END), '') ";
-                cmd.CommandText += "        + ISNULL(MAX(CASE WHEN POS = 4 THEN ',' + VAL1 END), '') ";
-                cmd.CommandText += "        + ISNULL(MAX(CASE WHEN POS = 5 THEN ',' + VAL1 END), '') ";
-                cmd.CommandText += "        + ISNULL(MAX(CASE WHEN POS = 6 THEN ',' + VAL1 END), '') ";
-                cmd.CommandText += "        + ISNULL(MAX(CASE WHEN POS = 7 THEN ',' + VAL1 END), '') ";
-                cmd.CommandText += "        + ISNULL(MAX(CASE WHEN POS = 8 THEN ',' + VAL1 END), '') AS VAL ";
-                cmd.CommandText += "        FROM ";
-                cmd.CommandText += "            ( ";
-                cmd.CommandText += "                SELECT VAL1, POS ";
-                cmd.CommandText += "                FROM Split2(@entities, ',') ";
-                cmd.CommandText += "            ) A                             ";
-
-                cmd.Parameters.AddWithValue("@entities", entities);
-
-                rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
-
-                while (rdr.Read())
-                {
-                    newMsg = rdr["VAL"] as string;
-                }
-                rdr.Close();
-            }
-            return newMsg;
-        }
+        }        
 
         public String SmallTalkSentenceConfirm(string queryStr)
         {
@@ -1391,7 +1184,6 @@ namespace cjEmployeeChatBot.DB
                 cmd.Parameters.AddWithValue("@channeldata", channelData);
                 cmd.Parameters.AddWithValue("@conversationsid", conversationsId);
 
-                //rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
 
                 try
                 {
@@ -1439,7 +1231,6 @@ namespace cjEmployeeChatBot.DB
                 cmd.Parameters.AddWithValue("@conversationsid", conversationsId);
                 cmd.Parameters.AddWithValue("@cnt", cnt);
 
-                //rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
 
                 try
                 {
@@ -1463,7 +1254,6 @@ namespace cjEmployeeChatBot.DB
             {
 
                 conn.Open();
-                //SqlCommand cmd = new SqlCommand();
                 cmd.Connection = conn;
 
                 cmd.CommandText += "SELECT  TOP 1 CHANNELDATA, CONVERSATIONSID, LOOP, SAP, SSO, ISNULL(MOBILE_YN, 'P') AS MOBILE_YN ";
@@ -1582,7 +1372,6 @@ namespace cjEmployeeChatBot.DB
             {
 
                 conn.Open();
-                //SqlCommand cmd = new SqlCommand();
                 cmd.Connection = conn;
 
                 cmd.CommandText += "SELECT  TOP 1 USER_ID, SABUN, REISSUE, OPTIONAL_1 ";
@@ -1635,9 +1424,7 @@ namespace cjEmployeeChatBot.DB
                 cmd.CommandText += " WHERE USER_ID = @userid";
 
                 cmd.Parameters.AddWithValue("@userid", userid);
-
-                //rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
-
+                
                 try
                 {
                     result = cmd.ExecuteNonQuery();

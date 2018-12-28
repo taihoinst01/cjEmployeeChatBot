@@ -715,17 +715,6 @@ namespace cjEmployeeChatBot.DB
                 }
             }
 
-            //HeroCard plCard = new UserHeroCard()
-            //{
-            //    Title = card.cardTitle,
-            //    Text = card.cardText,
-            //    Images = cardImages,
-            //    Buttons = cardButtons,
-            //    Card_division = cardDiv,
-            //    Card_value = cardVal
-            //};
-            //returnAttachment = plCard.ToAttachment();
-
             return returnAttachment;
         }
 
@@ -857,8 +846,8 @@ namespace cjEmployeeChatBot.DB
             dynamic httpResponseJson = JsonConvert.DeserializeObject(httpResponseMessage);
             //var replyMessage = (string)httpResponseJson.answers[0].answer;
             var replyMessage = "";
-
-            if (httpResponseJson.answers[0].score > 70.00)
+            //점수제한
+            if (httpResponseJson.answers[0].score > 50.00)
             {
                 replyMessage = httpResponseJson.answers[0].answer;
             } else
@@ -924,27 +913,19 @@ namespace cjEmployeeChatBot.DB
             HistoryLog("userSSO == " + userSSO);
             if (inputCardList.btn1Type != null && inputCardList.btn1Type.Equals("openUrl"))
             {
-                HistoryLog("chkOpenUrlDlg 1");
                 inputCardList.btn1Context = chkUrlStr(inputCardList.btn1Context, userSSO);
-                HistoryLog("chkOpenUrlDlg 2");
             }
             if (inputCardList.btn2Type != null && inputCardList.btn2Type.Equals("openUrl"))
             {
-                HistoryLog("chkOpenUrlDlg 3");
                 inputCardList.btn2Context = chkUrlStr(inputCardList.btn2Context, userSSO);
-                HistoryLog("chkOpenUrlDlg 4");
             }
             if (inputCardList.btn3Type != null && inputCardList.btn3Type.Equals("openUrl"))
             {
-                HistoryLog("chkOpenUrlDlg 5");
                 inputCardList.btn3Context = chkUrlStr(inputCardList.btn3Context, userSSO);
-                HistoryLog("chkOpenUrlDlg 6");
             }
             if (inputCardList.btn4Type != null && inputCardList.btn4Type.Equals("openUrl"))
             {
-                HistoryLog("chkOpenUrlDlg 7");
                 inputCardList.btn4Context = chkUrlStr(inputCardList.btn4Context, userSSO);
-                HistoryLog("chkOpenUrlDlg 8");
             }
 
             return inputCardList;
@@ -953,10 +934,8 @@ namespace cjEmployeeChatBot.DB
         public string chkUrlStr(string btnContext, string userSSO)
         {
             string returnStr = btnContext;
-            HistoryLog("chkUrlStr 9");
             if (btnContext.Contains("https://cjemployeechatbot-web.azurewebsites.net") && btnContext.Contains("&cjworld_id="))
             {
-                HistoryLog("chkUrlStr 10");
                 returnStr += userSSO;
             }
             return returnStr;

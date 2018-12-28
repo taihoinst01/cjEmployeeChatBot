@@ -48,26 +48,12 @@ namespace cjEmployeeChatBot
         static public string MicrosoftAppPassword = "";         //app password
         static public string LUIS_SCORE_LIMIT = "";             //루이스 점수 체크
 
-        //public static int sorryMessageCnt = 0;
-        //public static int suggetionsMessageCnt = 0;
-        public static int chatBotID = 0;
-
-        //public static List<RelationList> relationList = new List<RelationList>();
-        //public static string luisId = "";
-        //public static string luisIntent = "";
-        //public static string luisEntities = "";
-        //public static string luisIntentScore = "";
-        //public static string luistTypeEntities = "";
-        //public static string dlgId = "";        
-        //public static string queryStr = "";
-        //public static string luisQuery = "";        
+        public static int chatBotID = 0;        
         public static DateTime startTime;
 
         //사용자ID
         public static string userID = "";
-
         public static String apiFlag = "";
-
         public static string channelID = "";
 
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
@@ -111,15 +97,6 @@ namespace cjEmployeeChatBot
                 }
             };
 
-            //사용자 계정 처리
-            //if (activity.Contains("userid"))
-            //{
-            //    db.UserDataInsert(activity.ChannelId, activity.Conversation.Id);
-            //    //첫번쨰 메세지 출력 x
-            //    response = Request.CreateResponse(HttpStatusCode.OK);
-            //    return response;
-            //}
-
             //건의사항용 userData 선언
             List<UserData> userData = db.UserDataConfirm(activity.ChannelId, activity.Conversation.Id);
 
@@ -131,8 +108,6 @@ namespace cjEmployeeChatBot
             if (activity.Type == ActivityTypes.ConversationUpdate && activity.MembersAdded.Any(m => m.Id == activity.Recipient.Id))
             {
                 startTime = DateTime.Now;
-
-                //DButil.HistoryLog("activity.Text111111=====" + activity.Text);
 
                 //파라메터 호출
                 if (LUIS_NM.Count(s => s != null) > 0)
@@ -362,7 +337,7 @@ namespace cjEmployeeChatBot
                     string luisIntentScore = "";
                     string luisTypeEntities = "";
                     string dlgId = "";
-                    //결과 플레그 H : 정상 답변,  G : 건의사항, D : 답변 실패, E : 에러, S : SMALLTALK
+                    //결과 플레그 H : 정상 답변,  G : 건의사항, D : 답변 실패, E : 에러, S : SMALLTALK, I : SAPINIT
                     string replyresult = "";
 
                     //대화 시작 시간
@@ -387,11 +362,7 @@ namespace cjEmployeeChatBot
                     }
                     else
                     {
-                        //queryStr = orgMent;
-                        ////인텐트 엔티티 검출
-                        ////캐시 체크
-                        //cashOrgMent = Regex.Replace(orgMent, @"[^a-zA-Z0-9ㄱ-힣]", "", RegexOptions.Singleline);
-                        //cacheList = db.CacheChk(cashOrgMent.Replace(" ", ""));                     // 캐시 체크 (TBL_QUERY_ANALYSIS_RESULT 조회..)
+
                         CacheList cacheList = new CacheList();
                         string queryStr = "";
                         string luisQuery = "";
@@ -517,7 +488,6 @@ namespace cjEmployeeChatBot
                             {
                                 if (userData[0].conversationsId == activity.Conversation.Id)
                                 {
-                                    //suggestions = "Y";
                                     db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 1, "loop");
                                     userData[0].loop = 1;
                                 }
@@ -539,11 +509,6 @@ namespace cjEmployeeChatBot
                             {
                                 DButil.HistoryLog("cache none : " + orgMent);
                                 Debug.WriteLine("cache none : " + orgMent);
-                                //루이스 체크(intent를 루이스를 통해서 가져옴)
-                                //cacheList.luisId = dbutil.GetMultiLUIS(orgMent);
-                                //Debug.WriteLine("cacheList.luisId : " + cacheList.luisId);
-
-                                //cacheList.luisIntent = dbutil.GetMultiLUIS(luisQuery);
 
                                 List<string[]> textList = new List<string[]>(5);
 
@@ -678,9 +643,14 @@ namespace cjEmployeeChatBot
                                     {
                                         foreach (CardList tempcard in dlg.dialogCard)
                                         {
+                                            //주차신청 get방식 userid 추가
+                                            if (tempcard.btn1Context.Contains("http://116.121.31.148/visitor2/menu1.asp?emailAlias="))
+                                            {
+                                                tempcard.btn1Context += uData[0].userId;
+                                            }
 
                                             tempAttachment = dbutil.getAttachmentFromDialog(tempcard, activity, userSSO);
-
+                                            
                                             if (tempAttachment != null)
                                             {
                                                 commonReply.Attachments.Add(tempAttachment);
@@ -1045,7 +1015,7 @@ namespace cjEmployeeChatBot
                 catch (Exception e)
                 {
                     Debug.Print(e.StackTrace);
-                    DButil.HistoryLog("ERROR==="+e.StackTrace);
+                    DButil.HistoryLog("ERROR==="+e.Message);
 
                     Activity sorryReply = activity.CreateReply();
 
