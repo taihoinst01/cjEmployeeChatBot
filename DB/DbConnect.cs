@@ -256,10 +256,14 @@ namespace cjEmployeeChatBot.DB
                                 dlgCard.btn1Context = rdr2["BTN_1_CONTEXT"] as string;
                                 dlgCard.btn1ContextM = rdr2["BTN_1_CONTEXT_M"] as string;
                                 //모바일 URL 적용
-                                if (!string.IsNullOrEmpty(dlgCard.btn1ContextM))
-                                { 
-                                    dlgCard.btn1Context = rdr2["BTN_1_CONTEXT_M"] as string;
+                                if (mobileyn.Equals("M"))
+                                {
+                                    if (!string.IsNullOrEmpty(dlgCard.btn1ContextM))
+                                    {
+                                        dlgCard.btn1Context = rdr2["BTN_1_CONTEXT_M"] as string;
+                                    }
                                 }
+                                
                                 dlgCard.btn2Type = rdr2["BTN_2_TYPE"] as string;
                                 dlgCard.btn2Title = rdr2["BTN_2_TITLE"] as string;
                                 dlgCard.btn2Context = rdr2["BTN_2_CONTEXT"] as string;
