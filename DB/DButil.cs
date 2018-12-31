@@ -560,7 +560,7 @@ namespace cjEmployeeChatBot.DB
 
             List<CardImage> cardImages = new List<CardImage>();
             List<CardAction> cardButtons = new List<CardAction>();
-            HistoryLog("CARD IMG START");
+            //HistoryLog("CARD IMG START");
             if (card.imgUrl != null)
             {
                 HistoryLog("FB CARD IMG " + card.imgUrl);
@@ -568,7 +568,7 @@ namespace cjEmployeeChatBot.DB
             }
 
 
-            HistoryLog("CARD BTN1 START");
+            //HistoryLog("CARD BTN1 START");
 
             if (!userSSO.Equals("INIT"))
             {
@@ -601,7 +601,7 @@ namespace cjEmployeeChatBot.DB
             if (card.btn2Type != null)
             {
                 CardAction plButton = new CardAction();
-                HistoryLog("CARD BTN2 START");
+                //HistoryLog("CARD BTN2 START");
                 plButton = new CardAction()
                 {
                     Value = card.btn2Context,
@@ -615,7 +615,7 @@ namespace cjEmployeeChatBot.DB
             {
                 CardAction plButton = new CardAction();
 
-                HistoryLog("CARD BTN3 START");
+                //HistoryLog("CARD BTN3 START");
                 plButton = new CardAction()
                 {
                     Value = card.btn3Context,
@@ -628,7 +628,7 @@ namespace cjEmployeeChatBot.DB
             if (card.btn4Type != null)
             {
                 CardAction plButton = new CardAction();
-                HistoryLog("CARD BTN4 START");
+                //HistoryLog("CARD BTN4 START");
                 plButton = new CardAction()
                 {
                     Value = card.btn4Context,
@@ -934,7 +934,13 @@ namespace cjEmployeeChatBot.DB
         public string chkUrlStr(string btnContext, string userSSO)
         {
             string returnStr = btnContext;
+            //총무도움방
             if (btnContext.Contains("https://cjemployeechatbot-web.azurewebsites.net") && btnContext.Contains("&cjworld_id="))
+            {
+                returnStr += userSSO;
+            }
+            //정보보호
+            else if (btnContext.Contains("http://itsecu.cj.net/ism_back/common/sso/ismMain.fo") && btnContext.Contains("&cjworld_id="))
             {
                 returnStr += userSSO;
             }

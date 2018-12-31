@@ -363,7 +363,7 @@ namespace cjEmployeeChatBot
                     else
                     {
 
-                        CacheList cacheList = new CacheList();
+                        
                         string queryStr = "";
                         string luisQuery = "";
 
@@ -465,6 +465,7 @@ namespace cjEmployeeChatBot
                         //SAP 이외 처리
                         else
                         {
+                            CacheList cacheList = new CacheList();
                             //정규화
                             luisQuery = orgMent;
                             orgMent = Regex.Replace(orgMent, @"[^a-zA-Z0-9ㄱ-힣]", "", RegexOptions.Singleline);
@@ -649,7 +650,7 @@ namespace cjEmployeeChatBot
                                             {
                                                 //DButil.HistoryLog("btn1Context ==1" + tempcard.btn1Context);
                                                 tempcard.btn1Context += uData[0].userId;
-                                                DButil.HistoryLog("btn1Context ==2" + tempcard.btn1Context);
+                                                //DButil.HistoryLog("btn1Context ==2" + tempcard.btn1Context);
                                             }
 
                                             tempAttachment = dbutil.getAttachmentFromDialog(tempcard, activity, userSSO);
@@ -1059,6 +1060,8 @@ namespace cjEmployeeChatBot
                     }
 
                     SetActivity(sorryReply);
+
+                    db.InsertError(activity.Conversation.Id, e.Message);
 
                     DateTime endTime = DateTime.Now;
                     int dbResult = db.insertUserQuery(null, "", "", "", "", "E", queryStr);

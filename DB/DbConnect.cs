@@ -1439,6 +1439,39 @@ namespace cjEmployeeChatBot.DB
             }
             return result;
         }
-        
+
+        public int InsertError(string conversationsId, string err)
+        {
+
+            SqlDataReader rdr = null;
+            int result = 0;
+
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+
+                conn.Open();
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = conn;
+
+                cmd.CommandText += "INSERT INTO TBL_ERROR(CONVERSATIONSID, ERROR, REG_DATE) ";
+                cmd.CommandText += " VALUES (@conversationsid,@err,GETDATE())";
+
+                cmd.Parameters.AddWithValue("@channeldata", conversationsId);
+                cmd.Parameters.AddWithValue("@err", err);
+
+
+                try
+                {
+                    result = cmd.ExecuteNonQuery();
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                }
+
+            }
+            return result;
+        }
+
     }
 }
