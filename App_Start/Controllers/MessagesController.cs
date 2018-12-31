@@ -348,6 +348,7 @@ namespace cjEmployeeChatBot
                     //금칙어 체크
                     CardList bannedMsg = db.BannedChk(orgMent);
                     Debug.WriteLine("* bannedMsg : " + bannedMsg.cardText);//해당금칙어에 대한 답변
+                    DButil.HistoryLog("* bannedMsg : " + bannedMsg.cardText);//해당금칙어에 대한 답변
 
                     if (bannedMsg.cardText != null)
                     {
@@ -367,9 +368,10 @@ namespace cjEmployeeChatBot
                         string queryStr = "";
                         string luisQuery = "";
 
-                        //SAP 처리
+                        //SAP 처리                        
                         if (orgMent.Contains("SAP#"))
                         {
+                            DButil.HistoryLog("SAP 처리 시작");
                             //SAP 용어 확인
                             string qnAMakerAnswer = dbutil.GetQnAMaker(orgMent.Replace("SAP#",""));
 
@@ -402,6 +404,7 @@ namespace cjEmployeeChatBot
                             }
                             else
                             {
+                                DButil.HistoryLog("SAP 답변없을때");
                                 Debug.WriteLine("no dialogue-------------");
 
                                 Activity intentNoneReply = activity.CreateReply();
@@ -475,6 +478,7 @@ namespace cjEmployeeChatBot
                             //cacheList.luisIntent 초기화
                             //cacheList.luisIntent = null;
                             //SAP 비밀번호 
+                            DButil.HistoryLog("SAP 비밀번호 체크");
                             if (orgMent.Equals("sap비밀번호초기화신청접수"))
                             {
                                 if (userData[0].conversationsId == activity.Conversation.Id)
@@ -485,6 +489,7 @@ namespace cjEmployeeChatBot
                             }
 
                             //건의사항
+                            DButil.HistoryLog("건의사항 체크");
                             if (orgMent.Contains("건의사항") || orgMent.Contains("건의 사항"))
                             {
                                 if (userData[0].conversationsId == activity.Conversation.Id)
@@ -519,7 +524,7 @@ namespace cjEmployeeChatBot
                                     textList.Add(new string[] { MessagesController.LUIS_NM[i], MessagesController.LUIS_APP_ID[i], MessagesController.LUIS_SUBSCRIPTION, orgMent });
                                     Debug.WriteLine("GetMultiLUIS() LUIS_NM : " + MessagesController.LUIS_NM[i] + " | LUIS_APP_ID : " + MessagesController.LUIS_APP_ID[i]);
                                 }
-
+                                DButil.HistoryLog("activity.Conversation.Id : " + activity.Conversation.Id);
                                 Debug.WriteLine("activity.Conversation.Id : " + activity.Conversation.Id);
 
                                 JObject Luis_before = new JObject();
