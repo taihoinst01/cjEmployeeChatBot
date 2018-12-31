@@ -821,7 +821,6 @@ namespace cjEmployeeChatBot.DB
             {
                 return null;
             }
-
             return image;
         }
 
