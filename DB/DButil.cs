@@ -935,7 +935,7 @@ namespace cjEmployeeChatBot.DB
         {
             string returnStr = btnContext;
             //총무도움방
-            if (btnContext.Contains("https://cjemployeechatbot-web.azurewebsites.net") && btnContext.Contains("&cjworld_id="))
+            if (btnContext.Contains("http://cjhelpdesk.cj.net/CJWorldLogin.jsp?movetype=2") && btnContext.Contains("&cjworld_id="))
             {
                 returnStr += userSSO;
             }
