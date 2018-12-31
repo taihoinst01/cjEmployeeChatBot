@@ -498,16 +498,19 @@ namespace cjEmployeeChatBot
                                     userData[0].loop = 1;
                                 }
                             }
-                            //smalltalk 문자 확인                        
+                            //smalltalk 문자 확인  
+                            DButil.HistoryLog("smalltalk 체크");
                             String smallTalkSentenceConfirm = db.SmallTalkSentenceConfirm(orgMent);
 
                             //smalltalk 답변이 있을경우
                             if (!string.IsNullOrEmpty(smallTalkSentenceConfirm))
                             {
+                                DButil.HistoryLog("smalltalk 답변이 있을경우");
                                 luisId = "";
                             }
                             else if (userData[0].sap == 1 || userData[0].sap == 2 || userData[0].sap == 3 || userData[0].sap == 4)
                             {
+                                DButil.HistoryLog("SAP 비밀번호 초기화가 있을경우");
                                 luisId = "";
                             }
                             //luis 호출
