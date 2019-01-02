@@ -1458,7 +1458,7 @@ namespace cjEmployeeChatBot.DB
 
                 cmd.Parameters.AddWithValue("@channeldata", conversationsId);
                 cmd.Parameters.AddWithValue("@err", err);
-
+                DButil.HistoryLog("InsertError START");
 
                 try
                 {
@@ -1467,8 +1467,9 @@ namespace cjEmployeeChatBot.DB
                 catch (Exception e)
                 {
                     Debug.WriteLine(e.Message);
+                    DButil.HistoryLog("InsertError ERROR");
                 }
-
+                DButil.HistoryLog("InsertError END");
             }
             return result;
         }
