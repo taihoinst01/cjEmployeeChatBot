@@ -387,7 +387,7 @@ namespace cjEmployeeChatBot
 
                                 UserHeroCard plCard = new UserHeroCard()
                                 {
-                                    Title = "SAP 용어",
+                                    Title = "용어 사전",
                                     Text = qnAMakerAnswer
                                 };
 
@@ -490,7 +490,7 @@ namespace cjEmployeeChatBot
 
                             //건의사항
                             DButil.HistoryLog("건의사항 체크");
-                            if (orgMent.Contains("건의사항") || orgMent.Contains("건의 사항"))
+                            if ((orgMent.Contains("건의사항") || orgMent.Contains("건의 사항")) && userData[0].loop != 2)
                             {
                                 if (userData[0].conversationsId == activity.Conversation.Id)
                                 {
@@ -501,6 +501,10 @@ namespace cjEmployeeChatBot
                             //smalltalk 문자 확인  
                             DButil.HistoryLog("smalltalk 체크");
                             String smallTalkSentenceConfirm = db.SmallTalkSentenceConfirm(orgMent);
+                            if (userData[0].sap == 1 || userData[0].sap == 2 || userData[0].sap == 3 || userData[0].sap == 4)
+                            {
+                                smallTalkSentenceConfirm = "";
+                            }                            
 
                             //userData 예외처리
                             DButil.HistoryLog("userData.Count() : " + userData.Count());
@@ -520,6 +524,11 @@ namespace cjEmployeeChatBot
                             else if (userData[0].sap == 1 || userData[0].sap == 2 || userData[0].sap == 3 || userData[0].sap == 4)
                             {
                                 DButil.HistoryLog("SAP 비밀번호 초기화가 있을경우");
+                                luisId = "";
+                            }
+                            else if (userData[0].loop == 1 || userData[0].loop == 2)
+                            {
+                                DButil.HistoryLog("건의사항이 있을경우");
                                 luisId = "";
                             }
                             //luis 호출
@@ -621,9 +630,18 @@ namespace cjEmployeeChatBot
                             {
                                 relationList = null;
                                 //smalltalk 답변가져오기
+                                
                                 if (orgMent.Length < 9)
                                 {
-                                    smallTalkConfirm = db.SmallTalkConfirm(orgMent);
+                                    if(userData[0].sap == 1 || userData[0].sap == 2 || userData[0].sap == 3 || userData[0].sap == 4)
+                                    {
+                                        smallTalkConfirm = "";
+                                    }
+                                    else
+                                    {
+                                        smallTalkConfirm = db.SmallTalkConfirm(orgMent);
+                                    }
+                                    
                                 }
                                 else
                                 {
@@ -872,7 +890,7 @@ namespace cjEmployeeChatBot
                                     {
                                         int val;
                                         Debug.WriteLine(int.TryParse(orgMent, out val));
-                                        if (int.TryParse(orgMent, out val) && orgMent.Length != 6)
+                                        if (!int.TryParse(orgMent, out val) || orgMent.Length != 6)
                                         {
                                             UserHeroCard plCard = new UserHeroCard()
                                             {
