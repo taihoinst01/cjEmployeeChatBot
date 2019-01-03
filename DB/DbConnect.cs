@@ -255,7 +255,8 @@ namespace cjEmployeeChatBot.DB
                                     if (!string.IsNullOrEmpty(dlgCard.btn1ContextM))
                                     {
                                         dlgCard.btn1Context = rdr2["BTN_1_CONTEXT_M"] as string;
-                                    }else
+                                    }
+                                    else
                                     {
                                         dlgCard.btn1Context = "";
                                     }
