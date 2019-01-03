@@ -337,7 +337,7 @@ namespace cjEmployeeChatBot
                     string luisIntentScore = "";
                     string luisTypeEntities = "";
                     string dlgId = "";
-                    //결과 플레그 H : 정상 답변,  G : 건의사항, D : 답변 실패, E : 에러, S : SMALLTALK, I : SAPINIT
+                    //결과 플레그 H : 정상 답변,  G : 건의사항, D : 답변 실패, E : 에러, S : SMALLTALK, I : SAPINIT, Q : SAP용어
                     string replyresult = "";
 
                     //대화 시작 시간
@@ -477,6 +477,16 @@ namespace cjEmployeeChatBot
                             cacheList = db.CacheChk(orgMent.Replace(" ", ""));                     // 캐시 체크 (TBL_QUERY_ANALYSIS_RESULT 조회..)
                             //cacheList.luisIntent 초기화
                             //cacheList.luisIntent = null;
+
+                            //userData 예외처리
+                            DButil.HistoryLog("userData.Count() : " + userData.Count());
+                            if (userData.Count() == 0)
+                            {
+                                DButil.HistoryLog("userData.Count()일때 다시 입력 START");
+                                userData = db.UserDataConfirm(activity.ChannelId, activity.Conversation.Id);
+                                DButil.HistoryLog("userData.Count()일때 다시 입력 END");
+                            }
+
                             //SAP 비밀번호 
                             DButil.HistoryLog("SAP 비밀번호 체크");
                             if (orgMent.Equals("sap비밀번호초기화신청접수"))
@@ -498,23 +508,15 @@ namespace cjEmployeeChatBot
                                     userData[0].loop = 1;
                                 }
                             }
+
                             //smalltalk 문자 확인  
                             DButil.HistoryLog("smalltalk 체크");
                             String smallTalkSentenceConfirm = db.SmallTalkSentenceConfirm(orgMent);
                             if (userData[0].sap == 1 || userData[0].sap == 2 || userData[0].sap == 3 || userData[0].sap == 4)
                             {
                                 smallTalkSentenceConfirm = "";
-                            }                            
-
-                            //userData 예외처리
-                            DButil.HistoryLog("userData.Count() : " + userData.Count());
-                            if(userData.Count() == 0)
-                            {
-                                DButil.HistoryLog("userData.Count()일때 다시 입력 START");
-                                userData = db.UserDataConfirm(activity.ChannelId, activity.Conversation.Id);
-                                DButil.HistoryLog("userData.Count()일때 다시 입력 END");
-                            }
-
+                            }                 
+                            
                             //smalltalk 답변이 있을경우
                             if (!string.IsNullOrEmpty(smallTalkSentenceConfirm))
                             {
@@ -541,7 +543,6 @@ namespace cjEmployeeChatBot
 
                                 for (int i = 0; i < 5; i++)
                                 {
-                                    //textList.Add(LUIS_APP_ID[i] +"|"+ LUIS_SUBSCRIPTION + "|" + query);
                                     textList.Add(new string[] { MessagesController.LUIS_NM[i], MessagesController.LUIS_APP_ID[i], MessagesController.LUIS_SUBSCRIPTION, orgMent });
                                     Debug.WriteLine("GetMultiLUIS() LUIS_NM : " + MessagesController.LUIS_NM[i] + " | LUIS_APP_ID : " + MessagesController.LUIS_APP_ID[i]);
                                 }

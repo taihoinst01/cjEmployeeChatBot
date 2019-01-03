@@ -553,17 +553,6 @@ namespace cjEmployeeChatBot.DB
                 cmd.Parameters.AddWithValue("@intent", intent);
                 rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
 
-                /*
-                if (rdr.Read())
-                {
-                    Debug.WriteLine("* YES - TBL_QUERY_ANALYSIS_RESULT");
-                }
-                else
-                {
-                    Debug.WriteLine("* NO - TBL_QUERY_ANALYSIS_RESULT");
-                }
-                */
-
                 while (rdr.Read())
                 {
                     string luisId = rdr["LUIS_ID"] as String;

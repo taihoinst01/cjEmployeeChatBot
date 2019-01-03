@@ -19,336 +19,7 @@ namespace cjEmployeeChatBot.DB
     {
         //DbConnect db = new DbConnect();
         //재시도 횟수 설정
-        private static int retryCount = 3;
-
-        //public String GetMultiLUIS(string query)
-        //{
-        //    //루이스 json 선언
-        //    JObject Luis = new JObject();
-        //    string LuisName = "";
-        //    try
-        //    {
-        //        int MAX = MessagesController.LUIS_APP_ID.Count(s => s != null);
-        //        Array.Resize(ref MessagesController.LUIS_APP_ID, MAX);
-        //        Array.Resize(ref MessagesController.LUIS_NM, MAX);
-
-        //        String[] returnLuisName = new string[MAX];
-        //        JObject[] Luis_before = new JObject[MAX];
-
-        //        List<string[]> textList = new List<string[]>(MAX);
-
-        //        for (int i = 0; i < MAX; i++)
-        //        {
-        //            //textList.Add(LUIS_APP_ID[i] +"|"+ LUIS_SUBSCRIPTION + "|" + query);
-        //            textList.Add(new string[] { MessagesController.LUIS_NM[i], MessagesController.LUIS_APP_ID[i], MessagesController.LUIS_SUBSCRIPTION, query });
-        //            Debug.WriteLine("GetMultiLUIS() LUIS_NM : " + MessagesController.LUIS_NM[i] + " | LUIS_APP_ID : " + MessagesController.LUIS_APP_ID[i]);
-        //        }
-                
-        //        //병렬처리 시간 체크
-        //        System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
-        //        watch.Start();
-        //        Parallel.For(0, MAX, new ParallelOptions { MaxDegreeOfParallelism = MAX }, async async =>
-        //        {
-        //            var task_luis = Task<JObject>.Run(() => GetIntentFromBotLUIS(textList[async][1], textList[async][2], textList[async][3]));
-
-        //            try
-        //            {
-        //                Task.WaitAll(task_luis);
-
-        //                Luis_before[async] = task_luis.Result;
-        //                returnLuisName[async] = textList[async][0];
-
-        //            }
-        //            catch (AggregateException e)
-        //            {
-        //                Debug.WriteLine("GetMultiLUIS error = " + e.Message);
-        //            }
-
-        //        });
-
-        //        watch.Stop();
-        //        //Luis = Luis_before;
-
-        //        //try
-        //        //{
-        //        //    for (int i = 0; i < MAX; i++)
-        //        //    {
-        //        //        //엔티티 합치기
-        //        //        if ((int)Luis_before[i]["entities"].Count() > 0)
-        //        //        {
-        //        //            for (int j = 0; j < (int)Luis_before[i]["entities"].Count(); j++)
-        //        //            {
-        //        //                entitiesSum += (string)Luis_before[i]["entities"][j]["entity"].ToString() + ",";
-        //        //            }
-        //        //        }
-
-        //        //    }
-        //        //}
-        //        //catch (IndexOutOfRangeException e)
-        //        //{
-        //        //    Debug.WriteLine("error = " + e.Message);
-        //        //    return "";
-        //        //}
-        
-        //        string luisEntities = "";
-        //        string luisIntent = "";
-        //        float luisScoreCompare = 0.0f;
-
-        //        //intent score이 제일 큰 intent 추출
-        //        if (MAX > 0)
-        //        {
-        //            for (int i = 0; i < MAX; i++)
-        //            {
-        //                //entities 0일 경우 PASS
-        //                if ((int)Luis_before[i]["entities"].Count() > 0)
-        //                {
-        //                    //intent None일 경우 PASS
-        //                    if (Luis_before[i]["intents"][0]["intent"].ToString() != "None")
-        //                    {
-        //                        //제한점수 체크
-        //                        if ((float)Luis_before[i]["intents"][0]["score"] > Convert.ToDouble(MessagesController.LUIS_SCORE_LIMIT))
-        //                        {
-        //                            if ((float)Luis_before[i]["intents"][0]["score"] > luisScoreCompare)
-        //                            {
-        //                                LuisName = returnLuisName[i];
-        //                                Luis = Luis_before[i];
-        //                                luisScoreCompare = (float)Luis_before[i]["intents"][0]["score"];
-        //                                Debug.WriteLine("GetMultiLUIS() LuisName1 : " + LuisName);
-        //                            }
-        //                            else
-        //                            {
-        //                                //LuisName = returnLuisName[i];
-        //                                //Luis = Luis_before[i];
-        //                                Debug.WriteLine("GetMultiLUIS() LuisName2 : " + LuisName);
-        //                            }
-
-        //                        }
-        //                    }
-        //                }   
-        //            }
-
-        //            Debug.WriteLine("luisScoreCompare : " + luisScoreCompare);
-        //            Debug.WriteLine("LuisName : " + LuisName);
-        //        }
-
-        //        //entities 0인것을 intent none으로 변경
-        //        Debug.WriteLine("entities====" + (int)Luis["entities"].Count());
-        //        if((int)Luis["entities"].Count() != 0)
-        //        {
-        //            if (!String.IsNullOrEmpty(LuisName))
-        //            {
-        //                if (Luis != null || Luis.Count > 0)
-        //                {
-        //                    float luisScore = (float)Luis["intents"][0]["score"];
-        //                    int luisEntityCount = (int)Luis["entities"].Count();
-
-        //                    luisIntent = Luis["topScoringIntent"]["intent"].ToString();//add
-        //                    luisScore = luisScoreCompare;
-        //                    Debug.WriteLine("GetMultiLUIS() LUIS luisIntent : " + luisIntent);
-
-        //                    if (MessagesController.relationList != null)
-        //                    {
-        //                        Debug.WriteLine("GetMultiLUIS() relationList is not NULL");
-        //                        if (MessagesController.relationList.Count() > 0)
-        //                        {
-        //                            MessagesController.relationList[0].luisScore = (int)Luis["intents"][0]["score"];
-        //                        }
-        //                        else
-        //                        {
-        //                            MessagesController.cacheList.luisScore = Luis["intents"][0]["score"].ToString();
-        //                        }
-        //                    }
-
-        //                    //통근버스
-        //                    if (luisIntent.Equals("총무통근버스_통근버스노선안내"))
-        //                    {
-        //                        for (int i = 0; i < (int)Luis["entities"].Count(); i++)
-        //                        {
-        //                            if ((string)Luis["entities"][i]["type"] == "L>통근버스노선")
-        //                            {
-        //                                MessagesController.luistTypeEntities = Regex.Replace((string)Luis["entities"][i]["entity"], " ", "");
-        //                            }
-        //                        }
-
-        //                    }
-
-        //                    Debug.WriteLine("통근버스노선" + MessagesController.luistTypeEntities);
-
-        //                    /*
-        //                    if (luisScore > Convert.ToDouble(MessagesController.LUIS_SCORE_LIMIT) && luisEntityCount > 0)
-        //                    {
-        //                        Debug.WriteLine("GetMultiLUIS() luisEntityCount > 0");
-        //                        for (int i = 0; i < luisEntityCount; i++)
-        //                        {
-        //                            //luisEntities = luisEntities + Luis["entities"][i]["entity"] + ",";
-
-        //                            //luisType = (string)Luis["entities"][i]["type"];
-        //                            //luisType = Regex.Split(luisType, "::")[1];
-        //                            //luisEntities = luisEntities + luisType + ",";
-        //                        }
-        //                    }
-        //                    */
-        //                }
-
-        //                if (!string.IsNullOrEmpty(luisEntities) || luisEntities.Length > 0)
-        //                {
-        //                    luisEntities = luisEntities.Substring(0, luisEntities.LastIndexOf(","));
-        //                    luisEntities = Regex.Replace(luisEntities, " ", "");
-
-
-        //                    luisEntities = MessagesController.db.SelectArray(luisEntities);
-
-        //                    if (Luis["intents"] == null)
-        //                    {
-        //                        MessagesController.cacheList.luisIntent = "";
-        //                    }
-        //                    else
-        //                    {
-        //                        MessagesController.cacheList.luisIntent = (string)Luis["intents"][0]["intent"];
-        //                    }
-
-        //                    MessagesController.cacheList.luisEntities = luisEntities;
-        //                }
-
-        //                //MessagesController.cacheList.luisEntities = LuisName;
-
-        //            }
-        //        }
-        //        else
-        //        {
-        //            luisIntent = "None";
-        //        }
-                
-
-        //        //return LuisName;
-        //        return luisIntent;
-        //    }
-        //    catch (System.Exception e)
-        //    {
-        //        Debug.WriteLine(e.Message);
-        //        return "";
-        //    }
-        //}
-
-        //private static async Task<JObject> GetIntentFromBotLUIS(string luis_app_id, string luis_subscription, string query)
-        //{
-        //    JObject jsonObj = new JObject();
-
-        //    query = Uri.EscapeDataString(query);
-
-        //    //string url = string.Format("https://southeastasia.api.cognitive.microsoft.com/luis/v2.0/apps/{0}?subscription-key={1}&timezoneOffset=0&verbose=true&q={2}", luis_app_id, luis_subscription, query);
-        //    //string url = string.Format("https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/{0}?subscription-key={1}&timezoneOffset=0&verbose=true&q={2}", luis_app_id, luis_subscription, query);
-        //    string url = string.Format("https://eastasia.api.cognitive.microsoft.com/luis/v2.0/apps/{0}?subscription-key={1}&timezoneOffset=0&verbose=true&q={2}", luis_app_id, luis_subscription, query);
-
-            
-        //    Debug.WriteLine("-----LUIS URL 보기");
-        //    Debug.WriteLine("-----LUIS URL : " + url);
-
-        //    using (HttpClient client = new HttpClient())
-        //    {
-        //        //취소 시간 설정
-        //        client.Timeout = TimeSpan.FromMilliseconds(MessagesController.LUIS_TIME_LIMIT); //3초
-        //        var cts = new CancellationTokenSource();
-        //        try
-        //        {
-        //            HttpResponseMessage msg = await client.GetAsync(url, cts.Token);
-
-        //            int currentRetry = 0;
-
-        //            Debug.WriteLine("msg.IsSuccessStatusCode1 = " + msg.IsSuccessStatusCode);
-        //            HistoryLog("msg.IsSuccessStatusCode1 = " + msg.IsSuccessStatusCode);
-
-        //            if (msg.IsSuccessStatusCode)
-        //            {
-        //                var JsonDataResponse = await msg.Content.ReadAsStringAsync();
-        //                jsonObj = JObject.Parse(JsonDataResponse);
-        //                currentRetry = 0;
-        //            }
-        //            else
-        //            {
-        //                //통신장애, 구독만료, url 오류                  
-        //                //오류시 3번retry
-        //                for (currentRetry = 0; currentRetry < retryCount; currentRetry++)
-        //                {
-        //                    //테스용 url 설정
-        //                    //string url_re = string.Format("https://southeastasia.api.cognitive.microsoft.com/luis/v2.0/apps/{0}?subscription-key={1}&timezoneOffset=0&verbose=true&q={2}", luis_app_id, luis_subscription, query);
-        //                    string url_re = string.Format("https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/{0}?subscription-key={1}&timezoneOffset=0&verbose=true&q={2}", luis_app_id, luis_subscription, query);
-        //                    HttpResponseMessage msg_re = await client.GetAsync(url_re, cts.Token);
-
-        //                    if (msg_re.IsSuccessStatusCode)
-        //                    {
-        //                        //다시 호출
-        //                        Debug.WriteLine("msg.IsSuccessStatusCode2 = " + msg_re.IsSuccessStatusCode);
-        //                        HistoryLog("msg.IsSuccessStatusCode2 = " + msg.IsSuccessStatusCode);
-        //                        var JsonDataResponse = await msg_re.Content.ReadAsStringAsync();
-        //                        jsonObj = JObject.Parse(JsonDataResponse);
-        //                        currentRetry = 0;
-        //                        break;
-        //                    }
-        //                    else
-        //                    {
-        //                        //초기화
-        //                        //jsonObj = JObject.Parse(@"{
-        //                        //    'query':'',
-        //                        //    'topScoringIntent':0,
-        //                        //    'intents':[],
-        //                        //    'entities':'[]'
-        //                        //}");
-        //                        Debug.WriteLine("GetIntentFromBotLUIS else print ");
-        //                        HistoryLog("GetIntentFromBotLUIS else print ");
-        //                        jsonObj = JObject.Parse(@"{
-        //                                                              'query': '',
-        //                                                              'topScoringIntent': {
-        //                                                                'intent': 'None',
-        //                                                                'score': 0.09
-        //                                                              },
-        //                                                              'intents': [
-        //                                                                {
-        //                                                                  'intent': 'None',
-        //                                                                  'score': 0.09
-        //                                                                }
-        //                                                              ],
-        //                                                              'entities': []
-        //                                                            }
-        //                                                            ");
-        //                    }
-        //                }
-        //            }
-
-        //            msg.Dispose();
-        //        }
-        //        catch (TaskCanceledException e)
-        //        {
-        //            Debug.WriteLine("GetIntentFromBotLUIS error = " + e.Message);
-        //            HistoryLog("GetIntentFromBotLUIS error = " + e.Message);
-        //            //초기화
-        //            //jsonObj = JObject.Parse(@"{
-        //            //                'query':'',
-        //            //                'topScoringIntent':0,
-        //            //                'intents':[],
-        //            //                'entities':'[]'
-        //            //            }");
-
-        //            jsonObj = JObject.Parse(@"{
-        //                                                  'query': '',
-        //                                                  'topScoringIntent': {
-        //                                                    'intent': 'None',
-        //                                                    'score': 0.09
-        //                                                  },
-        //                                                  'intents': [
-        //                                                    {
-        //                                                      'intent': 'None',
-        //                                                      'score': 0.09
-        //                                                    }
-        //                                                  ],
-        //                                                  'entities': []
-        //                                                }
-        //                                                ");
-
-        //        }
-        //    }
-        //    return jsonObj;
-        //}
+        //private static int retryCount = 3;
 
         public static void HistoryLog(String strMsg)
         {
@@ -767,62 +438,62 @@ namespace cjEmployeeChatBot.DB
 
         //현재 위치 이미지 저장
         //clientId 및 URL 네이버개발자센터에서 확인 및 수정
-        public static void mapSave(string url1, string url2)
-        {
-            //로컬테스트
-            //string url = "https://openapi.naver.com/v1/map/staticmap.bin?clientId=dXUekyWEBhyYa2zD2s33&url=file:///C:/Users/user/Desktop&crs=EPSG:4326&center=" + url2 + "," + url1 + "&level=10&w=320&h=320&baselayer=default&markers="+ url2 +"," + url1;
-            //웹테스트
-            string url = "https://openapi.naver.com/v1/map/staticmap.bin?clientId=dXUekyWEBhyYa2zD2s33&url=https://cjEmployeeChatBot.azurewebsites.net&crs=EPSG:4326&center=" + url2 + "," + url1 + "&level=10&w=320&h=320&baselayer=default&markers=" + url2 + "," + url1;
+        //public static void mapSave(string url1, string url2)
+        //{
+        //    //로컬테스트
+        //    //string url = "https://openapi.naver.com/v1/map/staticmap.bin?clientId=dXUekyWEBhyYa2zD2s33&url=file:///C:/Users/user/Desktop&crs=EPSG:4326&center=" + url2 + "," + url1 + "&level=10&w=320&h=320&baselayer=default&markers="+ url2 +"," + url1;
+        //    //웹테스트
+        //    string url = "https://openapi.naver.com/v1/map/staticmap.bin?clientId=dXUekyWEBhyYa2zD2s33&url=https://cjEmployeeChatBot.azurewebsites.net&crs=EPSG:4326&center=" + url2 + "," + url1 + "&level=10&w=320&h=320&baselayer=default&markers=" + url2 + "," + url1;
 
-            System.Drawing.Image image = DownloadImageFromUrl(url);
+        //    System.Drawing.Image image = DownloadImageFromUrl(url);
 
-            string m_strLogPrefix = AppDomain.CurrentDomain.BaseDirectory + @"image\map\";
-            string m_strLogExt = @".png";
-            string strPath = String.Format("{0}{1}", m_strLogPrefix, m_strLogExt);
-            string strDir = Path.GetDirectoryName(strPath);
-            DirectoryInfo diDir = new DirectoryInfo(strDir);
+        //    string m_strLogPrefix = AppDomain.CurrentDomain.BaseDirectory + @"image\map\";
+        //    string m_strLogExt = @".png";
+        //    string strPath = String.Format("{0}{1}", m_strLogPrefix, m_strLogExt);
+        //    string strDir = Path.GetDirectoryName(strPath);
+        //    DirectoryInfo diDir = new DirectoryInfo(strDir);
 
-            //파일 있는지 확인 있을때(true), 없으면(false)
-            FileInfo fileInfo = new FileInfo(strPath + url2 + "," + url1 + ".png");
+        //    //파일 있는지 확인 있을때(true), 없으면(false)
+        //    FileInfo fileInfo = new FileInfo(strPath + url2 + "," + url1 + ".png");
 
-            if (!fileInfo.Exists)
-            {
-                string fileName = System.IO.Path.Combine(strDir, url2 +","+ url1+".png");
-                try
-                {
-                    image.Save(fileName);
-                } catch(Exception ex)
-                {
-                    Debug.WriteLine("***error***" + ex.Message);
-                }
-            }
+        //    if (!fileInfo.Exists)
+        //    {
+        //        string fileName = System.IO.Path.Combine(strDir, url2 +","+ url1+".png");
+        //        try
+        //        {
+        //            image.Save(fileName);
+        //        } catch(Exception ex)
+        //        {
+        //            Debug.WriteLine("***error***" + ex.Message);
+        //        }
+        //    }
 
-        }
+        //}
 
-        public static System.Drawing.Image DownloadImageFromUrl(string imageUrl)
-        {
-            System.Drawing.Image image = null;
+        //public static System.Drawing.Image DownloadImageFromUrl(string imageUrl)
+        //{
+        //    System.Drawing.Image image = null;
 
-            try
-            {
-                System.Net.HttpWebRequest webRequest = (System.Net.HttpWebRequest)System.Net.HttpWebRequest.Create(imageUrl);
-                webRequest.AllowWriteStreamBuffering = true;
-                webRequest.Timeout = 30000;
+        //    try
+        //    {
+        //        System.Net.HttpWebRequest webRequest = (System.Net.HttpWebRequest)System.Net.HttpWebRequest.Create(imageUrl);
+        //        webRequest.AllowWriteStreamBuffering = true;
+        //        webRequest.Timeout = 30000;
 
-                System.Net.WebResponse webResponse = webRequest.GetResponse();
+        //        System.Net.WebResponse webResponse = webRequest.GetResponse();
 
-                System.IO.Stream stream = webResponse.GetResponseStream();
+        //        System.IO.Stream stream = webResponse.GetResponseStream();
 
-                image = System.Drawing.Image.FromStream(stream);
+        //        image = System.Drawing.Image.FromStream(stream);
 
-                webResponse.Close();
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-            return image;
-        }
+        //        webResponse.Close();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return null;
+        //    }
+        //    return image;
+        //}
 
         public String GetQnAMaker(string query)
         {
