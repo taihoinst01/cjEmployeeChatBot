@@ -243,7 +243,6 @@ namespace cjEmployeeChatBot
                 db.UserDataUpdateUserID(activity.ChannelId, activity.Conversation.Id, "sso", ssoMessage.Replace("Msso:", "").Replace("Psso:", ""));
 
                 DButil.HistoryLog("sso : " + userID);
-
             }
             else if (activity.Type == ActivityTypes.Message && !activity.Text.Contains("sso:"))
             {
