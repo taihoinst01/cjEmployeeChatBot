@@ -230,6 +230,7 @@ namespace cjEmployeeChatBot
             {
                 DButil.HistoryLog("start sso : ");
                 String ssoMessage = activity.Text;
+                DButil.HistoryLog("ssoMessage : " + ssoMessage);
                 userID = dbutil.GetSSO(ssoMessage);
                 //기존 계정 삭제
                 db.UserDataDeleteUserID(userID);
