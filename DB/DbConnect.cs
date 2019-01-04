@@ -252,13 +252,16 @@ namespace cjEmployeeChatBot.DB
                                 //모바일 URL 적용 
                                 if (mobileyn.Equals("M"))
                                 {
-                                    if (!string.IsNullOrEmpty(dlgCard.btn1ContextM))
+                                    if (dlgCard.btn1Type.Equals("openUrl"))
                                     {
-                                        dlgCard.btn1Context = rdr2["BTN_1_CONTEXT_M"] as string;
-                                    }
-                                    else
-                                    {
-                                        dlgCard.btn1Context = "";
+                                        if (!string.IsNullOrEmpty(dlgCard.btn1ContextM))
+                                        {
+                                            dlgCard.btn1Context = rdr2["BTN_1_CONTEXT_M"] as string;
+                                        }
+                                        else
+                                        {
+                                            dlgCard.btn1Context = "";
+                                        }
                                     }
                                 }
                                 
