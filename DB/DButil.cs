@@ -542,11 +542,11 @@ namespace cjEmployeeChatBot.DB
             var url = "";
             if (id.Substring(0,1) == "M")
             {
-                url = "https://cjemployeeconnect3.azurewebsites.net?M=" + id.Replace("Msso:", "");
+                url = "https://cjemployeeconnect3.azurewebsites.net?M=" + System.Web.HttpUtility.UrlDecode(id.Replace("Msso:", ""));
             }
             else 
             {
-                url = "https://cjemployeeconnect3.azurewebsites.net?P=" + id.Replace("Psso:", "");
+                url = "https://cjemployeeconnect3.azurewebsites.net?P=" + System.Web.HttpUtility.UrlDecode(id.Replace("Psso:", ""));
             }
             //Debug.WriteLine("url");
             //HistoryLog("sso url====" + url);
