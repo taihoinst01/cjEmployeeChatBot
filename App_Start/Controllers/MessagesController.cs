@@ -970,7 +970,7 @@ namespace cjEmployeeChatBot
                                             //SAP 초기화 작업
                                             string sapInit = dbutil.GetSapInit(urlParameter);
 
-                                            if (string.IsNullOrEmpty(sapInit))
+                                            if (!string.IsNullOrEmpty(sapInit))
                                             {
                                                 UserHeroCard plCard1 = new UserHeroCard()
                                                 {
