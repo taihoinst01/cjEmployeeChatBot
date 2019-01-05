@@ -549,7 +549,7 @@ namespace cjEmployeeChatBot.DB
                 url = "https://cjemployeeconnect3.azurewebsites.net?P=" + System.Web.HttpUtility.UrlEncode(id.Replace("Psso:", ""));
             }
             //Debug.WriteLine("url");
-            //HistoryLog("sso url====" + url);
+            HistoryLog("sso url====" + url);
             var httpClient = new HttpClient();
             var httpResponse = await httpClient.GetAsync(url);
             var httpResponseMessage = await httpResponse.Content.ReadAsStringAsync();
