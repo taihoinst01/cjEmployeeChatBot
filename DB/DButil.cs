@@ -517,7 +517,7 @@ namespace cjEmployeeChatBot.DB
             //var replyMessage = (string)httpResponseJson.answers[0].answer;
             var replyMessage = "";
             //점수제한
-            if (httpResponseJson.answers[0].score > 50.00)
+            if (httpResponseJson.answers[0].score > 90.00)
             {
                 replyMessage = httpResponseJson.answers[0].answer;
             } else
