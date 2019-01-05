@@ -616,5 +616,11 @@ namespace cjEmployeeChatBot.DB
             }
             return returnStr;
         }
+
+
+        public string StripHtml(string Txt)
+        {
+            return Regex.Replace(Txt, "<(.|\\n)*?>", string.Empty);
+        }
     }
 }
