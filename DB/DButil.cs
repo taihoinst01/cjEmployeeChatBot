@@ -516,6 +516,7 @@ namespace cjEmployeeChatBot.DB
             dynamic httpResponseJson = JsonConvert.DeserializeObject(httpResponseMessage);
             //var replyMessage = (string)httpResponseJson.answers[0].answer;
             var replyMessage = "";
+
             //점수제한
             if (httpResponseJson.answers[0].score > 90.00)
             {
