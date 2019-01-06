@@ -51,8 +51,7 @@ namespace cjEmployeeChatBot
         public static int chatBotID = 0;        
         public static DateTime startTime;
 
-        //사용자ID
-        public static string userID = "";
+        
         public static String apiFlag = "";
         public static string channelID = "";
 
@@ -228,6 +227,8 @@ namespace cjEmployeeChatBot
             }
             else if (activity.Type == ActivityTypes.Message && activity.Text.Contains("sso:"))
             {
+                //사용자ID
+                string userID = "";
                 DButil.HistoryLog("start sso : ");
                 String ssoMessage = activity.Text;
                 DButil.HistoryLog("ssoMessage : " + ssoMessage);
@@ -865,7 +866,7 @@ namespace cjEmployeeChatBot
 
                                     UserHeroCard plCard = new UserHeroCard()
                                     {
-                                        Text = "초기화 안내 /n [" + userID + "] 님 SAP 비밀번호 초기화를 위해 계정의 사원번호가 필요합니다. 사원번호 를 입력해주세요./n/n취소를 원하시면 '취소'라고 입력해주세요."
+                                        Text = "초기화 안내 /n [" + userData[0].userId + "] 님 SAP 비밀번호 초기화를 위해 계정의 사원번호가 필요합니다. 사원번호 를 입력해주세요./n/n취소를 원하시면 '취소'라고 입력해주세요."
                                     };
 
                                     Attachment plAttachment = plCard.ToAttachment();
@@ -985,7 +986,7 @@ namespace cjEmployeeChatBot
                                             {
                                                 UserHeroCard plCard1 = new UserHeroCard()
                                                 {
-                                                    Text = "[" + userID + "] 님의 SAP 비밀번호가 초기화가 실패되었습니다. 사원번호 및 사유를 재확인 부탁드립니다."
+                                                    Text = "[" + userData[0].userId + "] 님의 SAP 비밀번호가 초기화가 실패되었습니다. 사원번호 및 사유를 재확인 부탁드립니다."
                                                 };
                                                 Attachment plAttachment1 = plCard1.ToAttachment();
                                                 sapInitReply.Attachments.Add(plAttachment1);
