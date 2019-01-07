@@ -1064,6 +1064,10 @@ namespace cjEmployeeChatBot
 
                             //analysis table insert
                             //NONE_DLG 예외처리
+                            if (string.IsNullOrEmpty(luisIntent))
+                            {
+                                luisIntent = "";
+                            }
                             if (luisIntent.Equals("NONE_DLG"))
                             {
                                 replyresult = "H";
