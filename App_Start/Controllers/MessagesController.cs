@@ -716,7 +716,16 @@ namespace cjEmployeeChatBot
                                     {
                                         SetActivity(commonReply);
 
-                                        replyresult = "H";
+                                        //NONE_DLG 예외처리
+                                        if (luisIntent.Equals("NONE_DLG"))
+                                        {
+                                            replyresult = "D";
+                                        }
+                                        else
+                                        {
+                                            replyresult = "H";
+                                        }
+                                        
 
                                     }
                                 }
@@ -1054,10 +1063,20 @@ namespace cjEmployeeChatBot
                             DateTime endTime = DateTime.Now;
 
                             //analysis table insert
+                            //NONE_DLG 예외처리
+                            if (luisIntent.Equals("NONE_DLG"))
+                            {
+                                replyresult = "H";
+                            }
                             int dbResult = db.insertUserQuery(relationList, luisId, luisIntent, luisEntities, luisIntentScore, replyresult, orgMent);
 
                             //history table insert
+                            //NONE_DLG 예외처리
                             //db.insertHistory(activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), "", "", "", "", replyresult);
+                            if (luisIntent.Equals("NONE_DLG"))
+                            {
+                                replyresult = "D";
+                            }
                             db.insertHistory(null, activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), luisIntent, luisEntities, luisIntentScore, dlgId, replyresult, orgMent);
                             replyresult = "";
                             luisIntent = "";
