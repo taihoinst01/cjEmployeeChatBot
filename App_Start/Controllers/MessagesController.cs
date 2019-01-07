@@ -1086,8 +1086,7 @@ namespace cjEmployeeChatBot
                             replyresult = "";
                             luisIntent = "";
                             luisTypeEntities = "";
-                        }
-                        
+                        }                        
                     }
                 }
                 catch (Exception e)
