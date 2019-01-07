@@ -1001,7 +1001,7 @@ namespace cjEmployeeChatBot.DB
             {
                 dlg_id = "";
             }
-
+             
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 conn.Open();
