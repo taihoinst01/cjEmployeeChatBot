@@ -1077,6 +1077,7 @@ namespace cjEmployeeChatBot
                             {
                                 replyresult = "D";
                             }
+
                             db.insertHistory(null, activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), luisIntent, luisEntities, luisIntentScore, dlgId, replyresult, orgMent);
                             replyresult = "";
                             luisIntent = "";
