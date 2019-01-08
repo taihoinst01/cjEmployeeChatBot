@@ -470,7 +470,7 @@ namespace cjEmployeeChatBot
                                 t1.Wait();
                                 Luis = t1.Result;
 
-                                //Debug.WriteLine("Luis : " + Luis);
+                                //Debug.WriteLine("Luis : " + Luis); 
                                 //entities 갯수가 0일겨우 intent를 None으로 처리
 
                                 //if (Luis != null || Luis.Count > 0)
