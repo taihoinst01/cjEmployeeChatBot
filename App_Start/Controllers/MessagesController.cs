@@ -463,7 +463,7 @@ namespace cjEmployeeChatBot
 
                                 //Task<JObject> t1 = Task<JObject>.Run(() => GetIntentFromBotLUIS2(textList, orgMent));
                                 //루이스 처리
-                                Task<JObject> t1 = Task<JObject>.Run(async () => await GetIntentFromBotLUIS(textList, orgMent));
+                                Task<JObject> t1 = Task<JObject>.Run(async () => await GetIntentFromBotLUIS(textList, luisQuery));
 
                                 //결과값 받기
                                 await Task.Delay(1000);
