@@ -419,81 +419,6 @@ namespace cjEmployeeChatBot.DB
 
             return heroCard.ToAttachment();
         }
-        //지도 맵 추가
-        public static Attachment GetHeroCard_Map(string title, string subtitle, string text, CardImage cardImage, CardAction cardAction /*List<CardAction> buttons*/, string latitude, string longitude)
-        {
-            var heroCard = new UserHeroCard
-            {
-                Title = title,
-                Subtitle = subtitle,
-                Text = text,
-                Images = new List<CardImage>() { cardImage },
-                Buttons = new List<CardAction>() { cardAction },
-                Latitude = latitude,
-                Longitude = longitude,
-            };
-
-            return heroCard.ToAttachment();
-        }
-
-        //현재 위치 이미지 저장
-        //clientId 및 URL 네이버개발자센터에서 확인 및 수정
-        //public static void mapSave(string url1, string url2)
-        //{
-        //    //로컬테스트
-        //    //string url = "https://openapi.naver.com/v1/map/staticmap.bin?clientId=dXUekyWEBhyYa2zD2s33&url=file:///C:/Users/user/Desktop&crs=EPSG:4326&center=" + url2 + "," + url1 + "&level=10&w=320&h=320&baselayer=default&markers="+ url2 +"," + url1;
-        //    //웹테스트
-        //    string url = "https://openapi.naver.com/v1/map/staticmap.bin?clientId=dXUekyWEBhyYa2zD2s33&url=https://cjEmployeeChatBot.azurewebsites.net&crs=EPSG:4326&center=" + url2 + "," + url1 + "&level=10&w=320&h=320&baselayer=default&markers=" + url2 + "," + url1;
-
-        //    System.Drawing.Image image = DownloadImageFromUrl(url);
-
-        //    string m_strLogPrefix = AppDomain.CurrentDomain.BaseDirectory + @"image\map\";
-        //    string m_strLogExt = @".png";
-        //    string strPath = String.Format("{0}{1}", m_strLogPrefix, m_strLogExt);
-        //    string strDir = Path.GetDirectoryName(strPath);
-        //    DirectoryInfo diDir = new DirectoryInfo(strDir);
-
-        //    //파일 있는지 확인 있을때(true), 없으면(false)
-        //    FileInfo fileInfo = new FileInfo(strPath + url2 + "," + url1 + ".png");
-
-        //    if (!fileInfo.Exists)
-        //    {
-        //        string fileName = System.IO.Path.Combine(strDir, url2 +","+ url1+".png");
-        //        try
-        //        {
-        //            image.Save(fileName);
-        //        } catch(Exception ex)
-        //        {
-        //            Debug.WriteLine("***error***" + ex.Message);
-        //        }
-        //    }
-
-        //}
-
-        //public static System.Drawing.Image DownloadImageFromUrl(string imageUrl)
-        //{
-        //    System.Drawing.Image image = null;
-
-        //    try
-        //    {
-        //        System.Net.HttpWebRequest webRequest = (System.Net.HttpWebRequest)System.Net.HttpWebRequest.Create(imageUrl);
-        //        webRequest.AllowWriteStreamBuffering = true;
-        //        webRequest.Timeout = 30000;
-
-        //        System.Net.WebResponse webResponse = webRequest.GetResponse();
-
-        //        System.IO.Stream stream = webResponse.GetResponseStream();
-
-        //        image = System.Drawing.Image.FromStream(stream);
-
-        //        webResponse.Close();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return null;
-        //    }
-        //    return image;
-        //}
 
         public String GetQnAMaker(string query)
         {
@@ -618,7 +543,7 @@ namespace cjEmployeeChatBot.DB
             return returnStr;
         }
 
-
+        //태그 제거
         public string StripHtml(string Txt)
         {
             return Regex.Replace(Txt, "<(.|\\n)*?>", string.Empty);

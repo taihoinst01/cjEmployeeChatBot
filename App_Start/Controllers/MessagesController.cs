@@ -198,23 +198,6 @@ namespace cjEmployeeChatBot
                     await connector.Conversations.SendToConversationAsync(initReply);
                 }
 
-                //현재위치사용승인 테스트
-                //Activity replyLocation = activity.CreateReply();
-                //replyLocation.Recipient = activity.From;
-                //replyLocation.Type = "message";
-                //replyLocation.Attachments = new List<Attachment>();
-                //replyLocation.AttachmentLayout = AttachmentLayoutTypes.Carousel;
-
-                //replyLocation.Attachments.Add(
-                //    GetHeroCard_facebookMore(
-                //    "", "",
-                //    "현재 위치 사용 승인",
-                //    new CardAction(ActionTypes.ImBack, "현재 위치 사용 승인", value: MessagesController.queryStr))
-                //);
-                //await connector.Conversations.SendToConversationAsync(replyLocation);
-
-                //Debug.WriteLine("testEaiCall.ToString()====" + testEaiCall.call);
-
                 DateTime endTime = DateTime.Now;
                 Debug.WriteLine("프로그램 수행시간 : {0}/ms", ((endTime - startTime).Milliseconds));
                 Debug.WriteLine("* activity.Type : " + activity.Type);
@@ -254,83 +237,7 @@ namespace cjEmployeeChatBot
                     channelID = activity.ChannelId;
                     string orgMent = activity.Text;
                     DButil.HistoryLog("* activity.Text : " + activity.Text);
-                    //현재위치사용승인
-                    //if (orgMent.Contains("current location") || orgMent.Equals("현재위치사용승인"))
-                    //{
-                    //    if (!orgMent.Contains(':'))
-                    //    {
-                    //        //첫번쨰 메세지 출력 x
-                    //        response = Request.CreateResponse(HttpStatusCode.OK);
-                    //        return response;
-                    //    }
-                    //    else
-                    //    {
-                    //        //위도경도에 따른 값 출력
-                    //        try
-                    //        {
-                    //            string location = orgMent.Replace("current location:", "");
-                    //            //테스트용
-                    //            //string location = "129.0929788:35.2686635";
-                    //            string[] location_result = location.Split(':');
-                    //            //regionStr = db.LocationValue(location_result[1], location_result[2]);
-                    //            DButil.HistoryLog("*regionStr : " + location_result[0] + " " + location_result[1]);
-                    //            Debug.WriteLine("*regionStr : " + location_result[0] + " " + location_result[1]);
-                    //            DButil.mapSave(location_result[0], location_result[1]);
-                    //            Activity reply_brach = activity.CreateReply();
-                    //            reply_brach.Recipient = activity.From;
-                    //            reply_brach.Type = "message";
-                    //            reply_brach.Attachments = new List<Attachment>();
-                    //            reply_brach.AttachmentLayout = AttachmentLayoutTypes.Carousel;
-                    //            reply_brach.Attachments.Add(
-                    //                DButil.GetHeroCard_Map(
-                    //                "타이호인스트",
-                    //                "연락처",
-                    //                "주소",
-                    //                new CardImage(url: "https://cjEmployeeChatBot.azurewebsites.net/image/map/"+ location_result[1] + ","+ location_result[0] + ".png"),
-                    //                new CardAction(ActionTypes.OpenUrl, "타이호인스트", value: "http://www.taihoinst.com/"),
-                    //                location_result[1],
-                    //                location_result[0])
-                    //                );
-                    //            var reply_brach1 = await connector.Conversations.SendToConversationAsync(reply_brach);
-                    //            response = Request.CreateResponse(HttpStatusCode.OK);
-                    //            return response;
-                    //        }
-                    //        catch
-                    //        {
-                    //            queryStr = "서울 시승센터";
-                    //        }
-                    //    }
-                    //}
-                    //if (orgMent.Contains("sso:"))
-                    //{
-                    //    string cjValue = orgMent.Replace("sso:", "");
-                    //    string[] cjValue_result = cjValue.Split(':');
-                    //    //cjValue_result
-                    //    using (HttpClient client = new HttpClient())
-                    //    {
-                    //        //취소 시간 설정
-                    //        string url = "https://cjemployeeconnect.azurewebsites.net/?user_id="+ cjValue_result[0];
-                    //        client.Timeout = TimeSpan.FromMilliseconds(5000); //5초
-                    //        var cts = new CancellationTokenSource();
-                    //        try
-                    //        {
-                    //            HttpResponseMessage msg = await client.GetAsync(url, cts.Token);
-                    //            var request_msg = await msg.Content.ReadAsStringAsync();
-                    //            Debug.WriteLine("msg=====" + request_msg);
-                    //            DButil.HistoryLog("msg=====" + request_msg);
-                    //        }
-                    //        catch (Exception ex)
-                    //        {
-                    //            Debug.WriteLine("ex.Message=====" + ex.Message);
-                    //            DButil.HistoryLog("ex.Message=====" + ex.Message);
-                    //        }
-                    //    }
-
-                    //    response = Request.CreateResponse(HttpStatusCode.OK);
-                    //    return response;
-                    //}
-                    //apiFlag = "COMMON";
-
+                    
                     List<RelationList> relationList = new List<RelationList>();
                     string luisId = "";
                     string luisIntent = "";
@@ -544,7 +451,7 @@ namespace cjEmployeeChatBot
 
                                 for (int i = 0; i < 5; i++)
                                 {
-                                    textList.Add(new string[] { MessagesController.LUIS_NM[i], MessagesController.LUIS_APP_ID[i], MessagesController.LUIS_SUBSCRIPTION, orgMent });
+                                    textList.Add(new string[] { MessagesController.LUIS_NM[i], MessagesController.LUIS_APP_ID[i], MessagesController.LUIS_SUBSCRIPTION, luisQuery });
                                     Debug.WriteLine("GetMultiLUIS() LUIS_NM : " + MessagesController.LUIS_NM[i] + " | LUIS_APP_ID : " + MessagesController.LUIS_APP_ID[i]);
                                 }
                                 DButil.HistoryLog("activity.Conversation.Id : " + activity.Conversation.Id);
@@ -633,7 +540,7 @@ namespace cjEmployeeChatBot
                                 relationList = null;
                                 //smalltalk 답변가져오기
                                 
-                                if (orgMent.Length < 9)
+                                if (orgMent.Length < 11)
                                 {
                                     if(userData[0].sap == 1 || userData[0].sap == 2 || userData[0].sap == 3 || userData[0].sap == 4)
                                     {
