@@ -420,7 +420,7 @@ namespace cjEmployeeChatBot
                             //smalltalk 문자 확인  
                             DButil.HistoryLog("smalltalk 체크");
                             String smallTalkSentenceConfirm = db.SmallTalkSentenceConfirm(orgMent);
-                            if (userData[0].sap == 1 || userData[0].sap == 2 || userData[0].sap == 3 || userData[0].sap == 4)
+                            if ((userData[0].sap == 1 || userData[0].sap == 2 || userData[0].sap == 3 || userData[0].sap == 4) || (userData[0].loop == 1 || userData[0].loop == 2))
                             {
                                 smallTalkSentenceConfirm = "";
                             }                 
@@ -542,7 +542,7 @@ namespace cjEmployeeChatBot
                                 
                                 if (orgMent.Length < 11)
                                 {
-                                    if(userData[0].sap == 1 || userData[0].sap == 2 || userData[0].sap == 3 || userData[0].sap == 4)
+                                    if((userData[0].sap == 1 || userData[0].sap == 2 || userData[0].sap == 3 || userData[0].sap == 4) || (userData[0].loop == 1 || userData[0].loop == 2))
                                     {
                                         smallTalkConfirm = "";
                                     }
@@ -1041,7 +1041,7 @@ namespace cjEmployeeChatBot
 
                     SetActivity(sorryReply);
 
-                    db.InsertError(activity.Conversation.Id, e.Message);
+                    //db.InsertError(activity.Conversation.Id, e.Message);
 
                     DateTime endTime = DateTime.Now;
                     int dbResult = db.insertUserQuery(null, "", "", "", "", "E", queryStr);
