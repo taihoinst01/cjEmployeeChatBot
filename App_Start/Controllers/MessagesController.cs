@@ -245,7 +245,7 @@ namespace cjEmployeeChatBot
                     string luisIntentScore = "";
                     string luisTypeEntities = "";
                     string dlgId = "";
-                    //결과 플레그 H : 정상 답변,  G : 건의사항, D : 답변 실패, E : 에러, S : SMALLTALK, I : SAPINIT, Q : SAP용어
+                    //결과 플레그 H : 정상 답변,  G : 건의사항, D : 답변 실패, E : 에러, S : SMALLTALK, I : SAPINIT, Q : SAP용어, Z : SAP용어 실피, B : 금칙어 및 비속어
                     string replyresult = "";
 
                     //대화 시작 시간
@@ -258,12 +258,39 @@ namespace cjEmployeeChatBot
                     Debug.WriteLine("* bannedMsg : " + bannedMsg.cardText);//해당금칙어에 대한 답변
                     DButil.HistoryLog("* bannedMsg : " + bannedMsg.cardText);//해당금칙어에 대한 답변
 
-                    if (bannedMsg.cardText != null)
+                    //건의사항 및 sap 초기화 시나리오가 있으면 bannedMsg.cardText null 처리
+                    if (userData[0].sap != 0 || userData[0].loop != 0)
+                    {
+                        bannedMsg.cardText = null;
+                    }
+
+                    //금칙어 처리
+                    if (bannedMsg.cardText != null )
                     {
                         Activity reply_ment = activity.CreateReply();
                         reply_ment.Recipient = activity.From;
                         reply_ment.Type = "message";
-                        reply_ment.Text = bannedMsg.cardText;
+
+                        reply_ment.Attachments = new List<Attachment>();
+
+                        List<CardList> text = new List<CardList>();
+
+                        UserHeroCard plCard = new UserHeroCard()
+                        {
+                            Text = bannedMsg.cardText
+                        };
+
+                        Attachment plAttachment = plCard.ToAttachment();
+                        reply_ment.Attachments.Add(plAttachment);
+
+                        DateTime endTime = DateTime.Now;
+                        relationList = null;
+
+                        int dbResult = db.insertUserQuery(relationList, "", "", "", "", "B", orgMent);
+
+                        //history table insert
+                        //db.insertHistory(activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), "", "", "", "", replyresult);
+                        db.insertHistory(null, activity.Conversation.Id, activity.ChannelId, ((endTime - MessagesController.startTime).Milliseconds), "", "", "", "", "B", orgMent);
 
                         var reply_ment_info = await connector.Conversations.SendToConversationAsync(reply_ment);
                         response = Request.CreateResponse(HttpStatusCode.OK);
@@ -357,7 +384,7 @@ namespace cjEmployeeChatBot
                                 db.UserDataUpdate(activity.ChannelId, activity.Conversation.Id, 0, "sap");
 
                                 SetActivity(sorryReply);
-                                replyresult = "Q";
+                                replyresult = "Z";
 
                             }
 

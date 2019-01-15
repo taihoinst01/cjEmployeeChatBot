@@ -882,7 +882,7 @@ namespace cjEmployeeChatBot.DB
                 cmd.Parameters.AddWithValue("@Query", Regex.Replace(queryStr, @"[^a-zA-Z0-9ㄱ-힣]", "", RegexOptions.Singleline).Trim().ToLower());
                 cmd.Parameters.AddWithValue("@intentID", intentName.Trim());
                 cmd.Parameters.AddWithValue("@entitiesIDS", entities.Trim().ToLower());
-                if (result.Equals("D") || result.Equals("S") || result.Equals("G") || result.Equals("Q") || result.Equals("I") || result.Equals("E"))
+                if (result.Equals("D") || result.Equals("S") || result.Equals("G") || result.Equals("Q") || result.Equals("I") || result.Equals("E") || result.Equals("Z") || result.Equals("B"))
                 {
                     cmd.Parameters.AddWithValue("@intentScore", "0");
                 }
@@ -1035,6 +1035,14 @@ namespace cjEmployeeChatBot.DB
                 else if (reply_result.Equals("Q"))
                 {
                     cmd.Parameters.AddWithValue("@chatbotCommentCode", "SAP");
+                }
+                else if (reply_result.Equals("Z"))
+                {
+                    cmd.Parameters.AddWithValue("@chatbotCommentCode", "SAP");
+                }
+                else if (reply_result.Equals("B"))
+                {
+                    cmd.Parameters.AddWithValue("@chatbotCommentCode", "BANNED");
                 }
                 else
                 {
