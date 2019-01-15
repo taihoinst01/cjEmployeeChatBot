@@ -245,7 +245,7 @@ namespace cjEmployeeChatBot
                     string luisIntentScore = "";
                     string luisTypeEntities = "";
                     string dlgId = "";
-                    //결과 플레그 H : 정상 답변,  G : 건의사항, D : 답변 실패, E : 에러, S : SMALLTALK, I : SAPINIT, Q : SAP용어, Z : SAP용어 실피, B : 금칙어 및 비속어
+                    //결과 플레그 H : 정상 답변,  G : 건의사항, D : 답변 실패, E : 에러, S : SMALLTALK, I : SAPINIT, Q : SAP용어, Z : SAP용어 실피, B : 금칙어 및 비속어 
                     string replyresult = "";
 
                     //대화 시작 시간
