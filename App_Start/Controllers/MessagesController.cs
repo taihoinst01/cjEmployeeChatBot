@@ -679,7 +679,7 @@ namespace cjEmployeeChatBot
                             {
                                 Debug.WriteLine("smalltalk dialogue-------------");
 
-                                Random rand = new Random();
+                                Random rand = new Random(); 
 
                                 //SMALLTALK 구분
                                 string[] smallTalkConfirm_result = smallTalkConfirm.Split('$');
