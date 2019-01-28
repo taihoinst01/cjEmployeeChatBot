@@ -258,6 +258,15 @@ namespace cjEmployeeChatBot
                     Debug.WriteLine("* bannedMsg : " + bannedMsg.cardText);//해당금칙어에 대한 답변
                     DButil.HistoryLog("* bannedMsg : " + bannedMsg.cardText);//해당금칙어에 대한 답변
 
+                    //userData 예외처리 20190122
+                    DButil.HistoryLog("userData.Count() : " + userData.Count());
+                    if (userData.Count() == 0)
+                    {
+                        DButil.HistoryLog("userData.Count()일때 다시 입력 START");
+                        userData = db.UserDataConfirm(activity.ChannelId, activity.Conversation.Id);
+                        DButil.HistoryLog("userData.Count()일때 다시 입력 END");
+                    }
+
                     //건의사항 및 sap 초기화 시나리오가 있으면 bannedMsg.cardText null 처리
                     if (userData[0].sap != 0 || userData[0].loop != 0)
                     {

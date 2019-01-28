@@ -581,76 +581,7 @@ namespace cjEmployeeChatBot.DB
             }
             return result;
         }
-              
-        public List<RelationList> DefineTypeChk(string luisId, string intentId, string entitiesId)
-        {
-            SqlDataReader rdr = null;
-            List<RelationList> result = new List<RelationList>();
-            Debug.WriteLine("luisId ::: " + luisId);
-            Debug.WriteLine("intentId ::: " + intentId);
-            Debug.WriteLine("entitiesId ::: " + entitiesId);
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand();
-                cmd.Connection = conn;
-                cmd.CommandText += "SELECT A.LUIS_ID, A.LUIS_INTENT, A.LUIS_ENTITIES, ISNULL(A.DLG_ID,0) AS DLG_ID, A.DLG_API_DEFINE, A.API_ID ";
-                cmd.CommandText += "  FROM TBL_DLG_RELATION_LUIS A, TBL_DLG B                                                    ";
-                cmd.CommandText += " WHERE A.DLG_ID = B.DLG_ID                                               ";
-                //cmd.CommandText += " WHERE LUIS_INTENT = @intentId                                                 ";
-                cmd.CommandText += "   AND A.LUIS_ENTITIES = @entities                                                ";
-                //cmd.CommandText += "   AND LUIS_ID = @luisId                                                        ";
-
-                if (intentId != null)
-                {
-                    cmd.Parameters.AddWithValue("@intentId", intentId);
-                }
-                else
-                {
-                    cmd.Parameters.AddWithValue("@intentId", DBNull.Value);
-                }
-
-                if (entitiesId != null)
-                {
-                    cmd.Parameters.AddWithValue("@entities", entitiesId);
-                }
-                else
-                {
-                    cmd.Parameters.AddWithValue("@entities", DBNull.Value);
-                }
-
-                if (luisId != null)
-                {
-                    cmd.Parameters.AddWithValue("@luisId", luisId);
-                }
-                else
-                {
-                    cmd.Parameters.AddWithValue("@luisId", DBNull.Value);
-                }
-                cmd.CommandText += "   ORDER BY B.DLG_ORDER_NO ASC                                               ";
-
-
-
-                Debug.WriteLine("query : " + cmd.CommandText);
-
-                rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
-                while (rdr.Read())
-                {
-                    RelationList relationList = new RelationList();
-                    relationList.luisId = rdr["LUIS_ID"] as string;
-                    relationList.luisIntent = rdr["LUIS_INTENT"] as string;
-                    relationList.luisEntities = rdr["LUIS_ENTITIES"] as string;
-                    relationList.dlgId = Convert.ToInt32(rdr["DLG_ID"]);
-                    relationList.dlgApiDefine = rdr["DLG_API_DEFINE"] as string;
-                    //relationList.apiId = Convert.ToInt32(rdr["API_ID"] ?? 0);
-                    relationList.apiId = rdr["API_ID"].Equals(DBNull.Value) ? 0 : Convert.ToInt32(rdr["API_ID"]);
-                    //DBNull.Value
-                    result.Add(relationList);
-                }
-            }
-            return result;
-        }
-
+        
         public List<RelationList> DefineTypeChkSpare(string intent, string entity)
         {
             SqlDataReader rdr = null;
@@ -1087,13 +1018,9 @@ namespace cjEmployeeChatBot.DB
                 SqlCommand cmd = new SqlCommand();
                 cmd.Connection = conn;
 
-                cmd.CommandText += "SELECT TOP 1 MAX(A.ANSWER) AS ANSWER ";
-                cmd.CommandText += "FROM ";
-                cmd.CommandText += "    ( ";
-                cmd.CommandText += "        SELECT  S_ANSWER AS ANSWER FROM TBL_SMALLTALK ";
+                cmd.CommandText += "        SELECT  TOP 1 S_ANSWER AS ANSWER FROM TBL_SMALLTALK ";
                 cmd.CommandText += "        WHERE  S_QUERY = @kr_query ";
                 cmd.CommandText += "        AND      USE_YN = 'Y' ";
-                cmd.CommandText += "    ) A ";
 
                 cmd.Parameters.AddWithValue("@kr_query", query);
 
@@ -1131,17 +1058,30 @@ namespace cjEmployeeChatBot.DB
                 SqlCommand cmd = new SqlCommand();
                 cmd.Connection = conn;
 
-                cmd.CommandText += "SELECT TOP 1 MAX(A.ANSWER) AS ANSWER ";
+                //cmd.CommandText += "SELECT TOP 1 MAX(A.ANSWER) AS ANSWER ";
+                //cmd.CommandText += "FROM ";
+                //cmd.CommandText += "    ( ";
+                //cmd.CommandText += "        SELECT  S_ANSWER AS ANSWER FROM TBL_SMALLTALK ";
+                //cmd.CommandText += "        WHERE  S_QUERY = @kr_query ";
+                //cmd.CommandText += "        AND      USE_YN = 'Y' ";
+                //cmd.CommandText += "        UNION ALL ";
+                //cmd.CommandText += "        SELECT  S_ANSWER FROM TBL_SMALLTALK ";
+                //cmd.CommandText += "        WHERE  CHARINDEX(ENTITY, @kr_query) > 0 ";
+                //cmd.CommandText += "        AND      USE_YN = 'Y' ";
+                //cmd.CommandText += "    ) A ";
+
+                cmd.CommandText += "SELECT TOP 1 A.ANSWER AS ANSWER ";
                 cmd.CommandText += "FROM ";
                 cmd.CommandText += "    ( ";
-                cmd.CommandText += "        SELECT  S_ANSWER AS ANSWER FROM TBL_SMALLTALK ";
+                cmd.CommandText += "        SELECT  '1' AS GU, S_ANSWER AS ANSWER FROM TBL_SMALLTALK ";
                 cmd.CommandText += "        WHERE  S_QUERY = @kr_query ";
                 cmd.CommandText += "        AND      USE_YN = 'Y' ";
-                cmd.CommandText += "        UNION ALL ";
-                cmd.CommandText += "        SELECT  S_ANSWER FROM TBL_SMALLTALK ";
+                cmd.CommandText += "        UNION  ";
+                cmd.CommandText += "        SELECT  '2', S_ANSWER FROM TBL_SMALLTALK ";
                 cmd.CommandText += "        WHERE  CHARINDEX(ENTITY, @kr_query) > 0 ";
                 cmd.CommandText += "        AND      USE_YN = 'Y' ";
                 cmd.CommandText += "    ) A ";
+                cmd.CommandText += "ORDER BY A.GU ";
 
                 cmd.Parameters.AddWithValue("@kr_query", query);
 

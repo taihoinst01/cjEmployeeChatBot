@@ -84,15 +84,15 @@ namespace cjEmployeeChatBot.DB
                 List<CardImage> cardImages = new List<CardImage>();
                 List<CardAction> cardButtons = new List<CardAction>();
 
-                HistoryLog("CARD IMG START");
+                //HistoryLog("CARD IMG START");
                 if (dlg.mediaUrl != null)
                 {
-                    HistoryLog("FB CARD IMG " + dlg.mediaUrl);
+                    //HistoryLog("FB CARD IMG " + dlg.mediaUrl);
                     cardImages.Add(new CardImage(url: dlg.mediaUrl));
                 }
 
 
-                HistoryLog("CARD BTN1 START");
+                //HistoryLog("CARD BTN1 START");
                 if (activity.ChannelId.Equals("facebook") && dlg.btn1Type == null && !string.IsNullOrEmpty(dlg.cardDivision) && dlg.cardDivision.Equals("play") && !string.IsNullOrEmpty(dlg.cardValue))
                 {
                     CardAction plButton = new CardAction();
@@ -121,7 +121,7 @@ namespace cjEmployeeChatBot.DB
                     if (!(activity.ChannelId == "facebook" && dlg.btn2Title == "나에게 맞는 모델 추천"))
                     {
                         CardAction plButton = new CardAction();
-                        HistoryLog("CARD BTN2 START");
+                        //HistoryLog("CARD BTN2 START");
                         plButton = new CardAction()
                         {
                             Value = dlg.btn2Context,
@@ -137,7 +137,7 @@ namespace cjEmployeeChatBot.DB
                     
                     CardAction plButton = new CardAction();
 
-                    HistoryLog("CARD BTN3 START");
+                    //HistoryLog("CARD BTN3 START");
                     plButton = new CardAction()
                     {
                         Value = dlg.btn3Context,
@@ -151,7 +151,7 @@ namespace cjEmployeeChatBot.DB
                 if (dlg.btn4Type != null)
                 {
                     CardAction plButton = new CardAction();
-                    HistoryLog("CARD BTN4 START");
+                    //HistoryLog("CARD BTN4 START");
                     plButton = new CardAction()
                     {
                         Value = dlg.btn4Context,
@@ -234,7 +234,7 @@ namespace cjEmployeeChatBot.DB
             //HistoryLog("CARD IMG START");
             if (card.imgUrl != null)
             {
-                HistoryLog("FB CARD IMG " + card.imgUrl);
+                //HistoryLog("FB CARD IMG " + card.imgUrl);
                 cardImages.Add(new CardImage(url: card.imgUrl));
             }
 
@@ -446,6 +446,7 @@ namespace cjEmployeeChatBot.DB
             if (httpResponseJson.answers[0].score > 90.00)
             {
                 replyMessage = httpResponseJson.answers[0].answer;
+                HistoryLog("GetQnAMakerBot replyMessage====" + replyMessage);
             } else
             {
                 replyMessage = "No good match";
