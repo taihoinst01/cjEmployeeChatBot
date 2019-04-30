@@ -443,7 +443,7 @@ namespace cjEmployeeChatBot.DB
             var replyMessage = "";
 
             //점수제한
-            if (httpResponseJson.answers[0].score > 90.00)
+            if (httpResponseJson.answers[0].score > 98.00)  //  2019-04-30 점수 90 -> 98로 수정 (epkim)
             {
                 replyMessage = httpResponseJson.answers[0].answer;
                 HistoryLog("GetQnAMakerBot replyMessage====" + replyMessage);
